@@ -8,8 +8,8 @@ import { Matrix, Vector } from "./util/math";
 // Hehheeh
 //asdasdefwfew
 
-function p(a: number, b: number): number | null {
-  if (b == 0) return null;
+function p(a: number, b: number): number {
+  if (b == 0) return Infinity;
   return a/b;
 }
 function log() {
