@@ -11,6 +11,9 @@ import { Matrix, Vector } from "./util/math";
 function p(a: number, b: number): number | null {
   if (b == 0) return null;
   return a/b;
+
+function log() {
+  console.log("asdasd")
 }
 
 export default class Engine {
@@ -59,7 +62,7 @@ export default class Engine {
   }
 
   /** Gets called once the program starts */
-  Start(): void {}
+  Start(): void { }
 
   private _CoreUpdate(lastFrameEnd: number, frameNumber: number = 0): void {
     // generate last rendered frame
@@ -83,7 +86,7 @@ export default class Engine {
   }
 
   /** Gets called every frame */
-  Update(): void {}
+  Update(): void { }
 
   // Utility methods
 
