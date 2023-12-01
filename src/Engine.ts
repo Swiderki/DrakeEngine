@@ -6,7 +6,7 @@ import { Matrix, Vector } from "./util/math";
 // Nie jest też za wcześnie
 // Przychodzi wtedy kiedy ma na to ochotę
 // Hehheeh
-//asdasd
+//asdasdfgfhg
 
 export default class Engine {
   private idGenerator = new IdGenerator();
