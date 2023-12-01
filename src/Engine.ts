@@ -2,6 +2,10 @@ import Camera from "./entities/Camera";
 import IdGenerator from "./util/idGenerator";
 import { Matrix, Vector } from "./util/math";
 
+// Czarodziej nigdy się nie spóźnia
+// Nie jest też za wcześnie
+// Przychodzi wtedy kiedy ma na to ochotę
+
 export default class Engine {
   private idGenerator = new IdGenerator();
   private gameObjects: Map<number, GameObject> = new Map();
