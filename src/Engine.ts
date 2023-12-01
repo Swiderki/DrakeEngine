@@ -5,6 +5,7 @@ import { Matrix, Vector } from "./util/math";
 // Czarodziej nigdy się nie spóźnia
 // Nie jest też za wcześnie
 // Przychodzi wtedy kiedy ma na to ochotę
+// Hehheeh
 
 export default class Engine {
   private idGenerator = new IdGenerator();
