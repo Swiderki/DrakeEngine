@@ -13,6 +13,7 @@ function p(a: number, b: number): number {
   return a/b;
 }
 function log() {
+  console.log("sdasdas")
   console.log("asdasd")
   console.log("sdasdas")
 }
