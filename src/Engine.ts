@@ -8,6 +8,11 @@ import { Matrix, Vector } from "./util/math";
 // Hehheeh
 //asdasdefwfew
 
+function p(a: number, b: number): number | null {
+  if (b == 0) return null;
+  return a/b;
+}
+
 export default class Engine {
   private idGenerator = new IdGenerator();
   private gameObjects: Map<number, GameObject> = new Map();
