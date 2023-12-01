@@ -14,6 +14,7 @@ function p(a: number, b: number): number | null {
 }
 function log() {
   console.log("asdasd")
+  console.log("sdasdas")
 }
 
 export default class Engine {
