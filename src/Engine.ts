@@ -11,7 +11,7 @@ import { Matrix, Vector } from "./util/math";
 function p(a: number, b: number): number | null {
   if (b == 0) return null;
   return a/b;
-
+}
 function log() {
   console.log("asdasd")
 }
