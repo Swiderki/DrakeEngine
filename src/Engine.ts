@@ -17,6 +17,8 @@ export default class Engine {
 
   get width() { return this.canvas.width }
   get height() { return this.canvas.height }
+  // added canvas getter
+  get getCanvas(): HTMLCanvasElement { return this.canvas; }
   get scenes(): Map<number, Scene> { return this._scenes }
   get idGenerator(): IdGenerator { return this._idGenerator }
   get currentScene() { 
