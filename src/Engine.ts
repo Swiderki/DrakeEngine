@@ -54,7 +54,6 @@ export default class Engine {
   }
   
   // Main methods - used to interact with engine's workflow directly
-
   addScene(scene: Scene): number {
     const sceneId = this.idGenerator.id;
     this._scenes.set(sceneId, scene);
@@ -220,5 +219,11 @@ export default class Engine {
         this.drawTriangle(finalProjection);
       }
     }
+
+    if (this.currentScene.currentGUI) {
+      this.currentScene.currentGUI.elements.forEach(el => {
+        el.render(this.ctx);
+      });
+    } 
   }
 }

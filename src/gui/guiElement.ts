@@ -1,3 +1,5 @@
+/* WORK IN PROGRESS */
+
 import GUI from "./Gui";
 
 export default interface GuiElement {

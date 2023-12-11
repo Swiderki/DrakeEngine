@@ -1,4 +1,5 @@
 import Camera from "./entities/Camera";
+import GUI from "./gui/Gui";
 import IdGenerator from "./util/idGenerator";
 import { Matrix } from "./util/math";
 
@@ -7,6 +8,16 @@ export default class Scene {
   private _gameObjects: Map<number, GameObject> = new Map();
   protected _mainCamera: Camera | undefined;
   private _projMatrix: Mat4x4 = Matrix.zeros();
+  private _GUIs: Map<number, GUI> = new Map();
+  private _currentGUI: GUI | undefined = undefined;
+  private _idGenerator = new IdGenerator();
+  // prettier-ignore
+  get GUIs() { return this._GUIs; }
+  get currentGUI() {
+    // It must return null to better usage in render.
+    if (this._currentGUI == undefined) return null;
+    return this._currentGUI;
+  }
 
   width: number;
   height: number;
@@ -30,6 +41,36 @@ export default class Scene {
     this.height = height;
   }
 
+  // Main methods
+
+  setCurrentGUI(guiId: number) {
+    if (!this._GUIs.has(guiId))
+      throw new Error("GUIs array does not include the given gui.");
+
+    this._currentGUI = this._GUIs.get(guiId)!;
+  }
+
+  removeGUI(guiId: number) {
+    if (!this._GUIs.has(guiId))
+      throw new Error("A GUI with the given id was not found.");
+    if (!this._currentGUI != undefined)
+      throw new Error(
+        "The GUI you want to remove is now set as a current GUI. Remove current GUI first."
+      );
+
+    this._GUIs.delete(guiId);
+  }
+
+  removeCurrentScene() {
+    this._currentGUI = undefined;
+  }
+
+  addGUI(gui: GUI): number {
+    const guiId = this.idGenerator.id;
+    this._GUIs.set(guiId, gui);
+    return guiId;
+  }
+
   setCamera(camera: Camera) {
     this._mainCamera = camera;
     this.initProjection();
@@ -41,13 +82,19 @@ export default class Scene {
 
     const aspectRatio = this.height / this.width;
 
-    Matrix.makeProjection(this.projMatrix, this.sceneCamera!.fov, aspectRatio, NEAR, FAR);
+    Matrix.makeProjection(
+      this.projMatrix,
+      this.sceneCamera!.fov,
+      aspectRatio,
+      NEAR,
+      FAR
+    );
   }
 
   addSceneMesh(mesh: GameObject): number {
     const meshId = this.idGenerator.id;
     this.gameObjects.set(meshId, mesh);
-    mesh.loadMesh()
+    mesh.loadMesh();
     return meshId;
   }
-} 
+}
