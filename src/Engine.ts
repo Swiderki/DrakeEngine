@@ -8,22 +8,35 @@ export default class Engine {
   private _deltaTime: number = 0;
   private _frameNumber: number = 0;
   private _currentScene: Scene | undefined;
-  private _scenes: Map<number, Scene> = new Map();;
+  private _scenes: Map<number, Scene> = new Map();
   private _idGenerator = new IdGenerator();
 
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
   private fpsDisplay: HTMLElement | null = null;
 
-  get width() { return this.canvas.width }
-  get height() { return this.canvas.height }
+  get width() {
+    return this.canvas.width;
+  }
+  get height() {
+    return this.canvas.height;
+  }
   // added canvas getter
-  get getCanvas(): HTMLCanvasElement { return this.canvas; }
-  get scenes(): Map<number, Scene> { return this._scenes }
-  get idGenerator(): IdGenerator { return this._idGenerator }
-  get currentScene() { 
-    if (this._currentScene == undefined) throw new Error("There is not a scene to get. You must set current scene first.")
-    return this._currentScene 
+  get getCanvas(): HTMLCanvasElement {
+    return this.canvas;
+  }
+  get scenes(): Map<number, Scene> {
+    return this._scenes;
+  }
+  get idGenerator(): IdGenerator {
+    return this._idGenerator;
+  }
+  get currentScene() {
+    if (this._currentScene == undefined)
+      throw new Error(
+        "There is not a scene to get. You must set current scene first."
+      );
+    return this._currentScene;
   }
 
   /** The interval in seconds from the last frame to the current one */
@@ -39,6 +52,8 @@ export default class Engine {
       );
     this.ctx = ctx;
   }
+  
+  // Main methods - used to interact with engine's workflow directly
 
   addScene(scene: Scene): number {
     const sceneId = this.idGenerator.id;
@@ -46,16 +61,27 @@ export default class Engine {
     return sceneId;
   }
 
+  removeScene(sceneId: number) {
+    if (!this._scenes.has(sceneId))
+      throw new Error("A scene with the given id was not found.");
+    if (!this._currentScene != undefined)
+      throw new Error(
+        "The scene you want to remove is now set as a current scene. Remove current scene first."
+      );
+    this._scenes.delete(sceneId);
+  }
+
+  removeCurrentScene() {
+    this._currentScene = undefined;
+  }
+
   setCurrentScene(sceneId: number) {
-    if (!this._scenes.has(sceneId)) throw new Error(
-      "Scenes array does not include the given scene."
-    );
+    if (!this._scenes.has(sceneId))
+      throw new Error("Scenes array does not include the given scene.");
 
     this._currentScene = this._scenes.get(sceneId)!;
     this._currentScene.initProjection();
   }
-
-  // Main methods - used to interact with engine's workflow directly
 
   private async _CoreStart(): Promise<void> {
     this.fpsDisplay = document.getElementById("fps");
@@ -67,7 +93,7 @@ export default class Engine {
   }
 
   /** Gets called once the program starts */
-  Start(): void { }
+  Start(): void {}
 
   private _CoreUpdate(lastFrameEnd: number, frameNumber: number = 0): void {
     // generate last rendered frame
@@ -78,20 +104,22 @@ export default class Engine {
     this.penultimateFrameEndTime = this.prevFrameEndTime;
     this.prevFrameEndTime = lastFrameEnd;
     // divide difference by 1000 to express delta in seconds not miliseconds
-    this._deltaTime = (this.prevFrameEndTime - this.penultimateFrameEndTime) / 1000;
+    this._deltaTime =
+      (this.prevFrameEndTime - this.penultimateFrameEndTime) / 1000;
     this._frameNumber = frameNumber;
 
     this.Update();
 
     requestAnimationFrame((renderTime) => {
       if (this.fpsDisplay && frameNumber % 10 === 0)
-        this.fpsDisplay.textContent = Math.floor(1000 / (renderTime - lastFrameEnd)) + " FPS";
+        this.fpsDisplay.textContent =
+          Math.floor(1000 / (renderTime - lastFrameEnd)) + " FPS";
       this._CoreUpdate(renderTime, ++frameNumber);
     });
   }
 
   /** Gets called every frame */
-  Update(): void { }
+  Update(): void {}
 
   // Utility methods
 
@@ -104,7 +132,7 @@ export default class Engine {
   setResolution(width: number, height: number): void {
     this.canvas.width = width;
     this.canvas.height = height;
-    this._scenes.forEach(sc => {
+    this._scenes.forEach((sc) => {
       sc.width = width;
       sc.height = height;
     });
@@ -119,7 +147,6 @@ export default class Engine {
   }
 
   private drawTriangle(triangle: Triangle): void {
-    
     this.ctx.beginPath();
     this.ctx.moveTo(triangle[0].x, triangle[0].y);
     this.ctx.lineTo(triangle[1].x, triangle[1].y);
@@ -133,13 +160,24 @@ export default class Engine {
   }
 
   private render(): void {
-    if (this._currentScene == undefined || this._currentScene.sceneCamera == null) return;
-    
+    if (
+      this._currentScene == undefined ||
+      this._currentScene.sceneCamera == null
+    )
+      return;
+
     let matWorld = Matrix.makeTranslation(0, 0, 0);
 
-    const targetDir = Vector.add(this._currentScene.sceneCamera.position, this._currentScene.sceneCamera.lookDir);
+    const targetDir = Vector.add(
+      this._currentScene.sceneCamera.position,
+      this._currentScene.sceneCamera.lookDir
+    );
 
-    const matCamera = Matrix.lookAt(this._currentScene.sceneCamera.position, targetDir, { x: 0, y: 1, z: 0 });
+    const matCamera = Matrix.lookAt(
+      this._currentScene.sceneCamera.position,
+      targetDir,
+      { x: 0, y: 1, z: 0 }
+    );
     const matView = Matrix.quickInverse(matCamera);
 
     for (const obj of this._currentScene.gameObjects.values()) {
@@ -147,22 +185,38 @@ export default class Engine {
         const finalProjection: Triangle = Array(3) as Triangle;
 
         for (let i = 0; i < 3; i++) {
-          const vertexTransformed = Matrix.multiplyVector(matWorld, { ...triangle[i], w: 1 });
+          const vertexTransformed = Matrix.multiplyVector(matWorld, {
+            ...triangle[i],
+            w: 1,
+          });
 
-          const vertexViewed = Matrix.multiplyVector(matView, vertexTransformed);
+          const vertexViewed = Matrix.multiplyVector(
+            matView,
+            vertexTransformed
+          );
 
-          const vertexProjected = Matrix.multiplyVector(this._currentScene.projMatrix, vertexViewed);
+          const vertexProjected = Matrix.multiplyVector(
+            this._currentScene.projMatrix,
+            vertexViewed
+          );
 
-          const vertexNormalized = Vector.divide(vertexProjected, vertexProjected.w);
+          const vertexNormalized = Vector.divide(
+            vertexProjected,
+            vertexProjected.w
+          );
 
-          const vertexScaled = Vector.add(vertexNormalized, { x: 1, y: 1, z: 0 });
+          const vertexScaled = Vector.add(vertexNormalized, {
+            x: 1,
+            y: 1,
+            z: 0,
+          });
 
           vertexScaled.x *= 0.5 * this.canvas.width;
           vertexScaled.y *= 0.5 * this.canvas.height;
 
           finalProjection[i] = vertexScaled;
         }
-        
+
         this.drawTriangle(finalProjection);
       }
     }
