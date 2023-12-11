@@ -56,11 +56,6 @@ class MyGame extends Drake.Engine {
 
   override Update(): void {
     this.cube.rotate(1 * this.deltaTime, 0.5 * this.deltaTime, 0);
-    // Drawind svg
-    const ctx = this.getCanvas?.getContext('2d');
-    if (!ctx) return;
-    // this.icon.render(ctx);
-
   }
 }
 
