@@ -6,16 +6,16 @@ import { Matrix } from "./util/math";
 export default class Scene {
   private idGenerator = new IdGenerator();
   private _gameObjects: Map<number, GameObject> = new Map();
-  protected _mainCamera: Camera | undefined;
+  protected _mainCamera: Camera | null = null;
   private _projMatrix: Mat4x4 = Matrix.zeros();
   private _GUIs: Map<number, GUI> = new Map();
-  private _currentGUI: GUI | undefined = undefined;
+  private _currentGUI: GUI | null = null;
   private _idGenerator = new IdGenerator();
   // prettier-ignore
   get GUIs() { return this._GUIs; }
   get currentGUI() {
     // It must return null to better usage in render.
-    if (this._currentGUI == undefined) return null;
+    if (this._currentGUI == null) return null;
     return this._currentGUI;
   }
 
@@ -24,7 +24,7 @@ export default class Scene {
 
   // It is good to add more cameras in the future to switch them
   get sceneCamera() {
-    if (this._mainCamera == undefined) return null;
+    if (this._mainCamera == null) return null;
     return this._mainCamera;
   }
 
@@ -53,7 +53,7 @@ export default class Scene {
   removeGUI(guiId: number) {
     if (!this._GUIs.has(guiId))
       throw new Error("A GUI with the given id was not found.");
-    if (!this._currentGUI != undefined)
+    if (!this._currentGUI != null)
       throw new Error(
         "The GUI you want to remove is now set as a current GUI. Remove current GUI first."
       );
@@ -62,7 +62,7 @@ export default class Scene {
   }
 
   removeCurrentScene() {
-    this._currentGUI = undefined;
+    this._currentGUI = null;
   }
 
   addGUI(gui: GUI): number {

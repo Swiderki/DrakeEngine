@@ -7,7 +7,7 @@ export default class Engine {
   private prevFrameEndTime: number = 0;
   private _deltaTime: number = 0;
   private _frameNumber: number = 0;
-  private _currentScene: Scene | undefined;
+  private _currentScene: Scene | null = null;
   private _scenes: Map<number, Scene> = new Map();
   private _idGenerator = new IdGenerator();
 
@@ -32,7 +32,7 @@ export default class Engine {
     return this._idGenerator;
   }
   get currentScene() {
-    if (this._currentScene == undefined)
+    if (this._currentScene == null)
       throw new Error(
         "There is not a scene to get. You must set current scene first."
       );
@@ -63,7 +63,7 @@ export default class Engine {
   removeScene(sceneId: number) {
     if (!this._scenes.has(sceneId))
       throw new Error("A scene with the given id was not found.");
-    if (!this._currentScene != undefined)
+    if (!this._currentScene != null)
       throw new Error(
         "The scene you want to remove is now set as a current scene. Remove current scene first."
       );
@@ -71,7 +71,7 @@ export default class Engine {
   }
 
   removeCurrentScene() {
-    this._currentScene = undefined;
+    this._currentScene = null;
   }
 
   setCurrentScene(sceneId: number) {
@@ -160,7 +160,7 @@ export default class Engine {
 
   private render(): void {
     if (
-      this._currentScene == undefined ||
+      this._currentScene == null ||
       this._currentScene.sceneCamera == null
     )
       return;

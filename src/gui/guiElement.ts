@@ -22,47 +22,91 @@ export default interface GuiElement {
   // onHover(): void;
 }
 
-export class Text implements GuiElement {
+
+// THIS SHIT DOESNT WORK HAHAHHAHAHAHAHA
+export class GUIText implements GuiElement {
   text: string;
   fontSize: number;
   fontFamily: string;
   fontWeight: number;
   position: { x: number; y: number } = { x: 0, y: 0 };
-  protected _width: number | undefined;
-  protected _height: number | undefined;
-  constructor(text: string, fontSize: number, fontFamily: string, fontWeight: number = 400) {
+  protected _width: number | null = null;
+  protected _height: number | null = null;
+  get width(): number {
+    if (this._width == null) return this.getTextWidth();
+    return this._width;
+  }
+
+  set width(width: number) {
+    this._width = width;
+  }
+
+  get height(): number {
+    if (this._height == null) return this.getTextHeight();
+    return this._height;
+  }
+
+  set height(height: number) {
+    this._height = height;
+  }
+
+  constructor(
+    text: string,
+    fontSize: number,
+    fontFamily: string,
+    fontWeight: number = 400
+  ) {
     this.text = text;
     this.fontSize = fontSize;
     this.fontFamily = fontFamily;
     this.fontWeight = fontWeight;
   }
 
-  // You implement height width and position as getters and setters
-  // A programmer can decide how they wants it
-  // In text, we have to return this._width or calculate this value if this._width is unset
-  // Or maybe its better to calculate this ones, in constructor?
-  // Idk
-  get width(): number {
-    throw new Error("Method not implemented.");
+  private getTextWidth(): number {
+    // Create a false canvas (we don't have access
+    // to the engines's canvas here)
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+
+    ctx!.font = `${this.fontWeight} ${this.fontSize}px ${this.fontFamily}`;
+
+    const metrics = ctx!.measureText(this.text);
+    return metrics.width;
   }
-  set width(value: number) {
-    throw new Error("Method not implemented.");
-  }
-  get height(): number {
-    throw new Error("Method not implemented.");
-  }
-  set height(value: number) {
-    throw new Error("Method not implemented.");
+
+  private getTextHeight(): number {
+    // Create a false canvas
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+
+    ctx!.font = `${this.fontWeight} ${this.fontSize}px ${this.fontFamily}`;
+
+    // Use the measureText method to get the text metrics
+    const metrics = ctx!.measureText(this.text);
+    // Calculate the actual height by considering the metrics
+    const actualHeight =
+      metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
+
+    // In case actualHeight is not available, fallback to an approximation
+    // This is a simplification and may not be accurate for all fonts
+    const approxHeight = this.fontSize * 1.2; // 1.2 is a general factor that works for most fonts
+
+    return actualHeight || approxHeight;
   }
 
   render(ctx: CanvasRenderingContext2D): void {
-    throw new Error("Method not implemented.");
+    ctx.save();
+
+    ctx.font = `${this.fontWeight} ${this.fontSize}px ${this.fontFamily}`;
+    ctx.fillText(this.text, this.position.x, this.position.y);
+
+    ctx.restore();
   }
 }
 
 // extends GUI was there
 // I don't get why if GUI is like container for GuiElements
-export class Button extends Text implements GuiElement {
+export class Button extends GUIText implements GuiElement {
   override position: { x: number; y: number } = { x: 0, y: 0 };
 
   // There are some objects having top, bottom, left and right value
@@ -92,8 +136,8 @@ export class Button extends Text implements GuiElement {
   };
 
   override get width(): number {
-    // If _width is undefined, we have to calculate it using super.width, padding etc
-    if (this._width == undefined) return 0;
+    // If _width is null, we have to calculate it using super.width, padding etc
+    if (this._width == null) return 0;
     return this._width;
   }
 
@@ -102,8 +146,8 @@ export class Button extends Text implements GuiElement {
   }
 
   override get height(): number {
-    // If _height is undefined, we have to calculate it using super.height, padding etc
-    if (this._height == undefined) return 0;
+    // If _height is null, we have to calculate it using super.height, padding etc
+    if (this._height == null) return 0;
     return this._height;
   }
 
@@ -111,7 +155,12 @@ export class Button extends Text implements GuiElement {
     this._height = value;
   }
 
-  constructor(text: string, fontSize: number, fontFamily: string, fontWeight: number = 400) {
+  constructor(
+    text: string,
+    fontSize: number,
+    fontFamily: string,
+    fontWeight: number = 400
+  ) {
     super(text, fontSize, fontFamily, fontWeight);
   }
 
@@ -122,40 +171,46 @@ export class Button extends Text implements GuiElement {
 }
 
 export class Icon implements GuiElement {
-    path: string;
-    protected _width: number;
-    protected _height: number;
-    position: { x: number; y: number } = { x: 0, y: 0 };
-  
-    constructor(svgPath: string, width: number, height: number, position: {x: number, y: number}) {
-      this.path = svgPath;
-      this._width = width;
-      this._height = height;
-      this.position = position;
-    }
-  
-    get width(): number {
-      return this._width;
-    }
-    set width(value: number) {
-      this._width = value;
-    }
-    get height(): number {
-      return this._height;
-    }
-    set height(value: number) {
-      this._height = value;
-    }
-  
-    render(ctx: CanvasRenderingContext2D): void {
-        const path = new Path2D(this.path);
-        ctx.save();
-        ctx.translate(this.position.x, this.position.y);
-        const scale = Math.min(this._width / ctx.canvas.width, this._height / ctx.canvas.height);
-        ctx.scale(scale, scale);
-        ctx.stroke(path); 
-        ctx.restore(); 
-    }
-  
+  path: string;
+  protected _width: number;
+  protected _height: number;
+  position: { x: number; y: number } = { x: 0, y: 0 };
+
+  constructor(
+    svgPath: string,
+    width: number,
+    height: number,
+    position: { x: number; y: number }
+  ) {
+    this.path = svgPath;
+    this._width = width;
+    this._height = height;
+    this.position = position;
   }
-  
+
+  get width(): number {
+    return this._width;
+  }
+  set width(value: number) {
+    this._width = value;
+  }
+  get height(): number {
+    return this._height;
+  }
+  set height(value: number) {
+    this._height = value;
+  }
+
+  render(ctx: CanvasRenderingContext2D): void {
+    const path = new Path2D(this.path);
+    ctx.save();
+    ctx.translate(this.position.x, this.position.y);
+    const scale = Math.min(
+      this._width / ctx.canvas.width,
+      this._height / ctx.canvas.height
+    );
+    ctx.scale(scale, scale);
+    ctx.stroke(path);
+    ctx.restore();
+  }
+}
