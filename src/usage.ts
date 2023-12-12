@@ -11,7 +11,8 @@ class MyGame extends Drake.Engine {
   cube: Cube;
   axis;
   icon: Icon;
-  exampleText: GUIText | undefined;
+  ranbowText: GUIText | undefined;
+  hue: number = 0;
   constructor(canvas: HTMLCanvasElement) {
     
     super(canvas);
@@ -31,16 +32,25 @@ class MyGame extends Drake.Engine {
   }
 
   override Start(): void {
+    this.setResolution(640, 480);
     const camera = new Drake.Camera(90, 0.1, 1000, [10, 10, -15], [0, 0, 1]);
     const mainSceneGUI = new GUI();
     mainSceneGUI.addElement(this.icon);
 
-    this.exampleText = new GUIText("Test", 24, "monospace", "#00ff00", 900);
+    const exampleText = new GUIText("Hihihihihihihahi", 24, "monospace", "#00ff00", 900);
+    const exampleText2 = new GUIText("Lorem ipsum dolor sit amet", 24, "monospace", "#0000ff", 900);
+    this.ranbowText = new GUIText("Tęczaaaaaaaa", 24, "monospace", `hsl(${this.hue}, 100%, 50%)`, 900)
     
-    this.exampleText.position.x = this.width;
-    this.exampleText.position.y = 20 + this.exampleText.height;
-    mainSceneGUI.addElement(this.exampleText);
-    console.log(this.exampleText.width);
+    exampleText.position.x = this.width - exampleText.width - 20;
+    exampleText.position.y = 20 + exampleText.height;
+    exampleText2.position.x = this.width - exampleText2.width - 20;
+    exampleText2.position.y = 30 + exampleText.height + exampleText.height;
+    this.ranbowText.position.x = 20;
+    this.ranbowText.position.y = this.height - this.ranbowText.height;
+
+    mainSceneGUI.addElement(exampleText);
+    mainSceneGUI.addElement(exampleText2);
+    mainSceneGUI.addElement(this.ranbowText);
 
     const mainScene = new Drake.Scene(      
       this.width,
@@ -57,14 +67,16 @@ class MyGame extends Drake.Engine {
 
     this.currentScene.addSceneMesh(this.cube);
     this.currentScene.addSceneMesh(this.axis);
-
     
-    this.setResolution(640, 480);
     document.addEventListener("keydown", this.handleCameraMove.bind(this));
   }
 
   override Update(): void {
     this.cube.rotate(1 * this.deltaTime, 0.5 * this.deltaTime, 0);
+    this.hue++;
+    if (this.hue >= 360) this.hue = 0;
+
+    this.ranbowText!.color = `hsl(${this.hue}, 100%, 50%)`;
   }
 }
 

@@ -18,9 +18,11 @@ export default class Engine {
   get width() {
     return this.canvas.width;
   }
+
   get height() {
     return this.canvas.height;
   }
+  
   // added canvas getter
   get getCanvas(): HTMLCanvasElement {
     return this.canvas;
