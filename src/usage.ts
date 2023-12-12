@@ -39,14 +39,14 @@ class MyGame extends Drake.Engine {
 
     const exampleText = new GUIText("Hihihihihihihahi", 24, "monospace", "#00ff00", 900);
     const exampleText2 = new GUIText("Lorem ipsum dolor sit amet", 24, "monospace", "#0000ff", 900);
-    this.ranbowText = new GUIText("Tęczaaaaaaaa", 24, "monospace", `hsl(${this.hue}, 100%, 50%)`, 900)
+    this.ranbowText = new GUIText("Tęczaaaaaaaa", 50, "monospace", `hsl(${this.hue}, 100%, 50%)`, 900)
     
     exampleText.position.x = this.width - exampleText.width - 20;
     exampleText.position.y = 20 + exampleText.height;
     exampleText2.position.x = this.width - exampleText2.width - 20;
     exampleText2.position.y = 30 + exampleText.height + exampleText.height;
     this.ranbowText.position.x = 20;
-    this.ranbowText.position.y = this.height - this.ranbowText.height;
+    this.ranbowText.position.y = this.height - 20;
 
     mainSceneGUI.addElement(exampleText);
     mainSceneGUI.addElement(exampleText2);
@@ -73,7 +73,7 @@ class MyGame extends Drake.Engine {
 
   override Update(): void {
     this.cube.rotate(1 * this.deltaTime, 0.5 * this.deltaTime, 0);
-    this.hue++;
+    this.hue+=10;
     if (this.hue >= 360) this.hue = 0;
 
     this.ranbowText!.color = `hsl(${this.hue}, 100%, 50%)`;
