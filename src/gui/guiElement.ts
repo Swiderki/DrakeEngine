@@ -29,6 +29,7 @@ export class GUIText implements GuiElement {
   fontSize: number;
   fontFamily: string;
   fontWeight: number;
+  color: string;
   position: { x: number; y: number } = { x: 0, y: 0 };
   protected _width: number | null = null;
   protected _height: number | null = null;
@@ -54,17 +55,17 @@ export class GUIText implements GuiElement {
     text: string,
     fontSize: number,
     fontFamily: string,
-    fontWeight: number = 400
+    color: string,
+    fontWeight: number,
   ) {
     this.text = text;
     this.fontSize = fontSize;
     this.fontFamily = fontFamily;
     this.fontWeight = fontWeight;
+    this.color = color;
   }
 
   private getTextWidth(): number {
-    // Create a false canvas (we don't have access
-    // to the engines's canvas here)
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
 
@@ -95,12 +96,11 @@ export class GUIText implements GuiElement {
   }
 
   render(ctx: CanvasRenderingContext2D): void {
-    ctx.save();
-
     ctx.font = `${this.fontWeight} ${this.fontSize}px ${this.fontFamily}`;
-    ctx.fillText(this.text, this.position.x, this.position.y);
+    ctx.fillStyle = this.color;
 
-    ctx.restore();
+    // Drawing text
+    ctx.fillText(this.text, this.position.x, this.position.y);
   }
 }
 
@@ -159,9 +159,10 @@ export class Button extends GUIText implements GuiElement {
     text: string,
     fontSize: number,
     fontFamily: string,
+    color: "#fff",
     fontWeight: number = 400
   ) {
-    super(text, fontSize, fontFamily, fontWeight);
+    super(text, fontSize, fontFamily, color, fontWeight);
   }
 
   override render(ctx: CanvasRenderingContext2D) {}

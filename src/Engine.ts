@@ -219,11 +219,12 @@ export default class Engine {
         this.drawTriangle(finalProjection);
       }
     }
-
+    
     if (this.currentScene.currentGUI) {
       this.currentScene.currentGUI.elements.forEach(el => {
         el.render(this.ctx);
       });
     } 
+    
   }
 }

@@ -35,9 +35,10 @@ class MyGame extends Drake.Engine {
     const mainSceneGUI = new GUI();
     mainSceneGUI.addElement(this.icon);
 
-    this.exampleText = new GUIText("Test", 24, "Arial");
-    this.exampleText.position.x = 100;
-    this.exampleText.position.y = 100;
+    this.exampleText = new GUIText("Test", 24, "monospace", "#00ff00", 900);
+    
+    this.exampleText.position.x = this.width;
+    this.exampleText.position.y = 20 + this.exampleText.height;
     mainSceneGUI.addElement(this.exampleText);
     console.log(this.exampleText.width);
 
