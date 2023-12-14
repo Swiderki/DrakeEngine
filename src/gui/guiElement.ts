@@ -125,7 +125,8 @@ export class Button extends GUIText implements GuiElement, Clickable {
   };
 
   override get width(): number {
-    if (this._width == null) return super.width + this.padding.left + this.padding.right;
+    if (this._width == null)
+      return super.width + this.padding.left + this.padding.right;
     return this._width;
   }
 
@@ -134,7 +135,8 @@ export class Button extends GUIText implements GuiElement, Clickable {
   }
 
   override get height(): number {
-    if (this._height == null) return super.height + this.padding.top + this.padding.bottom;
+    if (this._height == null)
+      return super.height + this.padding.top + this.padding.bottom;
     return this._height;
   }
 

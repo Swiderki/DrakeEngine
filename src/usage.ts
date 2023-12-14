@@ -24,6 +24,19 @@ class RainboxText extends GUIText {
   }
 }
 
+class MyButton extends Button {
+  constructor() {
+    super("Test btn", 30, "Arial", "#00ff00", 400);
+    this.position.x = 100;
+    this.position.y = 100;
+  }
+
+  override onClick(): void {
+    if (this.color == "#ffffff") this.color = "#00ff00";
+    else this.color = "#ffffff";
+  }
+}
+
 class MyGame extends Drake.Engine {
   cube: Cube;
   axis;
@@ -71,23 +84,22 @@ class MyGame extends Drake.Engine {
       "#0000ff",
       900
     );
-    this.ranbowText = new RainboxText();
+    // this.ranbowText = new RainboxText();
 
-    // To create click event you must extend Button class 
-    const btn = new Button("Test btn", 30, "Arial", "#00ff00", 400);
-    btn.position.x = 100;
-    btn.position.y = 100;
+    // To create click event you must extend Button class
+
     exampleText.position.x = this.width - exampleText.width - 20;
     exampleText.position.y = 20 + exampleText.height;
-    this.ranbowText.position.x = 20;
-    this.ranbowText.position.y = this.height - 20;
+    // this.ranbowText.position.x = 20;
+    // this.ranbowText.position.y = this.height - 20;
 
     exampleText2.position.x = this.width - exampleText2.width - 20;
     exampleText2.position.y = 30 + exampleText.height + exampleText.height;
 
     mainSceneGUI.addElement(exampleText);
     mainSceneGUI.addElement(exampleText2);
-    mainSceneGUI.addElement(this.ranbowText);
+    // mainSceneGUI.addElement(this.ranbowText);
+    const btn = new MyButton();
     mainSceneGUI.addElement(btn);
 
     const mainScene = new Drake.Scene(
