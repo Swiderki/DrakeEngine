@@ -73,6 +73,7 @@ class MyGame extends Drake.Engine {
     );
     this.ranbowText = new RainboxText();
 
+    // To create click event you must extend Button class 
     const btn = new Button("Test btn", 30, "Arial", "#00ff00", 400);
     btn.position.x = 100;
     btn.position.y = 100;
