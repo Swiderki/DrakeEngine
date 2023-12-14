@@ -3,27 +3,13 @@
 import GUI from "./Gui";
 
 export default interface GuiElement {
-  // It don't have to be getters and setters in the interface
-  // Because you can implement them that way if you want
-  // Example in Text class
-  // You can translate "Interfase" as "Międzymordzie" btw
   height: number;
   width: number;
   position: { x: number; y: number };
 
-  // Every element has its own rendering logic so it has to implement render function
-  // But render function must get ctx value as a parameter to draw on
   render(ctx: CanvasRenderingContext2D): void;
-
-  // Only buttons shoud have these methods
-  // You don't want to click on text
-  // You can make button look like a simple text but that will still be a button
-  // onClick(): void;
-  // onHover(): void;
 }
 
-
-// THIS SHIT DOESNT WORK HAHAHHAHAHAHAHA
 export class GUIText implements GuiElement {
   text: string;
   fontSize: number;
@@ -56,7 +42,7 @@ export class GUIText implements GuiElement {
     fontSize: number,
     fontFamily: string,
     color: string,
-    fontWeight: number,
+    fontWeight: number
   ) {
     this.text = text;
     this.fontSize = fontSize;
@@ -99,18 +85,21 @@ export class GUIText implements GuiElement {
     ctx.font = `${this.fontWeight} ${this.fontSize}px ${this.fontFamily}`;
     ctx.fillStyle = this.color;
 
-    // Drawing text
     ctx.fillText(this.text, this.position.x, this.position.y);
   }
 }
 
-// extends GUI was there
-// I don't get why if GUI is like container for GuiElements
-export class Button extends GUIText implements GuiElement {
+export interface Clickable {
+  onClick(): void;
+  onHover(): void;
+  isCoordInElement(x: number, y: number): boolean;
+  width: number;
+  height: number;
+}
+
+export class Button extends GUIText implements GuiElement, Clickable {
   override position: { x: number; y: number } = { x: 0, y: 0 };
 
-  // There are some objects having top, bottom, left and right value
-  // Maybe it is a good idea to implement a type for them.
   border: {
     top: { color: string; width: number };
     bottom: { color: string; width: number };
@@ -136,8 +125,7 @@ export class Button extends GUIText implements GuiElement {
   };
 
   override get width(): number {
-    // If _width is null, we have to calculate it using super.width, padding etc
-    if (this._width == null) return 0;
+    if (this._width == null) return super.width + this.padding.left + this.padding.right;
     return this._width;
   }
 
@@ -146,8 +134,7 @@ export class Button extends GUIText implements GuiElement {
   }
 
   override get height(): number {
-    // If _height is null, we have to calculate it using super.height, padding etc
-    if (this._height == null) return 0;
+    if (this._height == null) return super.height + this.padding.top + this.padding.bottom;
     return this._height;
   }
 
@@ -159,15 +146,30 @@ export class Button extends GUIText implements GuiElement {
     text: string,
     fontSize: number,
     fontFamily: string,
-    color: "#fff",
+    color: string,
     fontWeight: number = 400
   ) {
     super(text, fontSize, fontFamily, color, fontWeight);
   }
 
-  override render(ctx: CanvasRenderingContext2D) {}
+  override render(ctx: CanvasRenderingContext2D) {
+    ctx.font = `${this.fontWeight} ${this.fontSize}px ${this.fontFamily}`;
+    ctx.fillStyle = this.color;
+
+    ctx.fillText(this.text, this.position.x, this.position.y);
+  }
+
+  isCoordInElement(x: number, y: number) {
+    return (
+      x >= this.position.x &&
+      x < this.position.x + this.width &&
+      y >= this.position.y &&
+      y < this.position.y + this.height
+    );
+  }
 
   onClick(): void {}
+
   onHover(): void {}
 }
 

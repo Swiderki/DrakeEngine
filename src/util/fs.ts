@@ -1,8 +1,16 @@
+import { Clickable } from "../gui/guiElement";
 import { transpose } from "./math";
 
 interface parsedObj {
   verPos: Vec3D[];
   triVerIdx: TriangleVerteciesIndexes[];
+}
+
+export function isClickable(obj: any): obj is Clickable {
+  return obj
+    && typeof obj.onClick === 'function'
+    && typeof obj.onHover === 'function'
+    && typeof obj.isCoordInElement === 'function';
 }
 
 function parseObj(text: string): parsedObj {

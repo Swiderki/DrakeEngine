@@ -11,7 +11,9 @@ export default class GUI {
   private _elements: Map<number, GuiElement> = new Map();
   private _idGenerator = new IdGenerator();
 
-  get elements() { return this._elements };
+  get elements() {
+    return this._elements;
+  }
 
   constructor() {
     this.addEventListeners();
@@ -27,7 +29,8 @@ export default class GUI {
   }
 
   removeElement(elementId: number) {
-    if (!this._elements.has(elementId)) throw new Error("A GUI element with the given id was not found.");
+    if (!this._elements.has(elementId))
+      throw new Error("A GUI element with the given id was not found.");
     this._elements.delete(elementId);
   }
 

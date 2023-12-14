@@ -1,7 +1,7 @@
 import Cube from "./entities/game-objects/built-in/Cube";
 import Drake from "./index";
 // TODO: It should be added to Drake
-import { GUIText, Icon } from "./gui/guiElement";
+import { Button, GUIText, Icon } from "./gui/guiElement";
 import GUI from "./gui/Gui";
 
 const canvas = document.getElementById("app") as HTMLCanvasElement | null;
@@ -73,6 +73,9 @@ class MyGame extends Drake.Engine {
     );
     this.ranbowText = new RainboxText();
 
+    const btn = new Button("Test btn", 30, "Arial", "#00ff00", 400);
+    btn.position.x = 100;
+    btn.position.y = 100;
     exampleText.position.x = this.width - exampleText.width - 20;
     exampleText.position.y = 20 + exampleText.height;
     this.ranbowText.position.x = 20;
@@ -84,6 +87,7 @@ class MyGame extends Drake.Engine {
     mainSceneGUI.addElement(exampleText);
     mainSceneGUI.addElement(exampleText2);
     mainSceneGUI.addElement(this.ranbowText);
+    mainSceneGUI.addElement(btn);
 
     const mainScene = new Drake.Scene(
       this.width,

@@ -1,6 +1,8 @@
 import Scene from "./Scene";
 import IdGenerator from "./util/idGenerator";
 import { Matrix, Vector } from "./util/math";
+import { Clickable } from "./gui/guiElement";
+import { isClickable } from "./util/fs";
 
 export default class Engine {
   private penultimateFrameEndTime: number = 0;
@@ -22,7 +24,7 @@ export default class Engine {
   get height() {
     return this.canvas.height;
   }
-  
+
   // added canvas getter
   get getCanvas(): HTMLCanvasElement {
     return this.canvas;
@@ -54,7 +56,7 @@ export default class Engine {
       );
     this.ctx = ctx;
   }
-  
+
   // Main methods - used to interact with engine's workflow directly
   addScene(scene: Scene): number {
     const sceneId = this.idGenerator.id;
@@ -91,6 +93,27 @@ export default class Engine {
       this.fpsDisplay.style.top = "0";
       this.fpsDisplay.style.color = "white";
     }
+
+    document.addEventListener("click", (e) => {
+      if (!this._currentScene || !this._currentScene.currentGUI || !this.canvas) return;
+    
+      const canvasRect = this.canvas.getBoundingClientRect();
+    
+      const clickX = e.clientX - canvasRect.left;
+      const clickY = e.clientY - canvasRect.top;
+    
+      this._currentScene.currentGUI.elements.forEach(el => {
+        if (!isClickable(el)) return;
+    
+        const { width, height } = el;
+        const { x, y } = el.position;
+    
+        if (clickX >= x && clickX <= x + width &&
+            clickY >= y - height && clickY <= y) {
+          el.onClick();
+        }
+      });
+    });  
   }
 
   /** Gets called once the program starts */
@@ -161,10 +184,7 @@ export default class Engine {
   }
 
   private render(): void {
-    if (
-      this._currentScene == null ||
-      this._currentScene.sceneCamera == null
-    )
+    if (this._currentScene == null || this._currentScene.sceneCamera == null)
       return;
 
     let matWorld = Matrix.makeTranslation(0, 0, 0);
@@ -221,12 +241,11 @@ export default class Engine {
         this.drawTriangle(finalProjection);
       }
     }
-    
+
     if (this.currentScene.currentGUI) {
-      this.currentScene.currentGUI.elements.forEach(el => {
+      this.currentScene.currentGUI.elements.forEach((el) => {
         el.render(this.ctx);
       });
-    } 
-    
+    }
   }
 }
