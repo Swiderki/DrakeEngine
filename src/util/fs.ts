@@ -1,15 +1,18 @@
-import { transpose } from "./math";
-
 interface parsedObj {
-  verPos: Vec3D[];
-  triVerIdx: TriangleVerteciesIndexes[];
+  vertexPositions: Vec3D[];
+  lineVerteciesIndexes: LineVerteciesIndexes[];
 }
 
+/**
+ * @todo at this moment edges are read separately
+ * for each face, so they can be duplicated if edge
+ * is belongs to two faces at the same time, in the
+ * future a duplication avoider should be
+ * implmented
+ */
 function parseObj(text: string): parsedObj {
-  // because indices are base 1 let's just fill in the 0th data
-  const verPos: Vec3D[] = [];
-  const triVerIdx: TriangleVerteciesIndexes[] = [];
-  // const objNormals = [];
+  const vertexPositions: Vec3D[] = [];
+  const lineVerteciesIndexes: LineVerteciesIndexes[] = [];
 
   for (const line of text.split("\n")) {
     let parts = line.split(" ");
@@ -19,25 +22,26 @@ function parseObj(text: string): parsedObj {
     switch (dataType) {
       case "v":
         const pos = parts.map(parseFloat);
-        verPos.push({ x: pos[0], y: pos[1], z: pos[2] });
+        vertexPositions.push({ x: pos[0], y: pos[1], z: pos[2] });
         break;
-      // case "vn":
-      //   objNormals.push(parts.map(parseFloat));
-      //   break;
+
       case "f":
-        // fPart has the form: vertexIndex/texcoords/normals
-        const [vIndexes, _texcoords, _normals] = transpose(
-          parts.map((fPart) => fPart.split("/").map(parseFloat))
-        );
-        // subtract 1 from every index because blender starts vertecies indexing from 1 not 0
-        triVerIdx.push([vIndexes[0] - 1, vIndexes[1] - 1, vIndexes[2] - 1]);
+        const vertexIndexes = parts.map(parseFloat);
+        for (let i = 0; i < parts.length; i++) {
+          // subtract 1 from every index because blender starts vertecies indexing from 1 not 0
+          lineVerteciesIndexes.push([
+            vertexIndexes[i] - 1,
+            vertexIndexes[(i + 1) % parts.length] - 1,
+          ]);
+        }
         break;
+
       default:
         break;
     }
   }
 
-  return { verPos, triVerIdx };
+  return { vertexPositions, lineVerteciesIndexes };
 }
 
 export async function readObjFile(path: string): Promise<parsedObj> {

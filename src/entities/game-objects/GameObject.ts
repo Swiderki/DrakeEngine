@@ -1,7 +1,7 @@
 import { readObjFile } from "@/src/util/fs";
 
 export default class GameObject {
-  private _meshIndexed: TriangleVerteciesIndexes[] = [];
+  private _meshIndexed: LineVerteciesIndexes[] = [];
   private _vertecies: Vec3D[] = [];
   private _position: Vec3D;
   private _size: Vec3D;
@@ -10,7 +10,9 @@ export default class GameObject {
   readonly meshPath: string;
 
   get mesh() {
-    return this._meshIndexed.map((triVerIdx) => triVerIdx.map((i) => this._vertecies[i]) as Triangle);
+    return this._meshIndexed.map(
+      (triVerIdx) => triVerIdx.map((i) => this._vertecies[i]) as Line
+    );
   }
   get vertecies() { return this._vertecies; } // prettier-ignore
   get position() { return this._position; } // prettier-ignore
@@ -27,15 +29,21 @@ export default class GameObject {
 
     this._position = { x: position[0], y: position[1], z: position[2] };
     this._size = { x: size[0], y: size[1], z: size[2] };
-    this._rotation = { xAxis: rotation[0], yAxis: rotation[1], zAxis: rotation[2] };
+    this._rotation = {
+      xAxis: rotation[0],
+      yAxis: rotation[1],
+      zAxis: rotation[2],
+    };
   }
 
   async loadMesh(): Promise<void> {
     const start = Date.now();
     console.log("starting loading mesh...");
-    const { verPos, triVerIdx } = await readObjFile(this.meshPath);
-    this._vertecies = verPos;
-    this._meshIndexed = triVerIdx;
+    const { lineVerteciesIndexes, vertexPositions } = await readObjFile(
+      this.meshPath
+    );
+    this._vertecies = vertexPositions;
+    this._meshIndexed = lineVerteciesIndexes;
     console.log("applying initial position and scale...");
     // apply custom start position
     if (Object.values(this._position).some((pos) => pos !== 0)) {
@@ -60,7 +68,11 @@ export default class GameObject {
       vertex.y += y;
       vertex.z += z;
     }
-    this._position = { x: this._position.x + x, y: this._position.y + y, z: this._position.z + z };
+    this._position = {
+      x: this._position.x + x,
+      y: this._position.y + y,
+      z: this._position.z + z,
+    };
   }
 
   scale(x: number, y: number, z: number) {
@@ -74,7 +86,11 @@ export default class GameObject {
 
   /** Rotates the cube relatively, if you need to set its absolute rotation use the `setRotation` method */
   rotate(xAxis: number, yAxis: number, zAxis: number): void {
-    const originalPosition = { x: this._position.x, y: this._position.y, z: this._position.z };
+    const originalPosition = {
+      x: this._position.x,
+      y: this._position.y,
+      z: this._position.z,
+    };
 
     this.move(-this._position.x, -this._position.y, -this._position.z);
 

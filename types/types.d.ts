@@ -19,18 +19,18 @@ interface Rotation {
   zAxis: number;
 }
 
-type TriangleVerteciesIndexes = [number, number, number];
+type LineVerteciesIndexes = [number, number];
 
-type Triangle = [Vec3D, Vec3D, Vec3D];
+type Line = [Vec3D, Vec3D];
 
-type Triangle4D = [Vec4D, Vec4D, Vec4D];
+type Line4D = [Vec4D, Vec4D];
 
 interface GameObject {
   position: Vec3D;
   size: Vec3D;
   rotation: Rotation;
   vertecies: Vec3D[];
-  mesh: Triangle[];
+  mesh: Line[];
   loadMesh(): Promise<void>;
 }
 

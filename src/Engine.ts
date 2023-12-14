@@ -59,14 +59,16 @@ export default class Engine {
     this.penultimateFrameEndTime = this.prevFrameEndTime;
     this.prevFrameEndTime = lastFrameEnd;
     // divide difference by 1000 to express delta in seconds not miliseconds
-    this._deltaTime = (this.prevFrameEndTime - this.penultimateFrameEndTime) / 1000;
+    this._deltaTime =
+      (this.prevFrameEndTime - this.penultimateFrameEndTime) / 1000;
     this._frameNumber = frameNumber;
 
     this.Update();
 
     requestAnimationFrame((renderTime) => {
       if (this.fpsDisplay && frameNumber % 10 === 0)
-        this.fpsDisplay.textContent = Math.floor(1000 / (renderTime - lastFrameEnd)) + " FPS";
+        this.fpsDisplay.textContent =
+          Math.floor(1000 / (renderTime - lastFrameEnd)) + " FPS";
       this._CoreUpdate(renderTime, ++frameNumber);
     });
   }
@@ -100,12 +102,10 @@ export default class Engine {
     return meshId;
   }
 
-  private drawTriangle(triangle: Triangle): void {
+  private drawLine(line: Line): void {
     this.ctx.beginPath();
-    this.ctx.moveTo(triangle[0].x, triangle[0].y);
-    this.ctx.lineTo(triangle[1].x, triangle[1].y);
-    this.ctx.moveTo(triangle[1].x, triangle[1].y);
-    this.ctx.lineTo(triangle[2].x, triangle[2].y);
+    this.ctx.moveTo(line[0].x, line[0].y);
+    this.ctx.lineTo(line[1].x, line[1].y);
     this.ctx.closePath();
 
     this.ctx.lineWidth = 2;
@@ -119,31 +119,60 @@ export default class Engine {
 
     const aspectRatio = this.canvas.height / this.canvas.width;
 
-    Matrix.makeProjection(this.projMatrix, this.mainCamera.fov, aspectRatio, NEAR, FAR);
+    Matrix.makeProjection(
+      this.projMatrix,
+      this.mainCamera.fov,
+      aspectRatio,
+      NEAR,
+      FAR
+    );
   }
 
   private render(): void {
     let matWorld = Matrix.makeTranslation(0, 0, 0);
 
-    const targetDir = Vector.add(this.mainCamera.position, this.mainCamera.lookDir);
+    const targetDir = Vector.add(
+      this.mainCamera.position,
+      this.mainCamera.lookDir
+    );
 
-    const matCamera = Matrix.lookAt(this.mainCamera.position, targetDir, { x: 0, y: 1, z: 0 });
+    const matCamera = Matrix.lookAt(this.mainCamera.position, targetDir, {
+      x: 0,
+      y: 1,
+      z: 0,
+    });
     const matView = Matrix.quickInverse(matCamera);
 
     for (const obj of this.gameObjects.values()) {
-      for (const triangle of obj.mesh) {
-        const finalProjection: Triangle = Array(3) as Triangle;
+      for (const line of obj.mesh) {
+        const finalProjection: Line = Array(2) as Line;
 
         for (let i = 0; i < 3; i++) {
-          const vertexTransformed = Matrix.multiplyVector(matWorld, { ...triangle[i], w: 1 });
+          const vertexTransformed = Matrix.multiplyVector(matWorld, {
+            ...line[i],
+            w: 1,
+          });
 
-          const vertexViewed = Matrix.multiplyVector(matView, vertexTransformed);
+          const vertexViewed = Matrix.multiplyVector(
+            matView,
+            vertexTransformed
+          );
 
-          const vertexProjected = Matrix.multiplyVector(this.projMatrix, vertexViewed);
+          const vertexProjected = Matrix.multiplyVector(
+            this.projMatrix,
+            vertexViewed
+          );
 
-          const vertexNormalized = Vector.divide(vertexProjected, vertexProjected.w);
+          const vertexNormalized = Vector.divide(
+            vertexProjected,
+            vertexProjected.w
+          );
 
-          const vertexScaled = Vector.add(vertexNormalized, { x: 1, y: 1, z: 0 });
+          const vertexScaled = Vector.add(vertexNormalized, {
+            x: 1,
+            y: 1,
+            z: 0,
+          });
 
           vertexScaled.x *= 0.5 * this.canvas.width;
           vertexScaled.y *= 0.5 * this.canvas.height;
@@ -151,7 +180,7 @@ export default class Engine {
           finalProjection[i] = vertexScaled;
         }
 
-        this.drawTriangle(finalProjection);
+        this.drawLine(finalProjection);
       }
     }
   }
