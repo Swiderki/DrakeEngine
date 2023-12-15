@@ -1,7 +1,8 @@
 import Cube from "./entities/game-objects/built-in/Cube";
 import Drake from "./index";
-// TODO: It should be added to Drake
-import { Button, GUIText, Icon } from "./gui/guiElement";
+import { GUIText } from "./gui/GUIElements/GUIText";
+import { Button } from "./gui/GUIElements/Button";
+import { Icon } from "./gui/GUIElements/Icon";
 import GUI from "./gui/Gui";
 
 const canvas = document.getElementById("app") as HTMLCanvasElement | null;

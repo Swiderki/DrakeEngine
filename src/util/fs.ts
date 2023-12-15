@@ -1,4 +1,4 @@
-import { Clickable } from "../gui/guiElement";
+import { Clickable } from "../gui/GUIElements/Clickable";
 import { transpose } from "./math";
 
 interface parsedObj {

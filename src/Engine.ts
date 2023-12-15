@@ -1,7 +1,7 @@
 import Scene from "./Scene";
 import IdGenerator from "./util/idGenerator";
 import { Matrix, Vector } from "./util/math";
-import { Clickable } from "./gui/guiElement";
+import { Clickable } from "./gui/GUIElements/Clickable";
 import { isClickable } from "./util/fs";
 
 export default class Engine {
