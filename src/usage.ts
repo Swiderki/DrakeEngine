@@ -67,7 +67,8 @@ class MyGame extends Drake.Engine {
   override Start(): void {
     this.setResolution(640, 480);
     const camera = new Drake.Camera(90, 0.1, 1000, [10, 10, -15], [0, 0, 1]);
-    const mainSceneGUI = new GUI();
+    const mainSceneGUI = new GUI(this.getCanvas, this.getCanvas.getContext("2d")!);
+    // mainSceneGUI.hideCursor = true;
     mainSceneGUI.addElement(this.icon);
 
     const exampleText = new GUIText(
@@ -89,12 +90,12 @@ class MyGame extends Drake.Engine {
     // To create click event you must extend Button class
 
     exampleText.position.x = this.width - exampleText.width - 20;
-    exampleText.position.y = 20 + exampleText.height;
+    exampleText.position.y = 20;
     // this.ranbowText.position.x = 20;
     // this.ranbowText.position.y = this.height - 20;
 
     exampleText2.position.x = this.width - exampleText2.width - 20;
-    exampleText2.position.y = 30 + exampleText.height + exampleText.height;
+    exampleText2.position.y = 30 + exampleText.height;
 
     mainSceneGUI.addElement(exampleText);
     mainSceneGUI.addElement(exampleText2);

@@ -42,12 +42,14 @@ export default class Scene {
   }
 
   // Main methods
-
   setCurrentGUI(guiId: number) {
     if (!this._GUIs.has(guiId))
       throw new Error("GUIs array does not include the given gui.");
 
-    this._currentGUI = this._GUIs.get(guiId)!;
+    const gui = this._GUIs.get(guiId)!
+    this._currentGUI = gui;
+    // This stupid thing must be done to refresh scene cursor
+    gui.hideCursor = gui.hideCursor;
   }
 
   removeGUI(guiId: number) {

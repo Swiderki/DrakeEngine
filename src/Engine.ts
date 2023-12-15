@@ -84,6 +84,11 @@ export default class Engine {
 
     this._currentScene = this._scenes.get(sceneId)!;
     this._currentScene.initProjection();
+
+    // This stupid thing must be done to refresh scene cursor
+    if (this._currentScene.currentGUI)
+      this._currentScene.currentGUI.hideCursor =
+        this._currentScene.currentGUI.hideCursor;
   }
 
   private async _CoreStart(): Promise<void> {
@@ -95,25 +100,22 @@ export default class Engine {
     }
 
     document.addEventListener("click", (e) => {
-      if (!this._currentScene || !this._currentScene.currentGUI || !this.canvas) return;
-    
+      if (!this._currentScene || !this._currentScene.currentGUI || !this.canvas)
+        return;
+
       const canvasRect = this.canvas.getBoundingClientRect();
-    
+
       const clickX = e.clientX - canvasRect.left;
       const clickY = e.clientY - canvasRect.top;
-    
-      this._currentScene.currentGUI.elements.forEach(el => {
+
+      this._currentScene.currentGUI.elements.forEach((el) => {
         if (!isClickable(el)) return;
-    
-        const { width, height } = el;
-        const { x, y } = el.position;
-    
-        if (clickX >= x && clickX <= x + width &&
-            clickY >= y - height && clickY <= y) {
+
+        if (el.isCoordInElement(clickX, clickY)) {
           el.onClick();
         }
       });
-    });  
+    });
   }
 
   /** Gets called once the program starts */
@@ -242,10 +244,6 @@ export default class Engine {
       }
     }
 
-    if (this.currentScene.currentGUI) {
-      this.currentScene.currentGUI.elements.forEach((el) => {
-        el.render(this.ctx);
-      });
-    }
+    if (this.currentScene.currentGUI) this.currentScene.currentGUI.render();
   }
 }
