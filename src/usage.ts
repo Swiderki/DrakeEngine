@@ -2,32 +2,24 @@ import Cube from "./entities/game-objects/built-in/Cube";
 import Drake from "./index";
 import { GUIText } from "./gui/GUIElements/GUIText";
 import { Button } from "./gui/GUIElements/Button";
+import { Input } from "./gui/GUIElements/Input";
 import { Icon } from "./gui/GUIElements/Icon";
 import GUI from "./gui/Gui";
 
 const canvas = document.getElementById("app") as HTMLCanvasElement | null;
 if (!canvas) throw new Error("unable to find canvas");
 
-// Example of extending GUIText
-class RainboxText extends GUIText {
-  private hue: number = 0;
+
+class MyInput extends Input{
   constructor() {
-    super("Tęczaaaaaaaa", 50, "monospace", `hsl(0, 100%, 50%)`, 900);
-    this.color = `hsl(${this.hue}, 100%, 50%)`;
-  }
-
-  override render(ctx: CanvasRenderingContext2D) {
-    super.render(ctx);
-
-    this.hue += 5;
-    if (this.hue >= 360) this.hue = 0;
-    this.color = `hsl(${this.hue}, 100%, 50%)`;
+    super("Test btn", 30, "Arial", "#00ff00", 400, canvas!);
+    this.position.x = 300;
+    this.position.y = 100;
   }
 }
-
 class MyButton extends Button {
   constructor() {
-    super("Test btn", 30, "Arial", "#00ff00", 400);
+    super("Input", 30, "Arial", "#00ff00", 400);
     this.position.x = 100;
     this.position.y = 100;
   }
@@ -103,7 +95,8 @@ class MyGame extends Drake.Engine {
     // mainSceneGUI.addElement(this.ranbowText);
     const btn = new MyButton();
     mainSceneGUI.addElement(btn);
-
+    const input = new MyInput();
+    mainSceneGUI.addElement(input);
     const mainScene = new Drake.Scene(
       this.width,
       this.height,

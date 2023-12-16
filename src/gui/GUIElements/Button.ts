@@ -170,6 +170,6 @@ export class Button extends GUIText implements GuiElement, Clickable {
   }
 
   onClick(): void {}
-
+  onClickOutside(): void {}
   onHover(): void {}
 }

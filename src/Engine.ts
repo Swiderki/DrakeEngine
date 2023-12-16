@@ -113,6 +113,8 @@ export default class Engine {
 
         if (el.isCoordInElement(clickX, clickY)) {
           el.onClick();
+        } else {
+          el.onClickOutside()
         }
       });
     });
