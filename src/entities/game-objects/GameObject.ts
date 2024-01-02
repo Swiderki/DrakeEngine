@@ -1,4 +1,6 @@
 import { readObjFile } from "@/src/util/fs";
+import { Vector } from "@/src/util/math";
+import { QuaternionUtils } from "@/src/util/quaternions";
 
 export default class GameObject {
   private _meshIndexed: LineVerteciesIndexes[] = [];
@@ -34,6 +36,7 @@ export default class GameObject {
       yAxis: rotation[1],
       zAxis: rotation[2],
     };
+    
   }
 
   async loadMesh(): Promise<void> {
@@ -122,6 +125,20 @@ export default class GameObject {
       const y = vertex.x * sinZ + vertex.y * cosZ;
       vertex.x = x;
       vertex.y = y;
+    }
+
+    this.move(originalPosition.x, originalPosition.y, originalPosition.z);
+  }
+
+  applyQuaternion(quaternion: QuaternionUtils.Quaternion): void {
+    const originalPosition = { ...this._position };
+    this.move(-this._position.x, -this._position.y, -this._position.z);
+    for (const vertex of this._vertecies) {
+      const rotatedVertex = QuaternionUtils.rotateVector(quaternion, vertex);
+      console.log(Vector.subtract(originalPosition, rotatedVertex));
+      vertex.x = rotatedVertex.x;
+      vertex.y = rotatedVertex.y;
+      vertex.z = rotatedVertex.z;
     }
 
     this.move(originalPosition.x, originalPosition.y, originalPosition.z);
