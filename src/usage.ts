@@ -8,16 +8,16 @@ if (!canvas) throw new Error("unable to find canvas");
 
 class MyGame extends Drake.Engine {
   cube: Cube;
-  // axis;
+  axis;
 
   constructor(canvas: HTMLCanvasElement) {
     const camera = new Drake.Camera(90, 0.1, 1000, [10, 10, -15], [0, 0, 1]);
     super(canvas, camera);
     this.cube = new Drake.Cube([10, 10, 0]);
-    // this.axis = new Drake.GameObject("objects/axis_wire.obj");
+    this.axis = new Drake.GameObject("objects/axis_wire.obj");
     this.addSceneMesh(this.cube);
     console.log(this.cube.vertecies)
-    // this.addSceneMesh(this.axis);
+    this.addSceneMesh(this.axis);
   }
 
   handleCameraMove(e: KeyboardEvent) {
@@ -35,12 +35,12 @@ class MyGame extends Drake.Engine {
 
 override Update(): void {
   // Tworzenie kwaternionu reprezentującego obrót
-  const rotationSpeed = Math.PI * 2; // obrót o 360 stopni na sekundę
+  const rotationSpeed = Math.PI / 2; // obrót o 360 stopni na sekundę
   let rotationQuaternion = QuaternionUtils.setFromAxisAngle(
-    { x: 1, y: 1, z: 0 }, // Oś obrotu
+    { x: 1, y: 0, z: 1 }, // Oś obrotu
     rotationSpeed * this.deltaTime // Kąt obrotu
   );
-
+  
   // Normalizacja kwaternionu
   rotationQuaternion = QuaternionUtils.normalize(rotationQuaternion);
 
@@ -48,6 +48,7 @@ override Update(): void {
   if (this.cube.applyQuaternion) {
     this.cube.applyQuaternion(rotationQuaternion);
   }
+  this.axis.applyQuaternion(rotationQuaternion);
 }
 
 }
