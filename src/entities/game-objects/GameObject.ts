@@ -71,6 +71,7 @@ export default class GameObject {
       vertex.y += y;
       vertex.z += z;
     }
+    
     this._position = {
       x: this._position.x + x,
       y: this._position.y + y,
@@ -144,3 +145,4 @@ export default class GameObject {
     this.move(originalPosition.x, originalPosition.y, originalPosition.z);
   }
 }
+
