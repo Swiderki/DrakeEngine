@@ -10,11 +10,12 @@ class MyGame extends Drake.Engine {
   cubes: Cube[] = [];
   axis;
   pyramide;
+  rotationQuaternion = { x: 0, y: 0, z: 0, w: 1 };
 
   constructor(canvas: HTMLCanvasElement) {
     const camera = new Drake.Camera(69, 0.1, 1000, [10, 10, -15], [0, 0, 1]);
     super(canvas, camera);
-    [...Array(200)].forEach((_, i) => {
+    [...Array(1400)].forEach((_, i) => {
       this.cubes.push(new Cube([i * 5, 0, 0]));
     })
     this.axis = new Drake.GameObject("objects/axis_wire.obj");
@@ -38,30 +39,30 @@ class MyGame extends Drake.Engine {
     
   }
 
-override Update(): void {
-  // Tworzenie kwaternionu reprezentującego obrót
-  const rotationSpeed = Math.PI / 2; // obrót o 360 stopni na sekundę
-  let rotationQuaternion = QuaternionUtils.setFromAxisAngle(
-    { x: 1, y: 0, z: 0 }, // Oś obrotu
-    rotationSpeed * this.deltaTime // Kąt obrotu
-  );
-  
-  // Normalizacja kwaternionu
-  rotationQuaternion = QuaternionUtils.normalize(rotationQuaternion);
+  override Update(): void {
+    const rotationSpeed = Math.PI / 2; // Obrót o 360 stopni na sekundę
 
-  // Zastosowanie kwaternionu do obrotu kostki
-    this.cubes.forEach((cube) => {
-      if (cube.applyQuaternion) {
-        cube.applyQuaternion(rotationQuaternion);
-        rotationQuaternion = QuaternionUtils.normalize(rotationQuaternion);
-      }
-  })
-  this.axis.applyQuaternion(rotationQuaternion);
-  this.pyramide.applyQuaternion(rotationQuaternion);
+    // Aktualizacja kwaternionu rotacji
+    QuaternionUtils.setFromAxisAngle(
+      this.rotationQuaternion, 
+      { x: 0, y: 1, z: 0 }, // Oś obrotu
+      rotationSpeed * this.deltaTime // Kąt obrotu
+    );
+
+    // Normalizacja kwaternionu
+    QuaternionUtils.normalize(this.rotationQuaternion);
+
+    // Zastosowanie kwaternionu do obrotu kostek, piramidy i osi
+    this.cubes.forEach(cube => cube.applyQuaternion(this.rotationQuaternion));
+    this.axis.applyQuaternion(this.rotationQuaternion);
+    this.pyramide.applyQuaternion(this.rotationQuaternion);
+  }
 }
   
-}
+
 
 // Super kod 123
 const game = new MyGame(canvas);
 game.run();
+
+

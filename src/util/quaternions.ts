@@ -1,5 +1,4 @@
 import { Vector } from "./math";
-
 export namespace QuaternionUtils {
     export type Quaternion = {
         x: number;
@@ -8,41 +7,44 @@ export namespace QuaternionUtils {
         w: number;
     };
 
-    export function create(x = 0, y = 0, z = 0, w = 1): Quaternion {
-        return { x, y, z, w };
+    // Funkcja inicjalizująca kwaternion
+    export function init(quaternion: Quaternion, x = 0, y = 0, z = 0, w = 1): void {
+        quaternion.x = x;
+        quaternion.y = y;
+        quaternion.z = z;
+        quaternion.w = w;
     }
 
-    export function setFromAxisAngle(axis: { x: number; y: number; z: number }, angle: number): Quaternion {
+    // Ustawianie kwaternionu na podstawie osi i kąta
+    export function setFromAxisAngle(quaternion: Quaternion, axis: { x: number; y: number; z: number }, angle: number): void {
         const halfAngle = angle / 2;
         const sinHalfAngle = Math.sin(halfAngle);
 
-        return {
-            x: axis.x * sinHalfAngle,
-            y: axis.y * sinHalfAngle,
-            z: axis.z * sinHalfAngle,
-            w: Math.cos(halfAngle)
-        };
+        quaternion.x = axis.x * sinHalfAngle;
+        quaternion.y = axis.y * sinHalfAngle;
+        quaternion.z = axis.z * sinHalfAngle;
+        quaternion.w = Math.cos(halfAngle);
     }
 
-    export function normalize(quaternion: Quaternion): Quaternion {
+    // Normalizacja kwaternionu
+    export function normalize(quaternion: Quaternion): void {
         const length = Math.sqrt(quaternion.x * quaternion.x + quaternion.y * quaternion.y + quaternion.z * quaternion.z + quaternion.w * quaternion.w);
-        return {
-            x: quaternion.x / length,
-            y: quaternion.y / length,
-            z: quaternion.z / length,
-            w: quaternion.w / length
-        };
-    }
-    export function multiply(a: Quaternion, b: Quaternion): Quaternion {
-        return {
-            x: a.w * b.x + a.x * b.w + a.y * b.z - a.z * b.y,
-            y: a.w * b.y - a.x * b.z + a.y * b.w + a.z * b.x,
-            z: a.w * b.z + a.x * b.y - a.y * b.x + a.z * b.w,
-            w: a.w * b.w - a.x * b.x - a.y * b.y - a.z * b.z
-        };
+        quaternion.x /= length;
+        quaternion.y /= length;
+        quaternion.z /= length;
+        quaternion.w /= length;
     }
 
-    export function rotateVector(quaternion: Quaternion, vector: { x: number; y: number; z: number }): { x: number; y: number; z: number } {
+    // Mnożenie kwaternionów
+    export function multiply(result: Quaternion, a: Quaternion, b: Quaternion): void {
+        result.x = a.w * b.x + a.x * b.w + a.y * b.z - a.z * b.y;
+        result.y = a.w * b.y - a.x * b.z + a.y * b.w + a.z * b.x;
+        result.z = a.w * b.z + a.x * b.y - a.y * b.x + a.z * b.w;
+        result.w = a.w * b.w - a.x * b.x - a.y * b.y - a.z * b.z;
+    }
+
+    // Obracanie wektora za pomocą kwaternionu
+    export function rotateVector(quaternion: Quaternion, vector: { x: number; y: number; z: number }, result: { x: number; y: number; z: number }): void {
         const qVec = { x: quaternion.x, y: quaternion.y, z: quaternion.z };
         const uv = Vector.crossP(qVec, vector);
         const uuv = Vector.crossP(qVec, uv);
@@ -55,12 +57,10 @@ export namespace QuaternionUtils {
         uuv.y *= 2.0;
         uuv.z *= 2.0;
 
-        return {
-            x: vector.x + uv.x + uuv.x,
-            y: vector.y + uv.y + uuv.y,
-            z: vector.z + uv.z + uuv.z
-        };
+        result.x = vector.x + uv.x + uuv.x;
+        result.y = vector.y + uv.y + uuv.y;
+        result.z = vector.z + uv.z + uuv.z;
     }
 
-    // Możesz dodać tutaj dodatkowe funkcje dotyczące kwaternionów, jak mnożenie, obrót, itp.
+    // ... ewentualne dodatkowe funkcje ...
 }

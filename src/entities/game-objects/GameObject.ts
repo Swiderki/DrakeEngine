@@ -71,7 +71,7 @@ export default class GameObject {
       vertex.y += y;
       vertex.z += z;
     }
-    
+
     this._position = {
       x: this._position.x + x,
       y: this._position.y + y,
@@ -134,9 +134,14 @@ export default class GameObject {
   applyQuaternion(quaternion: QuaternionUtils.Quaternion): void {
     const originalPosition = { ...this._position };
     this.move(-this._position.x, -this._position.y, -this._position.z);
+
+    // Zmodyfikowany obiekt wynikowy dla obrotu wektora
+    let rotatedVertex = { x: 0, y: 0, z: 0 };
+
     for (const vertex of this._vertecies) {
-      const rotatedVertex = QuaternionUtils.rotateVector(quaternion, vertex);
-      console.log(Vector.subtract(originalPosition, rotatedVertex));
+      // Używamy zmodyfikowanej funkcji 'rotateVector', która modyfikuje istniejący obiekt
+      QuaternionUtils.rotateVector(quaternion, vertex, rotatedVertex);
+      
       vertex.x = rotatedVertex.x;
       vertex.y = rotatedVertex.y;
       vertex.z = rotatedVertex.z;
