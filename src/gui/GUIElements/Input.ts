@@ -5,9 +5,9 @@ import GuiElement from "./GuiElement";
 export class Input extends GUIText implements GuiElement, Clickable {
     override position: { x: number; y: number } = { x: 0, y: 0 };
     private canvas: HTMLCanvasElement;
-
     isFocused: boolean = false;
-
+    private predefinedWidth: number;
+    private predefinedHeight: number;
     border: {
         top: { color: string; width: number };
         bottom: { color: string; width: number };
@@ -26,10 +26,10 @@ export class Input extends GUIText implements GuiElement, Clickable {
         left: number;
         right: number;
     } = {
-            top: 20,
-            bottom: 20,
-            left: 40,
-            right: 40,
+            top: 0,
+            bottom: 0,
+            left: 0,
+            right: 0,
         };
 
     constructor(
@@ -39,106 +39,68 @@ export class Input extends GUIText implements GuiElement, Clickable {
         color: string,
         fontWeight: number = 400,
         canvas: HTMLCanvasElement,
+        predefiniedHeight: number,
+        predefinedWidth: number
 
     ) {
         super(text, fontSize, fontFamily, color, fontWeight);
+        this.predefinedHeight = predefiniedHeight
+        this.predefinedWidth = predefinedWidth
         this.canvas = canvas;
+        
         document.addEventListener('keydown', this.handleKeyDown.bind(this));
     }
 
     override render(ctx: CanvasRenderingContext2D) {
+        // Ustawienie rozmiarów i pozycji tekstowej części inputu
         ctx.font = `${this.fontWeight} ${this.fontSize}px ${this.fontFamily}`;
+        
         ctx.fillStyle = this.color;
-
         ctx.fillText(
             this.text,
             this.position.x + this.padding.left,
             this.position.y + this.padding.top + this.height
         );
 
-        // Drawing border
-        // Lines such as "+ this.width / 2" force thing like "box-sizing"
+        const borderBox = {
+            left: this.position.x,
+            top: this.position.y,
+            right: this.position.x + this.predefinedWidth,
+            bottom: this.position.y + this.predefinedHeight
+        };
 
-        // Left
+        // Left 
         this.drawLine(
             ctx,
-            { x: this.position.x + this.border.left.width / 2, y: this.position.y },
-            {
-                x: this.position.x + this.border.left.width / 2,
-                y:
-                    this.position.y +
-                    this.height +
-                    this.padding.top +
-                    this.padding.bottom,
-            },
+            { x: borderBox.left, y: borderBox.top },
+            { x: borderBox.left, y: borderBox.bottom },
             this.border.left.color,
             this.border.left.width
         );
 
-        // Right
+        // Right 
         this.drawLine(
             ctx,
-            {
-                x:
-                    this.position.x +
-                    this.width -
-                    this.border.right.width / 2 +
-                    this.padding.left +
-                    this.padding.right,
-                y: this.position.y,
-            },
-            {
-                x:
-                    this.position.x +
-                    this.width -
-                    this.border.right.width / 2 +
-                    this.padding.left +
-                    this.padding.right,
-                y:
-                    this.position.y +
-                    this.height +
-                    this.padding.top +
-                    this.padding.bottom,
-            },
+            { x: borderBox.right, y: borderBox.top },
+            { x: borderBox.right, y: borderBox.bottom },
             this.border.right.color,
             this.border.right.width
         );
 
-        // Top
+        // Top 
         this.drawLine(
             ctx,
-            { x: this.position.x, y: this.position.y + this.border.top.width / 2 },
-            {
-                x:
-                    this.position.x + this.width + this.padding.left + this.padding.right,
-                y: this.position.y + this.border.top.width / 2,
-            },
+            { x: borderBox.left, y: borderBox.top },
+            { x: borderBox.right, y: borderBox.top },
             this.border.top.color,
             this.border.top.width
         );
 
-        // Bottom
+        // Bottom 
         this.drawLine(
             ctx,
-            {
-                x: this.position.x,
-                y:
-                    this.position.y +
-                    this.height -
-                    this.border.bottom.width / 2 +
-                    this.padding.top +
-                    this.padding.bottom,
-            },
-            {
-                x:
-                    this.position.x + this.width + this.padding.left + this.padding.right,
-                y:
-                    this.position.y +
-                    this.height -
-                    this.border.bottom.width / 2 +
-                    this.padding.top +
-                    this.padding.bottom,
-            },
+            { x: borderBox.left, y: borderBox.bottom },
+            { x: borderBox.right, y: borderBox.bottom },
             this.border.bottom.color,
             this.border.bottom.width
         );
@@ -189,6 +151,7 @@ export class Input extends GUIText implements GuiElement, Clickable {
 
     onClick(): void {
         this.isFocused = true;
+        console.log('clicked');
     }
     onClickOutside(): void {
         this.isFocused = false;

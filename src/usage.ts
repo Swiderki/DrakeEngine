@@ -12,7 +12,7 @@ if (!canvas) throw new Error("unable to find canvas");
 
 class MyInput extends Input{
   constructor() {
-    super("Test btn", 30, "Arial", "#00ff00", 400, canvas!);
+    super("Test btn", 30, "Arial", "#00ff00", 400, canvas!, 80, 200);
     this.position.x = 300;
     this.position.y = 100;
   }
