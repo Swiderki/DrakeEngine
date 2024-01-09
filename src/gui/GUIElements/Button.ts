@@ -2,6 +2,9 @@ import { Clickable } from "./Clickable";
 import { GUIText } from "./GUIText";
 import GuiElement from "./GuiElement";
 
+// I completely fucked up
+// I must overwrite width and height getters and then calculate using them...
+
 export class Button extends GUIText implements GuiElement, Clickable {
   override position: { x: number; y: number } = { x: 0, y: 0 };
 
@@ -11,10 +14,10 @@ export class Button extends GUIText implements GuiElement, Clickable {
     left: { color: string; width: number };
     right: { color: string; width: number };
   } = {
-    top: { color: "#ff0000", width: 6 },
-    bottom: { color: "#ff0000", width: 6 },
-    left: { color: "#fff", width: 6 },
-    right: { color: "#fff", width: 6 },
+    top: { color: "#ffffff", width: 1 },
+    bottom: { color: "#ffffff", width: 1 },
+    left: { color: "#ffffff", width: 1 },
+    right: { color: "#ffffff", width: 1 },
   };
 
   padding: {
@@ -46,7 +49,7 @@ export class Button extends GUIText implements GuiElement, Clickable {
     ctx.fillText(
       this.text,
       this.position.x + this.padding.left,
-      this.position.y + this.padding.top + this.height
+      this.position.y + this.padding.top + this.getTextHeight()
     );
 
     // Drawing border
@@ -60,7 +63,7 @@ export class Button extends GUIText implements GuiElement, Clickable {
         x: this.position.x + this.border.left.width / 2,
         y:
           this.position.y +
-          this.height +
+          this.getTextHeight() +
           this.padding.top +
           this.padding.bottom,
       },
@@ -74,7 +77,7 @@ export class Button extends GUIText implements GuiElement, Clickable {
       {
         x:
           this.position.x +
-          this.width -
+          this.getTextWidth() -
           this.border.right.width / 2 +
           this.padding.left +
           this.padding.right,
@@ -83,13 +86,13 @@ export class Button extends GUIText implements GuiElement, Clickable {
       {
         x:
           this.position.x +
-          this.width -
+          this.getTextWidth() -
           this.border.right.width / 2 +
           this.padding.left +
           this.padding.right,
         y:
           this.position.y +
-          this.height +
+          this.getTextHeight() +
           this.padding.top +
           this.padding.bottom,
       },
@@ -103,7 +106,7 @@ export class Button extends GUIText implements GuiElement, Clickable {
       { x: this.position.x, y: this.position.y + this.border.top.width / 2 },
       {
         x:
-          this.position.x + this.width + this.padding.left + this.padding.right,
+          this.position.x + this.getTextWidth() + this.padding.left + this.padding.right,
         y: this.position.y + this.border.top.width / 2,
       },
       this.border.top.color,
@@ -117,17 +120,17 @@ export class Button extends GUIText implements GuiElement, Clickable {
         x: this.position.x,
         y:
           this.position.y +
-          this.height -
+          this.getTextHeight() -
           this.border.bottom.width / 2 +
           this.padding.top +
           this.padding.bottom,
       },
       {
         x:
-          this.position.x + this.width + this.padding.left + this.padding.right,
+          this.position.x + this.getTextWidth() + this.padding.left + this.padding.right,
         y:
           this.position.y +
-          this.height -
+          this.getTextHeight() -
           this.border.bottom.width / 2 +
           this.padding.top +
           this.padding.bottom,
@@ -158,6 +161,7 @@ export class Button extends GUIText implements GuiElement, Clickable {
     ctx.restore();
   }
 
+  
   isCoordInElement(x: number, y: number) {
     return (
       x >= this.position.x &&

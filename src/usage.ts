@@ -19,7 +19,7 @@ class MyInput extends Input{
 }
 class MyButton extends Button {
   constructor() {
-    super("Input", 30, "Arial", "#00ff00", 400);
+    super("Test btn", 24, "Arial", "#00ff00", 400);
     this.position.x = 100;
     this.position.y = 100;
   }
@@ -58,7 +58,7 @@ class MyGame extends Drake.Engine {
   }
 
   override Start(): void {
-    this.setResolution(640, 480);
+    this.setResolution(1280, 720);
     const camera = new Drake.Camera(90, 0.1, 1000, [10, 10, -15], [0, 0, 1]);
     const mainSceneGUI = new GUI(this.getCanvas, this.getCanvas.getContext("2d")!);
     // mainSceneGUI.hideCursor = true;
@@ -105,7 +105,7 @@ class MyGame extends Drake.Engine {
 
     const mainSceneGUIId = mainScene.addGUI(mainSceneGUI);
     mainScene.setCamera(camera);
-    mainScene.setCurrentGUI(mainSceneGUIId);
+    // mainScene.setCurrentGUI(mainSceneGUIId);
 
     const mainSceneId = this.addScene(mainScene);
     this.setCurrentScene(mainSceneId);

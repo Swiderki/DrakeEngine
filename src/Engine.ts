@@ -85,7 +85,6 @@ export default class Engine {
     this._currentScene = this._scenes.get(sceneId)!;
     this._currentScene.initProjection();
 
-    // This stupid thing must be done to refresh scene cursor
     if (this._currentScene.currentGUI)
       this._currentScene.currentGUI.hideCursor =
         this._currentScene.currentGUI.hideCursor;
@@ -99,6 +98,7 @@ export default class Engine {
       this.fpsDisplay.style.color = "white";
     }
 
+    // Click event
     document.addEventListener("click", (e) => {
       if (!this._currentScene || !this._currentScene.currentGUI || !this.canvas)
         return;
@@ -115,6 +115,25 @@ export default class Engine {
           el.onClick();
         } else {
           el.onClickOutside()
+        }
+      });
+    });
+
+    // Hover event
+    document.addEventListener("mousemove", (e) => {
+      if (!this._currentScene || !this._currentScene.currentGUI || !this.canvas)
+        return;
+
+      const canvasRect = this.canvas.getBoundingClientRect();
+
+      const clickX = e.clientX - canvasRect.left;
+      const clickY = e.clientY - canvasRect.top;
+
+      this._currentScene.currentGUI.elements.forEach((el) => {
+        if (!isClickable(el)) return;
+
+        if (el.isCoordInElement(clickX, clickY)) {
+          el.onHover();
         }
       });
     });

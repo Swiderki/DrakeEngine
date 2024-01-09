@@ -41,17 +41,17 @@ export class GUIText implements GuiElement {
     this.color = color;
   }
 
-  private getTextWidth(): number {
+  protected getTextWidth(): number {
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
 
     ctx!.font = `${this.fontWeight} ${this.fontSize}px ${this.fontFamily}`;
 
     const metrics = ctx!.measureText(this.text);
-    return metrics.width;
+    return Math.round(metrics.width);
   }
 
-  private getTextHeight(): number {
+  protected getTextHeight(): number {
     // Create a false canvas
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
@@ -68,7 +68,7 @@ export class GUIText implements GuiElement {
     // This is a simplification and may not be accurate for all fonts
     const approxHeight = this.fontSize * 1.2; // 1.2 is a general factor that works for most fonts
 
-    return actualHeight || approxHeight;
+    return Math.round(actualHeight) || Math.round(approxHeight);
   }
 
   render(ctx: CanvasRenderingContext2D): void {
