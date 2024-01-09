@@ -2,9 +2,6 @@ import { Clickable } from "./Clickable";
 import { GUIText } from "./GUIText";
 import GuiElement from "./GuiElement";
 
-// I completely fucked up
-// I must overwrite width and height getters and then calculate using them...
-
 export class Button extends GUIText implements GuiElement, Clickable {
   override position: { x: number; y: number } = { x: 0, y: 0 };
 

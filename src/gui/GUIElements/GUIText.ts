@@ -7,24 +7,12 @@ export class GUIText implements GuiElement {
   fontWeight: number;
   color: string;
   position: { x: number; y: number } = { x: 0, y: 0 };
-  protected _width: number | null = null;
-  protected _height: number | null = null;
   get width(): number {
-    if (this._width == null) return this.getTextWidth();
-    return this._width;
+    return this.getTextWidth();
   }
-
-  set width(width: number) {
-    this._width = width;
-  }
-
+  
   get height(): number {
-    if (this._height == null) return this.getTextHeight();
-    return this._height;
-  }
-
-  set height(height: number) {
-    this._height = height;
+   return this.getTextHeight();
   }
 
   constructor(

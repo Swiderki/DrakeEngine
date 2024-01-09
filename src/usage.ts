@@ -22,11 +22,13 @@ class MyButton extends Button {
     super("Test btn", 24, "Arial", "#00ff00", 400);
     this.position.x = 100;
     this.position.y = 100;
+    this.border.bottom.color = "#ff0000";
   }
 
   override onClick(): void {
     if (this.color == "#ffffff") this.color = "#00ff00";
     else this.color = "#ffffff";
+    console.log(this.width);
   }
 }
 
@@ -105,7 +107,7 @@ class MyGame extends Drake.Engine {
 
     const mainSceneGUIId = mainScene.addGUI(mainSceneGUI);
     mainScene.setCamera(camera);
-    // mainScene.setCurrentGUI(mainSceneGUIId);
+    mainScene.setCurrentGUI(mainSceneGUIId);
 
     const mainSceneId = this.addScene(mainScene);
     this.setCurrentScene(mainSceneId);
