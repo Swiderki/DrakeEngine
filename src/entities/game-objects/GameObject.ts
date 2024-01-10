@@ -14,6 +14,7 @@ export default class GameObject {
       (triVerIdx) => triVerIdx.map((i) => this._vertecies[i]) as Line
     );
   }
+
   get vertecies() { return this._vertecies; } // prettier-ignore
   get position() { return this._position; } // prettier-ignore
   get size() { return this._size; } // prettier-ignore
