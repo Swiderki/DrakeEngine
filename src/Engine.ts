@@ -1,10 +1,14 @@
 import Camera from "./entities/Camera";
 import IdGenerator from "./util/idGenerator";
 import { Matrix, Vector } from "./util/math";
+import { Overlap } from "./behavior/Overlap";
+import GameObject from "./entities/game-objects/GameObject";
 
 export default class Engine {
   private idGenerator = new IdGenerator();
+  private overlapIdGenerator = new IdGenerator();
   private gameObjects: Map<number, GameObject> = new Map();
+  private overlaps: Map<number, Overlap> = new Map();
   protected mainCamera: Camera;
   private projMatrix: Mat4x4 = Matrix.zeros();
 
@@ -21,6 +25,8 @@ export default class Engine {
   get deltaTime() { return this._deltaTime; } // prettier-ignore
   get frameNumber() { return this._frameNumber; } // prettier-ignore
 
+  
+
   constructor(canvas: HTMLCanvasElement, camera: Camera) {
     this.canvas = canvas;
     const ctx = canvas.getContext("2d");
@@ -30,6 +36,14 @@ export default class Engine {
       );
     this.ctx = ctx;
     this.mainCamera = camera;
+  }
+
+  addOverlap(obj1: GameObject, obj2: GameObject): number {
+    const ov = new Overlap(obj1, obj2);
+    const id = this.overlapIdGenerator.id;
+
+    this.overlaps.set(id, ov);
+    return id;
   }
 
   // Main methods - used to interact with engine's workflow directly

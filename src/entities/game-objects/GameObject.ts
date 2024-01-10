@@ -6,6 +6,7 @@ export default class GameObject {
   private _position: Vec3D;
   private _size: Vec3D;
   private _rotation: Rotation;
+  public boxCollider: [Vec3D, Vec3D];
 
   readonly meshPath: string;
 
@@ -24,10 +25,11 @@ export default class GameObject {
     meshPath: string,
     position: Vec3DTuple = [0, 0, 0],
     size: Vec3DTuple = [1, 1, 1],
-    rotation: Vec3DTuple = [0, 0, 0]
+    rotation: Vec3DTuple = [0, 0, 0],
+    boxCollider: [Vec3D, Vec3D]
   ) {
     this.meshPath = meshPath;
-
+    this.boxCollider = boxCollider;
     this._position = { x: position[0], y: position[1], z: position[2] };
     this._size = { x: size[0], y: size[1], z: size[2] };
     this._rotation = {
