@@ -1,4 +1,4 @@
-interface parsedObj {
+export interface parsedObj {
   vertexPositions: Vec3D[];
   lineVerteciesIndexes: LineVerteciesIndexes[];
 }
@@ -10,7 +10,7 @@ interface parsedObj {
  * future a duplication avoider should be
  * implmented
  */
-function parseObj(text: string): parsedObj {
+export function parseObj(text: string): parsedObj {
   const vertexPositions: Vec3D[] = [];
   const lineVerteciesIndexes: LineVerteciesIndexes[] = [];
 
