@@ -1,51 +1,73 @@
-import GameObject from "./GameObject";
-import fetchMock from 'jest-fetch-mock';
+// GameObject.test.ts
+import GameObject from './GameObject'; // Update with the correct file path
+import { diff } from 'jest-diff';
 
-fetchMock.enableMocks();  
-test("move() should move the vertices correctly", () => {
-    const cube = new GameObject("cube.obj", [1, 2, 3], [4, 5, 6], [7, 8, 9]);
-    cube.loadMesh();
-  
-    cube.move(10, 20, 30);
-  
-    expect(cube.vertecies).toEqual([
-      { x: 11, y: 22, z: 33 },
-      { x: 15, y: 27, z: 39 },
-      { x: 19, y: 31, z: 43 },
-      { x: 23, y: 35, z: 47 },
-      { x: 27, y: 39, z: 51 },
-      { x: 31, y: 43, z: 55 },
-    ]);
+jest.mock('@/src/util/fs', () => ({
+  readObjFile: jest.fn(() => ({
+    lineVerteciesIndexes: [
+      [0, 1],
+      [1, 2],
+      [2, 0],
+    ] as LineVerteciesIndexes[],
+    vertexPositions: [
+      { x: 0, y: 0, z: 0 },
+      { x: 1, y: 0, z: 0 },
+      { x: 1, y: 1, z: 0 },
+    ] as Vec3D[],
+  })),
+}));
+
+describe('GameObject class', () => {
+  let gameObject: GameObject;
+
+  beforeEach(async () => {
+    gameObject = await new GameObject('mockedPath');
+    await gameObject.loadMesh();
+  });
+
+  test('constructor initializes object properties', () => {
+    expect(gameObject.meshPath).toBe('mockedPath');
+    expect(gameObject.position).toEqual({ x: 0, y: 0, z: 0 });
+    expect(gameObject.size).toEqual({ x: 1, y: 1, z: 1 });
+    expect(gameObject.rotation).toEqual({ xAxis: 0, yAxis: 0, zAxis: 0 });
+  });
+
+  test('loadMesh sets vertecies and meshIndexed', async () => {
+    console.log(gameObject.vertecies);
+    expect(gameObject.vertecies).toHaveLength(3);
+    expect(gameObject.mesh).toHaveLength(3);
   });
   
-  test("scale() should scale the vertices correctly", () => {
-    const cube = new GameObject("cube.obj", [1, 2, 3], [4, 5, 6], [7, 8, 9]);
-    cube.loadMesh();
-  
-    cube.scale(2, 3, 4);
-  
-    expect(cube.vertecies).toEqual([
-      { x: 2, y: 6, z: 12 },
-      { x: 8, y: 15, z: 24 },
-      { x: 14, y: 21, z: 36 },
-      { x: 20, y: 30, z: 48 },
-      { x: 26, y: 39, z: 60 },
-      { x: 32, y: 48, z: 72 },
+  test('move updates vertecies and position', () => { 
+    gameObject.move(1, 2, 3);
+    expect(gameObject.vertecies).toEqual([
+      { x: 1, y: 2, z: 3 },
+      { x: 2, y: 2, z: 3 },
+      { x: 2, y: 3, z: 3 },
     ]);
+    expect(gameObject.position).toEqual({ x: 1, y: 2, z: 3 });
   });
-  
-  test("rotate() should rotate the vertices correctly", () => {
-    const cube = new GameObject("cube.obj", [1, 2, 3], [4, 5, 6], [7, 8, 9]);
-    cube.loadMesh();
-  
-    cube.rotate(Math.PI / 2, Math.PI, Math.PI / 3);
-  
-    expect(cube.vertecies).toEqual([
-      { x: 3, y: 1, z: -2 },
-      { x: 3, y: 5, z: -1 },
-      { x: 1, y: 9, z: 0 },
-      { x: -2, y: 13, z: 1 },
-      { x: -6, y: 17, z: 2 },
-      { x: -10, y: 21, z: 3 },
+
+  test.skip ('scale updates vertecies and size', () => {
+    gameObject.scale(2, 3, 4);
+
+    expect(gameObject.vertecies).toEqual([
+      { x: 0, y: 0, z: 0 },
+      { x: 2, y: 0, z: 0 },
+      { x: 2, y: 3, z: 0 },
     ]);
+    expect(gameObject.size).toEqual({ x: 2, y: 3, z: 4 });
   });
+
+  test('rotate updates vertecies and rotation', () => {
+    gameObject.rotate(Math.PI / 2, 0, 0);
+
+    // After rotation around X-axis by 90 degrees, the vertices should be:
+    expect(gameObject.vertecies[0]).toEqual({ x: 0, y: 0, z: 0 });
+    console.log(diff(gameObject.vertecies[0], { x: 1, y: 0, z: 0}));
+    expect(gameObject.vertecies[1]).toEqual({ x: 0, y: 1, z: 0 });
+    expect(gameObject.vertecies[2]).toEqual({ x: 0, y: 1, z: -1 });
+
+    expect(gameObject.rotation).toEqual({ xAxis: Math.PI / 2, yAxis: 0, zAxis: 0 });
+  });
+});

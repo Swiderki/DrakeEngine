@@ -14,9 +14,9 @@ export function parseObj(text: string): parsedObj {
   const vertexPositions: Vec3D[] = [];
   const lineVerteciesIndexes: LineVerteciesIndexes[] = [];
 
-  for (const line of text.split("\n")) {
-    let parts = line.split(" ");
-    const dataType = parts[0];
+  for (const line of text.trim().split("\n")) {
+    let parts = line.trim().split(" ");
+    const dataType = parts[0].trim();
     parts = parts.slice(1);
 
     switch (dataType) {
@@ -37,10 +37,11 @@ export function parseObj(text: string): parsedObj {
         break;
 
       default:
+        console.table([dataType, parts]);
         break;
     }
   }
-
+  
   return { vertexPositions, lineVerteciesIndexes };
 }
 

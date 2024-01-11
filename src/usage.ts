@@ -38,3 +38,4 @@ class MyGame extends Drake.Engine {
 // Super kod 123
 const game = new MyGame(canvas);
 game.run();
+
