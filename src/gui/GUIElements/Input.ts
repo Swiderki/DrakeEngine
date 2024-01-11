@@ -39,11 +39,11 @@ export class Input extends GUIText implements GuiElement, Clickable {
         super(text, fontSize, fontFamily, color, fontWeight);
         this.predefinedHeight = predefiniedHeight
         this.predefinedWidth = predefinedWidth
-        const textHeight = this.fontSize; // Approximation of text height
+        const textHeight = this.fontSize; 
         const totalVerticalPadding = this.predefinedHeight - textHeight;
         this.padding.top = totalVerticalPadding / 2;
         this.padding.bottom = totalVerticalPadding / 2;
-        let textWidth = 100; // Adjust this value based on your requirements
+        let textWidth = 100; 
         this.padding.left = (this.predefinedWidth - textWidth) / 2;
         this.padding.right = this.padding.left;
         document.addEventListener('keydown', this.handleKeyDown.bind(this));
@@ -57,7 +57,7 @@ export class Input extends GUIText implements GuiElement, Clickable {
         ctx.fillStyle = this.color;
 
         // Check if the text exceeds the predefined width
-        while (textWidth > this.predefinedWidth && textToDisplay.length > 0) {
+        while (textWidth+10 > this.predefinedWidth && textToDisplay.length > 0) {
             textToDisplay = textToDisplay.substring(0, textToDisplay.length - 1);
             textWidth = ctx.measureText(textToDisplay).width;
         }
@@ -87,8 +87,8 @@ export class Input extends GUIText implements GuiElement, Clickable {
         // Right 
         this.drawLine(
             ctx,
-            { x: borderBox.right, y: borderBox.top },
-            { x: borderBox.right, y: borderBox.bottom },
+            { x: borderBox.right - this.border.left.width, y: borderBox.top },
+            { x: borderBox.right - this.border.left.width, y: borderBox.bottom },
             this.border.right.color,
             this.border.right.width
         );
@@ -96,8 +96,8 @@ export class Input extends GUIText implements GuiElement, Clickable {
         // Top 
         this.drawLine(
             ctx,
-            { x: borderBox.left, y: borderBox.top },
-            { x: borderBox.right, y: borderBox.top },
+            { x: borderBox.left - this.border.top.width/2, y: borderBox.top },
+            { x: borderBox.right - this.border.top.width/2, y: borderBox.top },
             this.border.top.color,
             this.border.top.width
         );
@@ -105,8 +105,8 @@ export class Input extends GUIText implements GuiElement, Clickable {
         // Bottom 
         this.drawLine(
             ctx,
-            { x: borderBox.left, y: borderBox.bottom },
-            { x: borderBox.right, y: borderBox.bottom },
+            { x: borderBox.left - this.border.top.width/2, y: borderBox.bottom },
+            { x: borderBox.right - this.border.top.width/2, y: borderBox.bottom },
             this.border.bottom.color,
             this.border.bottom.width
         );
