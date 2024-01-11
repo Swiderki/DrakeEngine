@@ -8,7 +8,6 @@ export default class Engine {
   private idGenerator = new IdGenerator();
   private overlapIdGenerator = new IdGenerator();
   private gameObjects: Map<number, GameObject> = new Map();
-  private overlaps: Map<number, Overlap> = new Map();
   protected mainCamera: Camera;
   private projMatrix: Mat4x4 = Matrix.zeros();
 
@@ -25,7 +24,26 @@ export default class Engine {
   get deltaTime() { return this._deltaTime; } // prettier-ignore
   get frameNumber() { return this._frameNumber; } // prettier-ignore
 
-  
+  // Must be moved to scenes
+  readonly overlaps: Map<number, Overlap> = new Map();
+  getOverlap(id: number): Overlap {
+    if (!this.overlaps.has(id)) throw new Error("There's no overlap with the given id");
+    return this.overlaps.get(id)!;
+  }
+
+  addOverlap(overlap: Overlap): number {
+    const id = this.overlapIdGenerator.id;
+
+    this.overlaps.set(id, overlap);
+    return id;
+  }
+
+  removeOverlap(id: number): number {
+    if (!this.overlaps.has(id)) throw new Error("There's no overlap with the given id");
+
+    this.overlaps.delete(id);
+    return id;
+  }
 
   constructor(canvas: HTMLCanvasElement, camera: Camera) {
     this.canvas = canvas;
@@ -38,13 +56,6 @@ export default class Engine {
     this.mainCamera = camera;
   }
 
-  addOverlap(obj1: GameObject, obj2: GameObject): number {
-    const ov = new Overlap(obj1, obj2);
-    const id = this.overlapIdGenerator.id;
-
-    this.overlaps.set(id, ov);
-    return id;
-  }
 
   // Main methods - used to interact with engine's workflow directly
 
@@ -76,6 +87,13 @@ export default class Engine {
     this._deltaTime =
       (this.prevFrameEndTime - this.penultimateFrameEndTime) / 1000;
     this._frameNumber = frameNumber;
+
+    this.overlaps.forEach((v, key) => {
+      if (!v.enabled) return;
+      if (!v.isHappening()) return;
+      console.log("xd");
+      v.onOverlap();
+    });
 
     this.Update();
 

@@ -6,7 +6,7 @@ export default class GameObject {
   private _position: Vec3D;
   private _size: Vec3D;
   private _rotation: Rotation;
-  public boxCollider: [Vec3D, Vec3D];
+  private _boxCollider: [Vec3D, Vec3D] | null = null;
 
   readonly meshPath: string;
 
@@ -21,15 +21,22 @@ export default class GameObject {
   get size() { return this._size; } // prettier-ignore
   get rotation() { return this._rotation; } // prettier-ignore
 
+  set boxCollider(boxCollider: [Vec3D, Vec3D]) {
+    this._boxCollider = boxCollider;
+  }
+
+  get boxCollider(): [Vec3D, Vec3D] | null {
+    return this._boxCollider;
+  }
+
   constructor(
     meshPath: string,
     position: Vec3DTuple = [0, 0, 0],
     size: Vec3DTuple = [1, 1, 1],
     rotation: Vec3DTuple = [0, 0, 0],
-    boxCollider: [Vec3D, Vec3D]
   ) {
     this.meshPath = meshPath;
-    this.boxCollider = boxCollider;
+    
     this._position = { x: position[0], y: position[1], z: position[2] };
     this._size = { x: size[0], y: size[1], z: size[2] };
     this._rotation = {
