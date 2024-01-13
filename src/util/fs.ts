@@ -24,6 +24,12 @@ function parseObj(text: string): parsedObj {
         const pos = parts.map(parseFloat);
         vertexPositions.push({ x: pos[0], y: pos[1], z: pos[2] });
         break;
+
+      case "l":
+        // subtract 1 from every index because blender starts vertecies indexing from 1 not 0
+        lineVerteciesIndexes.push([parseFloat(parts[0]) - 1, parseFloat(parts[1]) - 1]);
+        break;
+
       case "f":
         const vertexIndexes = parts.map(parseFloat);
         for (let i = 0; i < parts.length; i++) {
