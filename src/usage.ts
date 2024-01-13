@@ -14,6 +14,8 @@ class MyGame extends Drake.Engine {
     this.cube = new Drake.Cube([10, 10, 0]);
     this.axis = new Drake.GameObject("objects/axis_wire.obj");
 
+    [...Array(100)].map((_, i) => this.addSceneMesh(new Drake.Cube([i * 0.1, 0, 0])));
+
     this.addSceneMesh(this.cube);
     this.addSceneMesh(this.axis);
   }
