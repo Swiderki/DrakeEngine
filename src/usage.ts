@@ -23,7 +23,9 @@ class MyGame extends Drake.Engine {
     this.addSceneMesh(this.pyramide);
     this.cubes.forEach((cube) => this.addSceneMesh(cube));
 
-    this.addSceneMesh(this.axis);
+    [...Array(100)].map((_, i) => this.addSceneMesh(new Drake.Cube([i * 0.1, 0, 0])));
+
+    this.addSceneMesh(this.cube);
   }
 
   handleCameraMove(e: KeyboardEvent) {

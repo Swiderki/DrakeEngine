@@ -25,14 +25,16 @@ export function parseObj(text: string): parsedObj {
         vertexPositions.push({ x: pos[0], y: pos[1], z: pos[2] });
         break;
 
+      case "l":
+        // subtract 1 from every index because blender starts vertecies indexing from 1 not 0
+        lineVerteciesIndexes.push([parseFloat(parts[0]) - 1, parseFloat(parts[1]) - 1]);
+        break;
+
       case "f":
         const vertexIndexes = parts.map(parseFloat);
         for (let i = 0; i < parts.length; i++) {
           // subtract 1 from every index because blender starts vertecies indexing from 1 not 0
-          lineVerteciesIndexes.push([
-            vertexIndexes[i] - 1,
-            vertexIndexes[(i + 1) % parts.length] - 1,
-          ]);
+          lineVerteciesIndexes.push([vertexIndexes[i] - 1, vertexIndexes[(i + 1) % parts.length] - 1]);
         }
         break;
 
@@ -45,8 +47,19 @@ export function parseObj(text: string): parsedObj {
   return { vertexPositions, lineVerteciesIndexes };
 }
 
-export async function readObjFile(path: string): Promise<parsedObj> {
-  const res = await fetch(location.pathname + path);
-  const text = await res.text();
-  return parseObj(text);
+const cachedObjects = new Map<string, Promise<parsedObj>>();
+
+export async function readObjFile(path: string, allowUsingCachedMesh: boolean): Promise<parsedObj> {
+  if (allowUsingCachedMesh && cachedObjects.get(path)) return structuredClone(await cachedObjects.get(path)!);
+
+  cachedObjects.set(
+    path,
+    (async () => {
+      const res = await fetch(location.pathname + path);
+      const text = await res.text();
+      return parseObj(text);
+    })()
+  );
+
+  return await cachedObjects.get(path)!;
 }
