@@ -1,4 +1,4 @@
-interface parsedObj {
+export interface parsedObj {
   vertexPositions: Vec3D[];
   lineVerteciesIndexes: LineVerteciesIndexes[];
 }
@@ -10,13 +10,13 @@ interface parsedObj {
  * future a duplication avoider should be
  * implmented
  */
-function parseObj(text: string): parsedObj {
+export function parseObj(text: string): parsedObj {
   const vertexPositions: Vec3D[] = [];
   const lineVerteciesIndexes: LineVerteciesIndexes[] = [];
 
-  for (const line of text.split("\n")) {
-    let parts = line.split(" ");
-    const dataType = parts[0];
+  for (const line of text.trim().split("\n")) {
+    let parts = line.trim().split(" ");
+    const dataType = parts[0].trim();
     parts = parts.slice(1);
 
     switch (dataType) {
@@ -39,10 +39,11 @@ function parseObj(text: string): parsedObj {
         break;
 
       default:
+        console.table([dataType, parts]);
         break;
     }
   }
-
+  
   return { vertexPositions, lineVerteciesIndexes };
 }
 

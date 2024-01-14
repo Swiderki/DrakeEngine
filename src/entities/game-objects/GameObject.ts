@@ -1,4 +1,6 @@
 import { readObjFile } from "@/src/util/fs";
+import { Vector } from "@/src/util/math";
+import { QuaternionUtils } from "@/src/util/quaternions";
 
 type GameObjectInitialConfig = {
   position?: Vec3DTuple;
@@ -40,6 +42,7 @@ export default class GameObject {
         yAxis: rotation[1],
         zAxis: rotation[2],
       };
+
   }
 
   async loadMesh(): Promise<void> {
@@ -78,6 +81,7 @@ export default class GameObject {
       vertex.y += y;
       vertex.z += z;
     }
+
     this._position = {
       x: this._position.x + x,
       y: this._position.y + y,
@@ -136,4 +140,24 @@ export default class GameObject {
 
     this.move(originalPosition.x, originalPosition.y, originalPosition.z);
   }
+
+  applyQuaternion(quaternion: QuaternionUtils.Quaternion): void {
+    const originalPosition = { ...this._position };
+    this.move(-this._position.x, -this._position.y, -this._position.z);
+
+    // Zmodyfikowany obiekt wynikowy dla obrotu wektora
+    let rotatedVertex = { x: 0, y: 0, z: 0 };
+
+    for (const vertex of this._vertecies) {
+      // Używamy zmodyfikowanej funkcji 'rotateVector', która modyfikuje istniejący obiekt
+      QuaternionUtils.rotateVector(quaternion, vertex, rotatedVertex);
+      
+      vertex.x = rotatedVertex.x;
+      vertex.y = rotatedVertex.y;
+      vertex.z = rotatedVertex.z;
+    }
+
+    this.move(originalPosition.x, originalPosition.y, originalPosition.z);
+  }
 }
+
