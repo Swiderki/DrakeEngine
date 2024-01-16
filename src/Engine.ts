@@ -35,7 +35,7 @@ export default class Engine {
   // Main methods - used to interact with engine's workflow directly
 
   private async _CoreStart(): Promise<void> {
-    for (const obj of this.gameObjects.values()) await obj.loadMesh();
+    const objectsLoading = [...this.gameObjects.values()].map((obj) => obj.loadMesh());
 
     this.fpsDisplay = document.getElementById("fps");
     if (this.fpsDisplay) {
@@ -45,9 +45,12 @@ export default class Engine {
     }
 
     this.initProjection();
+
+    // wait until all objects' meshes are loaded
+    await Promise.all(objectsLoading);
   }
 
-  /** Gets called once the program starts */
+  /** Gets called once the program starts, after all game objects have been loaded */
   Start(): void {}
 
   private _CoreUpdate(lastFrameEnd: number, frameNumber: number = 0): void {
@@ -59,16 +62,14 @@ export default class Engine {
     this.penultimateFrameEndTime = this.prevFrameEndTime;
     this.prevFrameEndTime = lastFrameEnd;
     // divide difference by 1000 to express delta in seconds not miliseconds
-    this._deltaTime =
-      (this.prevFrameEndTime - this.penultimateFrameEndTime) / 1000;
+    this._deltaTime = (this.prevFrameEndTime - this.penultimateFrameEndTime) / 1000;
     this._frameNumber = frameNumber;
 
     this.Update();
 
     requestAnimationFrame((renderTime) => {
       if (this.fpsDisplay && frameNumber % 10 === 0)
-        this.fpsDisplay.textContent =
-          Math.floor(1000 / (renderTime - lastFrameEnd)) + " FPS";
+        this.fpsDisplay.textContent = Math.floor(1000 / (renderTime - lastFrameEnd)) + " FPS";
       this._CoreUpdate(renderTime, ++frameNumber);
     });
   }
@@ -119,22 +120,13 @@ export default class Engine {
 
     const aspectRatio = this.canvas.height / this.canvas.width;
 
-    Matrix.makeProjection(
-      this.projMatrix,
-      this.mainCamera.fov,
-      aspectRatio,
-      NEAR,
-      FAR
-    );
+    Matrix.makeProjection(this.projMatrix, this.mainCamera.fov, aspectRatio, NEAR, FAR);
   }
 
   private render(): void {
     let matWorld = Matrix.makeTranslation(0, 0, 0);
 
-    const targetDir = Vector.add(
-      this.mainCamera.position,
-      this.mainCamera.lookDir
-    );
+    const targetDir = Vector.add(this.mainCamera.position, this.mainCamera.lookDir);
 
     const matCamera = Matrix.lookAt(this.mainCamera.position, targetDir, {
       x: 0,
@@ -153,20 +145,11 @@ export default class Engine {
             w: 1,
           });
 
-          const vertexViewed = Matrix.multiplyVector(
-            matView,
-            vertexTransformed
-          );
+          const vertexViewed = Matrix.multiplyVector(matView, vertexTransformed);
 
-          const vertexProjected = Matrix.multiplyVector(
-            this.projMatrix,
-            vertexViewed
-          );
+          const vertexProjected = Matrix.multiplyVector(this.projMatrix, vertexViewed);
 
-          const vertexNormalized = Vector.divide(
-            vertexProjected,
-            vertexProjected.w
-          );
+          const vertexNormalized = Vector.divide(vertexProjected, vertexProjected.w);
 
           const vertexScaled = Vector.add(vertexNormalized, {
             x: 1,
