@@ -17,6 +17,8 @@ temp
 TODOs.md
 .eslintcache
 
+.npmignore
+
 # Logs
 logs
 *.log

@@ -1,6 +1,5 @@
-import { readObjFile } from "@/src/util/fs";
-import { Vector } from "@/src/util/math";
-import { QuaternionUtils } from "@/src/util/quaternions";
+import { readObjFile } from "../../..//src/util/fs";
+import { QuaternionUtils } from "../../../src/util/quaternions";
 
 type GameObjectInitialConfig = {
   position?: Vec3DTuple;
