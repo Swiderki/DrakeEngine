@@ -73,6 +73,7 @@ export default class Scene {
   }
 
   addGUI(gui: GUI): number {
+    if ([...this._GUIs.values()].includes(gui)) throw new Error("The given gui is already added to the scene's GUIs");
     const guiId = this.idGenerator.id;
     this._GUIs.set(guiId, gui);
     return guiId;
