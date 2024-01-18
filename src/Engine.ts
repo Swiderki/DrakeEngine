@@ -66,12 +66,7 @@ export default class Engine {
   }
 
   /** Gets called once the program starts */
-  Start(): void { 
-    this.initProjection();
-
-    // wait until all objects' meshes are loaded
-    await Promise.all(objectsLoading);
-  }
+  Start(): void { }
 
   private _CoreUpdate(lastFrameEnd: number, frameNumber: number = 0): void {
     // generate last rendered frame
