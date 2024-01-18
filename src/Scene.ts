@@ -60,7 +60,7 @@ export default class Scene {
   removeGUI(guiId: number) {
     if (!this._GUIs.has(guiId))
       throw new Error("A GUI with the given id was not found.");
-    if (!this._currentGUI != null)
+    if (this._currentGUI == this._GUIs.get(guiId))
       throw new Error(
         "The GUI you want to remove is now set as a current GUI. Remove current GUI first."
       );
