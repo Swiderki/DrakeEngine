@@ -24,6 +24,10 @@ export default class Engine {
     return this._currentScene 
   }
 
+  get mainCamera() {
+    return this._currentScene?.sceneCamera;
+  }
+
   /** The interval in seconds from the last frame to the current one */
   get deltaTime() { return this._deltaTime; } // prettier-ignore
   get frameNumber() { return this._frameNumber; } // prettier-ignore
@@ -56,7 +60,6 @@ export default class Engine {
   // Main methods - used to interact with engine's workflow directly
 
   private async _CoreStart(): Promise<void> {
-    const objectsLoading = [...this.gameObjects.values()].map((obj) => obj.loadMesh());
     this.fpsDisplay = document.getElementById("fps");
     if (this.fpsDisplay) {
       this.fpsDisplay.style.position = "fixed";
@@ -117,9 +120,9 @@ export default class Engine {
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
   }
 
-  addSceneMesh(mesh: GameObject): number {
+  addSceneMesh(mesh: Scene): number {
     const meshId = this.idGenerator.id;
-    this.gameObjects.set(meshId, mesh);
+    this._scenes.set(meshId, mesh);
     return meshId;
   }
 
@@ -142,14 +145,14 @@ export default class Engine {
     const targetDir = Vector.add(this._currentScene.sceneCamera.position, this._currentScene.sceneCamera.lookDir);
 
 
-    const matCamera = Matrix.lookAt(this.mainCamera.position, targetDir, {
+    const matCamera = Matrix.lookAt(this._currentScene.sceneCamera.position, targetDir, {
       x: 0,
       y: 1,
       z: 0,
     });
     const matView = Matrix.quickInverse(matCamera);
 
-    for (const obj of this.gameObjects.values()) {
+    for (const obj of this._currentScene.gameObjects.values()) {
       for (const line of obj.mesh) {
         const finalProjection: Line = Array(2) as Line;
         for (let i = 0; i < 3; i++) {

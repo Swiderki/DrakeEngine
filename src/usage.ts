@@ -8,28 +8,17 @@ if (!canvas) throw new Error("unable to find canvas");
 
 class MyGame extends Drake.Engine {
   cubes: Cube[] = [];
-  axis;
-  pyramide;
   rotationQuaternion = { x: 0, y: 0, z: 0, w: 1 };
 
   constructor(canvas: HTMLCanvasElement) {
-
-    const camera = new Drake.Camera(69, 0.1, 1000, [10, 10, -15], [0, 0, 1]);
-    super(canvas, camera);
+    super(canvas);
     [...Array(1400)].forEach((_, i) => {
       this.cubes.push(new Cube([i * 5, 0, 0]));
     })
-    this.axis = new Drake.GameObject("objects/axis_wire.obj");
-    this.pyramide = new Drake.Piramide([20, 10, 0]);
-    this.addSceneMesh(this.pyramide);
-    this.cubes.forEach((cube) => this.addSceneMesh(cube));
-
-    [...Array(100)].map((_, i) => this.addSceneMesh(new Drake.Cube([i * 0.1, 0, 0])));
-
-    this.addSceneMesh(this.cube);
   }
 
   handleCameraMove(e: KeyboardEvent) {
+    if(!this.mainCamera) return;
     if (e.key === "w") this.mainCamera.move(0, 1, 0);
     if (e.key === "s") this.mainCamera.move(0, -1, 0);
     if (e.key === "a") this.mainCamera.move(-1, 0, 0);
@@ -48,10 +37,7 @@ class MyGame extends Drake.Engine {
     
     const mainSceneId = this.addScene(mainScene);
     this.setCurrentScene(mainSceneId);
-
-    this.currentScene.addSceneMesh(this.cube);
-    this.currentScene.addSceneMesh(this.axis);
-
+    this.cubes.forEach(cube => mainScene.addSceneMesh(cube));
     
     this.setResolution(640, 480);
     document.addEventListener("keydown", this.handleCameraMove.bind(this));
@@ -73,8 +59,6 @@ class MyGame extends Drake.Engine {
 
     // Zastosowanie kwaternionu do obrotu kostek, piramidy i osi
     this.cubes.forEach(cube => cube.applyQuaternion(this.rotationQuaternion));
-    this.axis.applyQuaternion(this.rotationQuaternion);
-    this.pyramide.applyQuaternion(this.rotationQuaternion);
   }
 }
   
