@@ -13,6 +13,7 @@ class MyGame extends Drake.Engine {
   rotationQuaternion = { x: 0, y: 0, z: 0, w: 1 };
 
   constructor(canvas: HTMLCanvasElement) {
+
     const camera = new Drake.Camera(69, 0.1, 1000, [10, 10, -15], [0, 0, 1]);
     super(canvas, camera);
     [...Array(1400)].forEach((_, i) => {
@@ -32,10 +33,26 @@ class MyGame extends Drake.Engine {
     if (e.key === "w") this.mainCamera.move(0, 1, 0);
     if (e.key === "s") this.mainCamera.move(0, -1, 0);
     if (e.key === "a") this.mainCamera.move(-1, 0, 0);
-    if (e.key === "d") this.mainCamera.move(0.1, 0, 0);
   }
 
   override Start(): void {
+     
+    const camera = new Drake.Camera(90, 0.1, 1000, [10, 10, -15], [0, 0, 1]);
+    const mainScene = new Drake.Scene(      
+      this.width,
+      this.height,
+      this.idGenerator.id
+    );
+
+    mainScene.setCamera(camera);
+    
+    const mainSceneId = this.addScene(mainScene);
+    this.setCurrentScene(mainSceneId);
+
+    this.currentScene.addSceneMesh(this.cube);
+    this.currentScene.addSceneMesh(this.axis);
+
+    
     this.setResolution(640, 480);
     document.addEventListener("keydown", this.handleCameraMove.bind(this));
     
@@ -63,6 +80,5 @@ class MyGame extends Drake.Engine {
   
 
 
-// Super kod 123
 const game = new MyGame(canvas);
 game.run();

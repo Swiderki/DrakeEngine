@@ -1,27 +1,34 @@
-import Camera from "./entities/Camera";
+import Scene from "./Scene";
 import IdGenerator from "./util/idGenerator";
 import { Matrix, Vector } from "./util/math";
 
 export default class Engine {
-  private idGenerator = new IdGenerator();
-  private gameObjects: Map<number, GameObject> = new Map();
-  protected mainCamera: Camera;
-  private projMatrix: Mat4x4 = Matrix.zeros();
-
   private penultimateFrameEndTime: number = 0;
   private prevFrameEndTime: number = 0;
   private _deltaTime: number = 0;
   private _frameNumber: number = 0;
+  private _currentScene: Scene | undefined;
+  private _scenes: Map<number, Scene> = new Map();;
+  private _idGenerator = new IdGenerator();
 
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
   private fpsDisplay: HTMLElement | null = null;
 
+  get width() { return this.canvas.width }
+  get height() { return this.canvas.height }
+  get scenes(): Map<number, Scene> { return this._scenes }
+  get idGenerator(): IdGenerator { return this._idGenerator }
+  get currentScene() { 
+    if (this._currentScene == undefined) throw new Error("There is not a scene to get. You must set current scene first.")
+    return this._currentScene 
+  }
+
   /** The interval in seconds from the last frame to the current one */
   get deltaTime() { return this._deltaTime; } // prettier-ignore
   get frameNumber() { return this._frameNumber; } // prettier-ignore
 
-  constructor(canvas: HTMLCanvasElement, camera: Camera) {
+  constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
     const ctx = canvas.getContext("2d");
     if (!ctx)
@@ -29,29 +36,42 @@ export default class Engine {
         "ctx identifier is not supported, or the canvas has already been set to a different ctx mode"
       );
     this.ctx = ctx;
-    this.mainCamera = camera;
+  }
+
+  addScene(scene: Scene): number {
+    const sceneId = this.idGenerator.id;
+    this._scenes.set(sceneId, scene);
+    return sceneId;
+  }
+
+  setCurrentScene(sceneId: number) {
+    if (!this._scenes.has(sceneId)) throw new Error(
+      "Scenes array does not include the given scene."
+    );
+
+    this._currentScene = this._scenes.get(sceneId)!;
+    this._currentScene.initProjection();
   }
 
   // Main methods - used to interact with engine's workflow directly
 
   private async _CoreStart(): Promise<void> {
     const objectsLoading = [...this.gameObjects.values()].map((obj) => obj.loadMesh());
-
     this.fpsDisplay = document.getElementById("fps");
     if (this.fpsDisplay) {
       this.fpsDisplay.style.position = "fixed";
       this.fpsDisplay.style.top = "0";
       this.fpsDisplay.style.color = "white";
     }
+  }
 
+  /** Gets called once the program starts */
+  Start(): void { 
     this.initProjection();
 
     // wait until all objects' meshes are loaded
     await Promise.all(objectsLoading);
   }
-
-  /** Gets called once the program starts, after all game objects have been loaded */
-  Start(): void {}
 
   private _CoreUpdate(lastFrameEnd: number, frameNumber: number = 0): void {
     // generate last rendered frame
@@ -75,7 +95,7 @@ export default class Engine {
   }
 
   /** Gets called every frame */
-  Update(): void {}
+  Update(): void { }
 
   // Utility methods
 
@@ -88,7 +108,12 @@ export default class Engine {
   setResolution(width: number, height: number): void {
     this.canvas.width = width;
     this.canvas.height = height;
-    this.initProjection();
+    this._scenes.forEach(sc => {
+      sc.width = width;
+      sc.height = height;
+    });
+
+    if (this._currentScene) this._currentScene.initProjection();
   }
 
   clearScreen(color: string = "#000"): void {
@@ -114,19 +139,13 @@ export default class Engine {
     this.ctx.stroke();
   }
 
-  private initProjection(): void {
-    const NEAR = 0.1;
-    const FAR = 1000;
-
-    const aspectRatio = this.canvas.height / this.canvas.width;
-
-    Matrix.makeProjection(this.projMatrix, this.mainCamera.fov, aspectRatio, NEAR, FAR);
-  }
-
   private render(): void {
+    if (this._currentScene == undefined || this._currentScene.sceneCamera == null) return;
+    
     let matWorld = Matrix.makeTranslation(0, 0, 0);
 
-    const targetDir = Vector.add(this.mainCamera.position, this.mainCamera.lookDir);
+    const targetDir = Vector.add(this._currentScene.sceneCamera.position, this._currentScene.sceneCamera.lookDir);
+
 
     const matCamera = Matrix.lookAt(this.mainCamera.position, targetDir, {
       x: 0,
@@ -138,7 +157,6 @@ export default class Engine {
     for (const obj of this.gameObjects.values()) {
       for (const line of obj.mesh) {
         const finalProjection: Line = Array(2) as Line;
-
         for (let i = 0; i < 3; i++) {
           const vertexTransformed = Matrix.multiplyVector(matWorld, {
             ...line[i],
@@ -147,7 +165,7 @@ export default class Engine {
 
           const vertexViewed = Matrix.multiplyVector(matView, vertexTransformed);
 
-          const vertexProjected = Matrix.multiplyVector(this.projMatrix, vertexViewed);
+          const vertexProjected = Matrix.multiplyVector(this._currentScene.projMatrix, vertexViewed);
 
           const vertexNormalized = Vector.divide(vertexProjected, vertexProjected.w);
 
