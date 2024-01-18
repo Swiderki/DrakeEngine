@@ -55,16 +55,25 @@ export default class GameObject {
     console.log(this.meshPath, lineVerteciesIndexes, vertexPositions);
     this._vertecies = vertexPositions;
     this._meshIndexed = lineVerteciesIndexes;
-    console.log("applying initial position and scale...");
-    // apply custom start position
-    if (Object.values(this._position).some((pos) => pos !== 0)) {
-      const { x, y, z } = this._position;
-      this.move(x, y, z);
-      this._position = { x, y, z };
+  
+    console.log("applying initial position, scale, and rotation...");
+    
+    // Apply initial scale
+    if (Object.values(this._size).some((size) => size !== 1)) {
+      this.scale(this._size.x, this._size.y, this._size.z);
     }
-    /**
-     * @todo scale and rotation are not being applyed
-     */
+
+    // Apply custom start position
+    if (Object.values(this._position).some((pos) => pos !== 0)) {
+      this.move(this._position.x, this._position.y, this._position.z);
+    }
+  
+  
+    // // Apply initial rotation
+    // if (Object.values(this._rotation).some((rot) => rot !== 0)) {
+    //   this.rotate(this._rotation.xAxis, this._rotation.yAxis, this._rotation.zAxis);
+    // }
+  
     console.log(
       "finished loading mesh! loaded triangles:",
       this._meshIndexed.length,
@@ -73,6 +82,7 @@ export default class GameObject {
       "ms"
     );
   }
+  
 
   /** Moves the cube relatively, if you need to move it absolutely use the `setPosition` method */
   move(x: number, y: number, z: number): void {

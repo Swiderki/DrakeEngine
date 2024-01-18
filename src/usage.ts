@@ -9,20 +9,19 @@ if (!canvas) throw new Error("unable to find canvas");
 
 class MyGame extends Drake.Engine {
   cubes: Cube[] = [];
-  axis;
+  // axis;
   pyramide;
   rotationQuaternion = { x: 0, y: 0, z: 0, w: 1 };
 
   constructor(canvas: HTMLCanvasElement) {
-    const camera = new Drake.Camera(69, 0.1, 1000, [10, 10, -15], [0, 0, 1]);
+    const camera = new Drake.Camera(69, 0.1, 1000, [0, 0, -10], [0, 0, 1]);
     super(canvas, camera);
     // [...Array(1400)].forEach((_, i) => {
     //   this.cubes.push(new Cube([i * 5, 0, 0]));
     // })
-    this.axis = new Drake.GameObject("objects/axis_wire.obj");
+    // this.axis = new Drake.GameObject("objects/axis_wire.obj");
     // blad byl w asteroids sciezka jest bezwzgledna tzn wzgledem katalogu glownego projectu, a nie relatywna
-    this.pyramide = new Asteroid([10, 0, 0]);
-    console.log(this.pyramide.mesh);
+    this.pyramide = new Asteroid([0, 0, 0], [0.01,0.01,0.01]);
     this.addSceneMesh(this.pyramide);
     this.cubes.forEach((cube) => this.addSceneMesh(cube));
 
@@ -35,33 +34,29 @@ class MyGame extends Drake.Engine {
     if (e.key === "w") this.mainCamera.move(0, 1, 0);
     if (e.key === "s") this.mainCamera.move(0, -1, 0);
     if (e.key === "a") this.mainCamera.move(-1, 0, 0);
-    if (e.key === "d") this.mainCamera.move(0.1, 0, 0);
+    if (e.key === "d") this.mainCamera.move(1, 0, 0);
   }
 
   override Start(): void {
     this.setResolution(640, 480);
     document.addEventListener("keydown", this.handleCameraMove.bind(this));
-    
+    console.log(this.pyramide.mesh);
+    console.log(this.pyramide.position)
   }
+
 
   override Update(): void {
-    const rotationSpeed = Math.PI / 2; // Obrót o 360 stopni na sekundę
-
-    // Aktualizacja kwaternionu rotacji
+    const rotationSpeed = Math.PI / 2; 
+  
     QuaternionUtils.setFromAxisAngle(
       this.rotationQuaternion, 
-      { x: 0, y: 1, z: 0 }, // Oś obrotu
-      rotationSpeed * this.deltaTime // Kąt obrotu
+      { x: 0, y: 0, z: 1 },
+      rotationSpeed * this.deltaTime 
     );
-
-    // Normalizacja kwaternionu
     QuaternionUtils.normalize(this.rotationQuaternion);
-
-    // Zastosowanie kwaternionu do obrotu kostek, piramidy i osi
-    // this.cubes.forEach(cube => cube.applyQuaternion(this.rotationQuaternion));
-    // this.axis.applyQuaternion(this.rotationQuaternion);
-    this.pyramide.applyQuaternion(this.rotationQuaternion);
-  }
+   this.pyramide.applyQuaternion(this.rotationQuaternion);
+   }
+  
 }
   
 
