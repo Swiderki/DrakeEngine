@@ -56,6 +56,7 @@ export default class Engine {
   // Main methods - used to interact with engine's workflow directly
 
   private async _CoreStart(): Promise<void> {
+    const objectsLoading = [...this.gameObjects.values()].map((obj) => obj.loadMesh());
     this.fpsDisplay = document.getElementById("fps");
     if (this.fpsDisplay) {
       this.fpsDisplay.style.position = "fixed";
@@ -65,7 +66,12 @@ export default class Engine {
   }
 
   /** Gets called once the program starts */
-  Start(): void { }
+  Start(): void { 
+    this.initProjection();
+
+    // wait until all objects' meshes are loaded
+    await Promise.all(objectsLoading);
+  }
 
   private _CoreUpdate(lastFrameEnd: number, frameNumber: number = 0): void {
     // generate last rendered frame
@@ -116,13 +122,16 @@ export default class Engine {
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
   }
 
-  private drawTriangle(triangle: Triangle): void {
-    
+  addSceneMesh(mesh: GameObject): number {
+    const meshId = this.idGenerator.id;
+    this.gameObjects.set(meshId, mesh);
+    return meshId;
+  }
+
+  private drawLine(line: Line): void {
     this.ctx.beginPath();
-    this.ctx.moveTo(triangle[0].x, triangle[0].y);
-    this.ctx.lineTo(triangle[1].x, triangle[1].y);
-    this.ctx.moveTo(triangle[1].x, triangle[1].y);
-    this.ctx.lineTo(triangle[2].x, triangle[2].y);
+    this.ctx.moveTo(line[0].x, line[0].y);
+    this.ctx.lineTo(line[1].x, line[1].y);
     this.ctx.closePath();
 
     this.ctx.lineWidth = 2;
@@ -137,15 +146,22 @@ export default class Engine {
 
     const targetDir = Vector.add(this._currentScene.sceneCamera.position, this._currentScene.sceneCamera.lookDir);
 
-    const matCamera = Matrix.lookAt(this._currentScene.sceneCamera.position, targetDir, { x: 0, y: 1, z: 0 });
+
+    const matCamera = Matrix.lookAt(this.mainCamera.position, targetDir, {
+      x: 0,
+      y: 1,
+      z: 0,
+    });
     const matView = Matrix.quickInverse(matCamera);
 
-    for (const obj of this._currentScene.gameObjects.values()) {
-      for (const triangle of obj.mesh) {
-        const finalProjection: Triangle = Array(3) as Triangle;
-
+    for (const obj of this.gameObjects.values()) {
+      for (const line of obj.mesh) {
+        const finalProjection: Line = Array(2) as Line;
         for (let i = 0; i < 3; i++) {
-          const vertexTransformed = Matrix.multiplyVector(matWorld, { ...triangle[i], w: 1 });
+          const vertexTransformed = Matrix.multiplyVector(matWorld, {
+            ...line[i],
+            w: 1,
+          });
 
           const vertexViewed = Matrix.multiplyVector(matView, vertexTransformed);
 
@@ -153,15 +169,19 @@ export default class Engine {
 
           const vertexNormalized = Vector.divide(vertexProjected, vertexProjected.w);
 
-          const vertexScaled = Vector.add(vertexNormalized, { x: 1, y: 1, z: 0 });
+          const vertexScaled = Vector.add(vertexNormalized, {
+            x: 1,
+            y: 1,
+            z: 0,
+          });
 
           vertexScaled.x *= 0.5 * this.canvas.width;
           vertexScaled.y *= 0.5 * this.canvas.height;
 
           finalProjection[i] = vertexScaled;
         }
-        
-        this.drawTriangle(finalProjection);
+
+        this.drawLine(finalProjection);
       }
     }
   }
