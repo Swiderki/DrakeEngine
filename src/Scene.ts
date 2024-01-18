@@ -10,17 +10,12 @@ export default class Scene {
   private _projMatrix: Mat4x4 = Matrix.zeros();
   private _GUIs: Map<number, GUI> = new Map();
   private _currentGUI: GUI | null = null;
-  private _id: number;
   // prettier-ignore
   get GUIs() { return this._GUIs; }
   get currentGUI() {
     // It must return null to better usage in render.
     if (this._currentGUI == null) return null;
     return this._currentGUI;
-  }
-
-  get id() {
-    return this._id;
   }
 
   width: number;
@@ -43,7 +38,6 @@ export default class Scene {
   constructor(width: number, height: number, id: number) {
     this.width = width;
     this.height = height;
-    this._id = id;
   }
 
   // Main methods
