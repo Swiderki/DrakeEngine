@@ -42,6 +42,10 @@ export default class Engine {
     return this._currentScene;
   }
 
+  get mainCamera() {
+    return this._currentScene?.sceneCamera;
+  }
+
   /** The interval in seconds from the last frame to the current one */
   get deltaTime() { return this._deltaTime; } // prettier-ignore
   get frameNumber() { return this._frameNumber; } // prettier-ignore
@@ -192,12 +196,16 @@ export default class Engine {
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
   }
 
-  private drawTriangle(triangle: Triangle): void {
+  addSceneMesh(mesh: Scene): number {
+    const meshId = this.idGenerator.id;
+    this._scenes.set(meshId, mesh);
+    return meshId;
+  }
+
+  private drawLine(line: Line): void {
     this.ctx.beginPath();
-    this.ctx.moveTo(triangle[0].x, triangle[0].y);
-    this.ctx.lineTo(triangle[1].x, triangle[1].y);
-    this.ctx.moveTo(triangle[1].x, triangle[1].y);
-    this.ctx.lineTo(triangle[2].x, triangle[2].y);
+    this.ctx.moveTo(line[0].x, line[0].y);
+    this.ctx.lineTo(line[1].x, line[1].y);
     this.ctx.closePath();
 
     this.ctx.lineWidth = 2;
@@ -216,37 +224,27 @@ export default class Engine {
       this._currentScene.sceneCamera.lookDir
     );
 
-    const matCamera = Matrix.lookAt(
-      this._currentScene.sceneCamera.position,
-      targetDir,
-      { x: 0, y: 1, z: 0 }
-    );
+    const matCamera = Matrix.lookAt(this._currentScene.sceneCamera.position, targetDir, {
+      x: 0,
+      y: 1,
+      z: 0,
+    });
     const matView = Matrix.quickInverse(matCamera);
 
     for (const obj of this._currentScene.gameObjects.values()) {
-      for (const triangle of obj.mesh) {
-        const finalProjection: Triangle = Array(3) as Triangle;
-
+      for (const line of obj.mesh) {
+        const finalProjection: Line = Array(2) as Line;
         for (let i = 0; i < 3; i++) {
           const vertexTransformed = Matrix.multiplyVector(matWorld, {
-            ...triangle[i],
+            ...line[i],
             w: 1,
           });
 
-          const vertexViewed = Matrix.multiplyVector(
-            matView,
-            vertexTransformed
-          );
+          const vertexViewed = Matrix.multiplyVector(matView, vertexTransformed);
 
-          const vertexProjected = Matrix.multiplyVector(
-            this._currentScene.projMatrix,
-            vertexViewed
-          );
+          const vertexProjected = Matrix.multiplyVector(this._currentScene.projMatrix, vertexViewed);
 
-          const vertexNormalized = Vector.divide(
-            vertexProjected,
-            vertexProjected.w
-          );
+          const vertexNormalized = Vector.divide(vertexProjected, vertexProjected.w);
 
           const vertexScaled = Vector.add(vertexNormalized, {
             x: 1,
@@ -260,7 +258,7 @@ export default class Engine {
           finalProjection[i] = vertexScaled;
         }
 
-        this.drawTriangle(finalProjection);
+        this.drawLine(finalProjection);
       }
     }
 

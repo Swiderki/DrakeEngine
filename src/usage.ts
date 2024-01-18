@@ -6,6 +6,9 @@ import { Input } from "./gui/GUIElements/Input";
 import { Icon } from "./gui/GUIElements/Icon";
 import GUI from "./gui/Gui";
 
+import { QuaternionUtils } from "@/src/util/quaternions";
+import Piramide from "./entities/game-objects/built-in/Piramide";
+
 const canvas = document.getElementById("app") as HTMLCanvasElement | null;
 if (!canvas) throw new Error("unable to find canvas");
 
@@ -38,6 +41,8 @@ class MyGame extends Drake.Engine {
   icon: Icon;
   ranbowText: GUIText | undefined;
   hue: number = 0;
+   cubes: Cube[] = [];
+  rotationQuaternion = { x: 0, y: 0, z: 0, w: 1 };
   constructor(canvas: HTMLCanvasElement) {
     super(canvas);
     this.cube = new Drake.Cube([10, 10, -14]);
@@ -50,13 +55,17 @@ class MyGame extends Drake.Engine {
       1050,
       { x: 20, y: 20 }
     );
+    // add cubes
+    [...Array(1400)].forEach((_, i) => {
+      this.cubes.push(new Cube([i * 5, 0, 0]));
+    })
   }
 
   handleCameraMove(e: KeyboardEvent) {
-    if (e.key === "w") this.currentScene!.sceneCamera!.move(0, 1, 0);
-    if (e.key === "s") this.currentScene!.sceneCamera!.move(0, -1, 0);
-    if (e.key === "a") this.currentScene!.sceneCamera!.move(-1, 0, 0);
-    if (e.key === "d") this.currentScene!.sceneCamera!.move(1, 0, 0);
+    if(!this.mainCamera) return;
+    if (e.key === "w") this.mainCamera.move(0, 1, 0);
+    if (e.key === "s") this.mainCamera.move(0, -1, 0);
+    if (e.key === "a") this.mainCamera.move(-1, 0, 0);
   }
 
   override Start(): void {
@@ -112,16 +121,32 @@ class MyGame extends Drake.Engine {
     const mainSceneId = this.addScene(mainScene);
     this.setCurrentScene(mainSceneId);
 
-    this.currentScene.addSceneMesh(this.cube);
-    this.currentScene.addSceneMesh(this.axis);
-
+    this.cubes.forEach(cube => mainScene.addSceneMesh(cube));
+    
+    this.setResolution(640, 480);
     document.addEventListener("keydown", this.handleCameraMove.bind(this));
+    
   }
 
   override Update(): void {
-    this.cube.rotate(1 * this.deltaTime, 0.5 * this.deltaTime, 0);
+    const rotationSpeed = Math.PI / 2; // Obrót o 360 stopni na sekundę
+
+    // Aktualizacja kwaternionu rotacji
+    QuaternionUtils.setFromAxisAngle(
+      this.rotationQuaternion, 
+      { x: 0, y: 1, z: 0 }, // Oś obrotu
+      rotationSpeed * this.deltaTime // Kąt obrotu
+    );
+
+    // Normalizacja kwaternionu
+    QuaternionUtils.normalize(this.rotationQuaternion);
+
+    // Zastosowanie kwaternionu do obrotu kostek, piramidy i osi
+    this.cubes.forEach(cube => cube.applyQuaternion(this.rotationQuaternion));
   }
 }
+  
+
 
 const game = new MyGame(canvas);
 game.run();
