@@ -68,7 +68,7 @@ export default class Scene {
     this._GUIs.delete(guiId);
   }
 
-  removeCurrentScene() {
+  removeCurrentGUI() {
     this._currentGUI = null;
   }
 
