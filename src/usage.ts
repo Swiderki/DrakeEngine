@@ -2,15 +2,19 @@ import Cube from "./entities/game-objects/built-in/Cube";
 import Drake from "./index";
 import { QuaternionUtils } from "@/src/util/quaternions";
 import Asteroid from "./asteroids/objects/asteroid";
+import Spaceship from "./asteroids/objects/spaceship";
 import Piramide from "./entities/game-objects/built-in/Piramide";
 
 const canvas = document.getElementById("app") as HTMLCanvasElement | null;
 if (!canvas) throw new Error("unable to find canvas");
 
+
+
 class MyGame extends Drake.Engine {
   cubes: Cube[] = [];
   // axis;
   pyramide;
+
   rotationQuaternion = { x: 0, y: 0, z: 0, w: 1 };
 
   constructor(canvas: HTMLCanvasElement) {
@@ -21,12 +25,11 @@ class MyGame extends Drake.Engine {
     // })
     // this.axis = new Drake.GameObject("objects/axis_wire.obj");
     // blad byl w asteroids sciezka jest bezwzgledna tzn wzgledem katalogu glownego projectu, a nie relatywna
-    this.pyramide = new Asteroid([0, 0, 0], [0.01,0.01,0.01]);
-    this.addSceneMesh(this.pyramide);
     this.cubes.forEach((cube) => this.addSceneMesh(cube));
+    this.pyramide = new Spaceship([0, 0, 0],[0.01,0.01,0.01]);
 
     // [...Array(100)].map((_, i) => this.addSceneMesh(new Drake.Cube([i * 0.1, 0, 0])));
-
+    this.addSceneMesh(this.pyramide);
     // this.addSceneMesh(this.cube);
   }
 
