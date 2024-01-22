@@ -3,65 +3,101 @@ import Drake from "./index";
 import { QuaternionUtils } from "@/src/util/quaternions";
 import Asteroid from "./asteroids/objects/asteroid";
 import Spaceship from "./asteroids/objects/spaceship";
-import Piramide from "./entities/game-objects/built-in/Piramide";
-
+import { dir } from "console";
 const canvas = document.getElementById("app") as HTMLCanvasElement | null;
 if (!canvas) throw new Error("unable to find canvas");
 
 
+function testRotation(axis: any, angle: any, expectedVector: any) {
+  let quaternion = { x: 0, y: 0, z: 0, w: 1 };
+  QuaternionUtils.setFromAxisAngle(quaternion, axis, angle);
+
+  let vector = { x: 0, y: 1, z: 0 };
+  let rotatedVector = { x: 0, y: 0, z: 0 };
+
+  QuaternionUtils.rotateVector(quaternion, vector, rotatedVector);
+
+  console.log(`Test: Obrót wokół osi [${axis.x}, ${axis.y}, ${axis.z}] o kąt ${angle} radianów`);
+  console.log("Oczekiwany wynik:", JSON.stringify(expectedVector));
+  console.log(`Wynik obrotu: [${rotatedVector.x.toFixed(2)}, ${rotatedVector.y.toFixed(2)}, ${rotatedVector.z.toFixed(2)}]`);
+  console.log('---');
+}
+
+function runTests() {
+  // Test 1: Obrót o 90 stopni wokół osi Z (powinno dać [1, 0, 0])
+  testRotation({ x: 0, y: 0, z: 1 }, Math.PI / 2, { x: 1, y: 0, z: 0 });
+
+  // Test 2: Obrót o -90 stopni wokół osi Z (powinno dać [-1, 0, 0])
+  testRotation({ x: 0, y: 0, z: 1 }, -Math.PI / 2, { x: -1, y: 0, z: 0 });
+
+  // Test 3: Obrót o 180 stopni wokół osi Y (powinno dać [0, -1, 0])
+  testRotation({ x: 0, y: 1, z: 0 }, Math.PI, { x: 0, y: -1, z: 0 });
+
+  // Test 4: Obrót o 90 stopni wokół osi X (powinno dać [0, 0, -1])
+  testRotation({ x: 1, y: 0, z: 0 }, Math.PI / 2, { x: 0, y: 0, z: -1 });
+}
+
+runTests();
 
 class MyGame extends Drake.Engine {
   cubes: Cube[] = [];
-  // axis;
-  pyramide;
+  spaceship;
 
-  rotationQuaternion = { x: 0, y: 0, z: 0, w: 1 };
 
   constructor(canvas: HTMLCanvasElement) {
     const camera = new Drake.Camera(69, 0.1, 1000, [0, 0, -10], [0, 0, 1]);
     super(canvas, camera);
-    // [...Array(1400)].forEach((_, i) => {
-    //   this.cubes.push(new Cube([i * 5, 0, 0]));
-    // })
-    // this.axis = new Drake.GameObject("objects/axis_wire.obj");
-    // blad byl w asteroids sciezka jest bezwzgledna tzn wzgledem katalogu glownego projectu, a nie relatywna
+
     this.cubes.forEach((cube) => this.addSceneMesh(cube));
-    this.pyramide = new Spaceship([0, 0, 0],[0.01,0.01,0.01]);
+    this.spaceship = {obj: new Spaceship([0, 0, 0], [0.01, 0.01, 0.01]), rotation: {x: 0,y: 0, z: 0, w: 1} };
 
-    // [...Array(100)].map((_, i) => this.addSceneMesh(new Drake.Cube([i * 0.1, 0, 0])));
-    this.addSceneMesh(this.pyramide);
-    // this.addSceneMesh(this.cube);
+    this.addSceneMesh(this.spaceship.obj);
   }
 
-  handleCameraMove(e: KeyboardEvent) {
-    if (e.key === "w") this.mainCamera.move(0, 1, 0);
-    if (e.key === "s") this.mainCamera.move(0, -1, 0);
-    if (e.key === "a") this.mainCamera.move(-1, 0, 0);
-    if (e.key === "d") this.mainCamera.move(1, 0, 0);
-  }
+  handleSpaceshipMove(e: KeyboardEvent) {
+    const rotationAmount = Math.PI / 16; // Kąt obrotu
+  
+    if (e.key === "a") {
+      // Obrót w lewo
+      const rotationQuaternion = { x: 0, y: 0, z: 0, w: 1 };
+      QuaternionUtils.setFromAxisAngle(rotationQuaternion, { x: 0, y: 0, z: 1 }, rotationAmount);
+      QuaternionUtils.normalize(rotationQuaternion);
+      this.spaceship.obj.applyQuaternion(rotationQuaternion);
+      QuaternionUtils.multiply(this.spaceship.rotation, rotationQuaternion, this.spaceship.rotation);
+    } else if (e.key === "d") {
+      // Obrót w prawo
+      const rotationQuaternion = { x: 0, y: 0, z: 0, w: 1 };
+      QuaternionUtils.setFromAxisAngle(rotationQuaternion, { x: 0, y: 0, z: -1 }, rotationAmount);
+      QuaternionUtils.normalize(rotationQuaternion);
+      this.spaceship.obj.applyQuaternion(rotationQuaternion);
 
+      QuaternionUtils.multiply(this.spaceship.rotation, rotationQuaternion, this.spaceship.rotation);
+    }
+  
+    if (e.key === "w") {
+      const direction = { x: 0, y: 0, z: 0 };
+      QuaternionUtils.rotateVector(this.spaceship.rotation, { x: 0, y: 0.1, z: 0 }, direction);
+      console.log("Kierunek po obróceniu:", direction);
+      this.spaceship.obj.move(direction.x, direction.y, direction.z);
+    }
+  }
+  
+  
+  
+  
   override Start(): void {
     this.setResolution(640, 480);
-    document.addEventListener("keydown", this.handleCameraMove.bind(this));
-    console.log(this.pyramide.mesh);
-    console.log(this.pyramide.position)
+    document.addEventListener("keydown", this.handleSpaceshipMove.bind(this));
+    console.log(this.spaceship.obj.mesh);
+    console.log(this.spaceship.obj.position)
   }
 
 
   override Update(): void {
-    const rotationSpeed = Math.PI / 2; 
-  
-    QuaternionUtils.setFromAxisAngle(
-      this.rotationQuaternion, 
-      { x: 0, y: 0, z: 1 },
-      rotationSpeed * this.deltaTime 
-    );
-    QuaternionUtils.normalize(this.rotationQuaternion);
-   this.pyramide.applyQuaternion(this.rotationQuaternion);
-   }
-  
+  }
+
 }
-  
+
 
 
 // Super kod 123
