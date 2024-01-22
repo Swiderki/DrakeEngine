@@ -45,22 +45,18 @@ export namespace QuaternionUtils {
 
     // Obracanie wektora za pomocą kwaternionu
     export function rotateVector(quaternion: Quaternion, vector: { x: number; y: number; z: number }, result: { x: number; y: number; z: number }): void {
-        const qVec = { x: quaternion.x, y: quaternion.y, z: quaternion.z };
-        const uv = Vector.crossP(qVec, vector);
-        const uuv = Vector.crossP(qVec, uv);
+        // Convert the quaternion to a rotation matrix
+        const q = quaternion;
+        const m = [
+            [1 - 2 * q.y * q.y - 2 * q.z * q.z, 2 * q.x * q.y - 2 * q.z * q.w, 2 * q.x * q.z + 2 * q.y * q.w],
+            [2 * q.x * q.y + 2 * q.z * q.w, 1 - 2 * q.x * q.x - 2 * q.z * q.z, 2 * q.y * q.z - 2 * q.x * q.w],
+            [2 * q.x * q.z - 2 * q.y * q.w, 2 * q.y * q.z + 2 * q.x * q.w, 1 - 2 * q.x * q.x - 2 * q.y * q.y]
+        ];
 
-        uv.x *= (2.0 * quaternion.w);
-        uv.y *= (2.0 * quaternion.w);
-        uv.z *= (2.0 * quaternion.w);
-
-        uuv.x *= 2.0;
-        uuv.y *= 2.0;
-        uuv.z *= 2.0;
-
-        result.x = vector.x + uv.x + uuv.x;
-        result.y = vector.y + uv.y + uuv.y;
-        result.z = vector.z + uv.z + uuv.z;
+        // Multiply the vector by the rotation matrix
+        result.x = m[0][0] * vector.x + m[0][1] * vector.y + m[0][2] * vector.z;
+        result.y = m[1][0] * vector.x + m[1][1] * vector.y + m[1][2] * vector.z;
+        result.z = m[2][0] * vector.x + m[2][1] * vector.y + m[2][2] * vector.z;
     }
 
-    // ... ewentualne dodatkowe funkcje ...
 }

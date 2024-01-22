@@ -1,0 +1,8 @@
+# OBJ file for an enlarged dot represented as a cross made of lines
+v -0.05 0 0
+v 0.05 0 0
+v 0 0.05 0
+v 0 -0.05 0
+
+l 1 2
+l 3 4
