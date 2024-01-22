@@ -14,18 +14,64 @@ class MyGame extends Drake.Engine {
   cubes: Cube[] = [];
   spaceship;
   bullets: Bullet[] = [];
+  asteroids: Asteroid[] = [];
   keysPressed: Set<string> = new Set();
+  lastAsteroidSpawnTime: number = Date.now();
 
   constructor(canvas: HTMLCanvasElement) {
     const camera = new Drake.Camera(69, 0.1, 1000, [0, 0, -10], [0, 0, 1]);
     super(canvas, camera);
     this.cubes.forEach((cube) => this.addSceneMesh(cube));
     this.spaceship = { obj: new Spaceship([0, 0, 0], [0.01, 0.01, 0.01]), rotation: { x: 0, y: 0, z: 0, w: 1 } };
+
+    // 13x, 8y
+    this.asteroids.push(new Asteroid(6, "m", [0, 0, 0], [0.01, 0.01, 0.01]))
+
     this.addSceneMesh(this.spaceship.obj);
+
+    // this.createRandomAsteroid();
+
     const bullet = new Bullet([this.spaceship.obj.position.x, this.spaceship.obj.position.y, this.spaceship.obj.position.z]);
     this.addSceneMesh(bullet);
     this.bullets.push(bullet);
   }
+
+  createRandomAsteroid() {
+    console.log("xd")
+
+    // Losowanie rozmiaru (1 do 15)
+    const size = Math.floor(Math.random() * 15) + 1;
+  
+    // Losowanie typu ('l', 'm', 's')
+    const type = ['l', 'm', 's'][Math.floor(Math.random() * 3)];
+  
+    // Losowanie pozycji
+    const edge = ['left', 'right', 'top', 'bottom'][Math.floor(Math.random() * 4)];
+    let position: [number, number, number];
+    if (edge === 'left') {
+      position = [-13, Math.random() * 10 - 5, 0];
+    } else if (edge === 'right') {
+      position = [13, Math.random() * 10 - 5, 0];
+    } else if (edge === 'top') {
+      position = [Math.random() * 26 - 13, 5, 0];
+    } else {
+      position = [Math.random() * 26 - 13, -5, 0];
+    }
+  
+    // Losowanie i obliczanie wektora prędkości
+    const velocityMagnitude = Math.random() * 0.2 + 0.1;
+    const centerPosition = [0, 0];
+    const velocityDirection = [centerPosition[0] - position[0], centerPosition[1] - position[1]];
+    const normalizedVelocity = velocityDirection.map(v => v / Math.sqrt(velocityDirection[0]**2 + velocityDirection[1]**2));
+    const velocity = normalizedVelocity.map(v => v * velocityMagnitude);
+  
+    // Tworzenie asteroidy
+    const ast = new Asteroid(size, type, position, [0.01, 0.01, 0.01]);
+    ast.velocity = {x: velocity[0], y: velocity[1], z: 0};
+    this.addSceneMesh(ast);
+    this.asteroids.push(ast);
+  }
+  
 
   handleSpaceshipMove() {
     const rotationAmount = Math.PI / 16;
@@ -69,13 +115,25 @@ class MyGame extends Drake.Engine {
 
 
   override Start(): void {
-    this.setResolution(640, 480);
+    this.setResolution(1280, 720);
     document.addEventListener("keydown", this.handleKeyDown.bind(this));
     document.addEventListener("keyup", this.handleKeyUp.bind(this));
   }
 
 
   override Update(): void {
+    this.asteroids.forEach(ast => {
+      ast.move(ast.velocity.x, ast.velocity.y, ast.velocity.z)
+    });
+
+    if (Date.now() - this.lastAsteroidSpawnTime >= 3000) {
+      
+      // Wywołanie funkcji createRandomAsteroid
+      this.createRandomAsteroid();
+
+      // Zaktualizowanie czasu ostatniego spawnu asteroidy
+      this.lastAsteroidSpawnTime = Date.now();
+    }
   }
 
 }
