@@ -42,7 +42,6 @@ export default class GameObject {
         yAxis: rotation[1],
         zAxis: rotation[2],
       };
-
   }
 
   async loadMesh(): Promise<void> {
@@ -52,7 +51,6 @@ export default class GameObject {
       this.meshPath,
       this.allowUsingCachedMesh
     );
-    console.log(this.meshPath, lineVerteciesIndexes, vertexPositions);
     this._vertecies = vertexPositions;
     this._meshIndexed = lineVerteciesIndexes;
     console.log("applying initial position and scale...");
@@ -151,7 +149,7 @@ export default class GameObject {
     for (const vertex of this._vertecies) {
       // Używamy zmodyfikowanej funkcji 'rotateVector', która modyfikuje istniejący obiekt
       QuaternionUtils.rotateVector(quaternion, vertex, rotatedVertex);
-      
+
       vertex.x = rotatedVertex.x;
       vertex.y = rotatedVertex.y;
       vertex.z = rotatedVertex.z;
@@ -160,4 +158,3 @@ export default class GameObject {
     this.move(originalPosition.x, originalPosition.y, originalPosition.z);
   }
 }
-
