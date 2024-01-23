@@ -1,3 +1,4 @@
+import { Overlap } from "./behavior/Overlap";
 import Cube from "./entities/game-objects/built-in/Cube";
 import Drake from "./index";
 import { GUIText } from "./gui/GUIElements/GUIText";
@@ -37,6 +38,7 @@ class MyButton extends Button {
 
 class MyGame extends Drake.Engine {
   cube: Cube;
+  cube2: Cube;
   axis;
   icon: Icon;
   ranbowText: GUIText | undefined;
@@ -129,6 +131,7 @@ class MyGame extends Drake.Engine {
   }
 
   override Update(): void {
+
     const rotationSpeed = Math.PI / 2; // Obrót o 360 stopni na sekundę
 
     // Aktualizacja kwaternionu rotacji
