@@ -11,37 +11,30 @@ import Asteroid from "./asteroids/objects/asteroid";
 import Spaceship from "./asteroids/objects/spaceship";
 import Bullet from "./asteroids/objects/bullet";
 import { dir } from "console";
+import Scene from "./Scene";
 const canvas = document.getElementById("app") as HTMLCanvasElement | null;
 if (!canvas) throw new Error("unable to find canvas");
 
+// Without destroing elements whene they quit screen
+
 class MyGame extends Drake.Engine {
-  cubes: Cube[] = [];
   spaceship;
+  mainScene: Scene | null = null;
   bullets: Bullet[] = [];
   asteroids: Asteroid[] = [];
   keysPressed: Set<string> = new Set();
   lastAsteroidSpawnTime: number = Date.now();
 
   constructor(canvas: HTMLCanvasElement) {
-    const camera = new Drake.Camera(69, 0.1, 1000, [0, 0, -10], [0, 0, 1]);
-    super(canvas, camera);
-    this.cubes.forEach((cube) => this.addSceneMesh(cube));
+    super(canvas);
+
     this.spaceship = { obj: new Spaceship([0, 0, 0], [0.01, 0.01, 0.01]), rotation: { x: 0, y: 0, z: 0, w: 1 } };
-
-    // 13x, 8y
-    this.asteroids.push(new Asteroid(6, "m", [0, 0, 0], [0.01, 0.01, 0.01]))
-
-    this.addSceneMesh(this.spaceship.obj);
-
-    // this.createRandomAsteroid();
-
-    const bullet = new Bullet([this.spaceship.obj.position.x, this.spaceship.obj.position.y, this.spaceship.obj.position.z]);
-    this.addSceneMesh(bullet);
-    this.bullets.push(bullet);
   }
 
   createRandomAsteroid() {
-    console.log("xd")
+    if (this.mainScene == null) {
+      throw new Error("Main scene must be set first.");
+    }
 
     // Losowanie rozmiaru (1 do 15)
     const size = Math.floor(Math.random() * 15) + 1;
@@ -72,7 +65,7 @@ class MyGame extends Drake.Engine {
     // Tworzenie asteroidy
     const ast = new Asteroid(size, type, position, [0.01, 0.01, 0.01]);
     ast.velocity = {x: velocity[0], y: velocity[1], z: 0};
-    this.addSceneMesh(ast);
+    this.mainScene!.addSceneMesh(ast);
     this.asteroids.push(ast);
   }
   
@@ -117,26 +110,35 @@ class MyGame extends Drake.Engine {
     this.keysPressed.delete(e.key);
   }
 
-
   override Start(): void {
     this.setResolution(1280, 720);
 
-    const camera = new Drake.Camera(90, 0.1, 1000, [10, 10, -15], [0, 0, 1]);
+    const camera = new Drake.Camera(69, 0.1, 1000, [0, 0, -10], [0, 0, 1]);
    
     const mainScene = new Drake.Scene(
       this.width,
       this.height,
-      this.idGenerator.id
     );
+
+    mainScene.addSceneMesh(this.spaceship.obj);
     
     mainScene.setCamera(camera);
 
+    const bullet = new Bullet([this.spaceship.obj.position.x, this.spaceship.obj.position.y, this.spaceship.obj.position.z]);
+    mainScene.addSceneMesh(bullet);
+    this.bullets.push(bullet);
+
+
     const mainSceneId = this.addScene(mainScene);
     this.setCurrentScene(mainSceneId);
-    this.setResolution(640, 480);
+    this.setResolution(1280, 720);
     
     document.addEventListener("keydown", this.handleKeyDown.bind(this));
     document.addEventListener("keyup", this.handleKeyUp.bind(this));
+
+    this.mainScene = mainScene;
+
+    this.createRandomAsteroid();
   }
 
 
@@ -146,7 +148,7 @@ class MyGame extends Drake.Engine {
       ast.move(ast.velocity.x, ast.velocity.y, ast.velocity.z)
     });
 
-    if (Date.now() - this.lastAsteroidSpawnTime >= 3000) {
+    if (Date.now() - this.lastAsteroidSpawnTime >= 2000) {
       
       // Wywołanie funkcji createRandomAsteroid
       this.createRandomAsteroid();

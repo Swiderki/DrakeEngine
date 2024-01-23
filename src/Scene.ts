@@ -35,7 +35,7 @@ export default class Scene {
     return this._projMatrix;
   }
 
-  constructor(width: number, height: number, id: number) {
+  constructor(width: number, height: number) {
     this.width = width;
     this.height = height;
   }
