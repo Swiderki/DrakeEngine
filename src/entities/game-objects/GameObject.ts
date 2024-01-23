@@ -1,5 +1,6 @@
-import { readObjFile } from "../../..//src/util/fs";
-import { QuaternionUtils } from "../../../src/util/quaternions";
+import { readObjFile } from "@/src/util/fs";
+import { Vector } from "@/src/util/math";
+import { QuaternionUtils } from "@/src/util/quaternions";
 
 type GameObjectInitialConfig = {
   position?: Vec3DTuple;
@@ -54,9 +55,9 @@ export default class GameObject {
     console.log(this.meshPath, lineVerteciesIndexes, vertexPositions);
     this._vertecies = vertexPositions;
     this._meshIndexed = lineVerteciesIndexes;
-  
+
     console.log("applying initial position, scale, and rotation...");
-    
+
     // Apply initial scale
     if (Object.values(this._size).some((size) => size !== 1)) {
       this.scale(this._size.x, this._size.y, this._size.z);
@@ -66,13 +67,13 @@ export default class GameObject {
     if (Object.values(this._position).some((pos) => pos !== 0)) {
       this.move(this._position.x, this._position.y, this._position.z);
     }
-  
-  
+
+
     // // Apply initial rotation
     // if (Object.values(this._rotation).some((rot) => rot !== 0)) {
     //   this.rotate(this._rotation.xAxis, this._rotation.yAxis, this._rotation.zAxis);
     // }
-  
+
     console.log(
       "finished loading mesh! loaded triangles:",
       this._meshIndexed.length,
@@ -81,7 +82,7 @@ export default class GameObject {
       "ms"
     );
   }
-  
+
 
   /** Moves the cube relatively, if you need to move it absolutely use the `setPosition` method */
   move(x: number, y: number, z: number): void {
@@ -155,12 +156,13 @@ export default class GameObject {
     this.move(-this._position.x, -this._position.y, -this._position.z);
 
     // Zmodyfikowany obiekt wynikowy dla obrotu wektora
-    let rotatedVertex = { x: 0, y: 0, z: 0 };
-
+    
     for (const vertex of this._vertecies) {
       // Używamy zmodyfikowanej funkcji 'rotateVector', która modyfikuje istniejący obiekt
+      let rotatedVertex = { x: 0, y: 0, z: 0 };
+
       QuaternionUtils.rotateVector(quaternion, vertex, rotatedVertex);
-      
+
       vertex.x = rotatedVertex.x;
       vertex.y = rotatedVertex.y;
       vertex.z = rotatedVertex.z;

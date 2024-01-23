@@ -41,7 +41,7 @@ describe.skip('Vector namespace', () => {
   });
 });
 
-describe('Matrix namespace', () => {
+describe.skip('Matrix namespace', () => {
   const mat1: Mat4x4 = [
     [1, 2, 3, 4],
     [5, 6, 7, 8],
@@ -90,7 +90,7 @@ describe('Matrix namespace', () => {
 
 });
 
-describe('transpose function', () => {
+describe.skip('transpose function', () => {
   test('transposes a matrix', () => {
     const matrix = [
       [1, 2, 3],

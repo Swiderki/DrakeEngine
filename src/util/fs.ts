@@ -1,5 +1,4 @@
 import { Clickable } from "../gui/GUIElements/Clickable";
-import { transpose } from "./math";
 
 export function isClickable(obj: any): obj is Clickable {
   return obj

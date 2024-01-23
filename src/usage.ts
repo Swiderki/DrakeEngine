@@ -38,10 +38,10 @@ class MyGame extends Drake.Engine {
 
     // Losowanie rozmiaru (1 do 15)
     const size = Math.floor(Math.random() * 15) + 1;
-  
+
     // Losowanie typu ('l', 'm', 's')
     const type = ['l', 'm', 's'][Math.floor(Math.random() * 3)];
-  
+
     // Losowanie pozycji
     const edge = ['left', 'right', 'top', 'bottom'][Math.floor(Math.random() * 4)];
     let position: [number, number, number];
@@ -54,21 +54,21 @@ class MyGame extends Drake.Engine {
     } else {
       position = [Math.random() * 26 - 13, -5, 0];
     }
-  
+
     // Losowanie i obliczanie wektora prędkości
     const velocityMagnitude = Math.random() * 0.2 + 0.1;
     const centerPosition = [0, 0];
     const velocityDirection = [centerPosition[0] - position[0], centerPosition[1] - position[1]];
-    const normalizedVelocity = velocityDirection.map(v => v / Math.sqrt(velocityDirection[0]**2 + velocityDirection[1]**2));
+    const normalizedVelocity = velocityDirection.map(v => v / Math.sqrt(velocityDirection[0] ** 2 + velocityDirection[1] ** 2));
     const velocity = normalizedVelocity.map(v => v * velocityMagnitude);
-  
+
     // Tworzenie asteroidy
     const ast = new Asteroid(size, type, position, [0.01, 0.01, 0.01]);
-    ast.velocity = {x: velocity[0], y: velocity[1], z: 0};
+    ast.velocity = { x: velocity[0], y: velocity[1], z: 0 };
     this.mainScene!.addSceneMesh(ast);
     this.asteroids.push(ast);
   }
-  
+
 
   handleSpaceshipMove() {
     const rotationAmount = Math.PI / 16;
@@ -77,8 +77,11 @@ class MyGame extends Drake.Engine {
       const rotationQuaternion = { x: 0, y: 0, z: 0, w: 1 };
       QuaternionUtils.setFromAxisAngle(rotationQuaternion, { x: 0, y: 0, z: 1 }, rotationAmount);
       QuaternionUtils.normalize(rotationQuaternion);
+
       this.spaceship.obj.applyQuaternion(rotationQuaternion);
-      QuaternionUtils.multiply(this.spaceship.rotation, rotationQuaternion, this.spaceship.rotation);
+      console.log(rotationQuaternion)
+      QuaternionUtils.multiply(this.spaceship.rotation, this.spaceship.rotation, rotationQuaternion);
+      console.log(this.spaceship.rotation)
       QuaternionUtils.normalize(this.spaceship.rotation);
 
     }
@@ -87,16 +90,21 @@ class MyGame extends Drake.Engine {
       QuaternionUtils.setFromAxisAngle(rotationQuaternion, { x: 0, y: 0, z: -1 }, rotationAmount);
       QuaternionUtils.normalize(rotationQuaternion);
       this.spaceship.obj.applyQuaternion(rotationQuaternion);
-      QuaternionUtils.multiply(this.spaceship.rotation, rotationQuaternion, this.spaceship.rotation);
+      QuaternionUtils.multiply(this.spaceship.rotation, this.spaceship.rotation, rotationQuaternion);
       QuaternionUtils.normalize(this.spaceship.rotation);
 
     }
 
     if (this.keysPressed.has("w")) {
       const direction = { x: 0, y: 0, z: 0 };
+      console.log("Kierunek przed obróceniem:", direction)
       QuaternionUtils.rotateVector(this.spaceship.rotation, { x: 0, y: 0.1, z: 0 }, direction);
+      console.log(this.spaceship.rotation)
       console.log("Kierunek po obróceniu:", direction);
       this.spaceship.obj.move(direction.x, direction.y, direction.z);
+      const bullet = new Bullet([this.spaceship.obj.position.x, this.spaceship.obj.position.y, this.spaceship.obj.position.z]);
+      this.mainScene!.addSceneMesh(bullet);
+      this.bullets.push(bullet);
     }
 
   }
@@ -114,14 +122,14 @@ class MyGame extends Drake.Engine {
     this.setResolution(1280, 720);
 
     const camera = new Drake.Camera(69, 0.1, 1000, [0, 0, -10], [0, 0, 1]);
-   
+
     const mainScene = new Drake.Scene(
       this.width,
       this.height,
     );
 
     mainScene.addSceneMesh(this.spaceship.obj);
-    
+
     mainScene.setCamera(camera);
 
     const bullet = new Bullet([this.spaceship.obj.position.x, this.spaceship.obj.position.y, this.spaceship.obj.position.z]);
@@ -132,7 +140,7 @@ class MyGame extends Drake.Engine {
     const mainSceneId = this.addScene(mainScene);
     this.setCurrentScene(mainSceneId);
     this.setResolution(1280, 720);
-    
+
     document.addEventListener("keydown", this.handleKeyDown.bind(this));
     document.addEventListener("keyup", this.handleKeyUp.bind(this));
 
@@ -144,18 +152,18 @@ class MyGame extends Drake.Engine {
 
   override Update(): void {
 
-    this.asteroids.forEach(ast => {
-      ast.move(ast.velocity.x, ast.velocity.y, ast.velocity.z)
-    });
+    // this.asteroids.forEach(ast => {
+    //   ast.move(ast.velocity.x, ast.velocity.y, ast.velocity.z)
+    // });
 
-    if (Date.now() - this.lastAsteroidSpawnTime >= 2000) {
-      
-      // Wywołanie funkcji createRandomAsteroid
-      this.createRandomAsteroid();
+    // if (Date.now() - this.lastAsteroidSpawnTime >= 2000) {
 
-      // Zaktualizowanie czasu ostatniego spawnu asteroidy
-      this.lastAsteroidSpawnTime = Date.now();
-    }
+    //   // Wywołanie funkcji createRandomAsteroid
+    //   this.createRandomAsteroid();
+
+    //   // Zaktualizowanie czasu ostatniego spawnu asteroidy
+    //   this.lastAsteroidSpawnTime = Date.now();
+    // }
 
   }
 
