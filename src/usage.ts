@@ -7,145 +7,158 @@ import { Icon } from "./gui/GUIElements/Icon";
 import GUI from "./gui/Gui";
 
 import { QuaternionUtils } from "@/src/util/quaternions";
-import Piramide from "./entities/game-objects/built-in/Piramide";
-
+import Asteroid from "./asteroids/objects/asteroid";
+import Spaceship from "./asteroids/objects/spaceship";
+import Bullet from "./asteroids/objects/bullet";
+import { dir } from "console";
 const canvas = document.getElementById("app") as HTMLCanvasElement | null;
 if (!canvas) throw new Error("unable to find canvas");
 
-
-class MyInput extends Input{
-  constructor() {
-    super("Test btn", 30, "Arial", "#00ff00", 400, 80, 200);
-    this.position.x = 300;
-    this.position.y = 100;
-  }
-}
-class MyButton extends Button {
-  constructor() {
-    super("Test btn", 24, "Arial", "#00ff00", 400);
-    this.position.x = 100;
-    this.position.y = 100;
-    this.border.bottom.color = "#ff0000";
-  }
-
-  override onClick(): void {
-    if (this.color == "#ffffff") this.color = "#00ff00";
-    else this.color = "#ffffff";
-    console.log(this.width);
-  }
-}
-
 class MyGame extends Drake.Engine {
-  cube: Cube;
-  axis;
-  icon: Icon;
-  ranbowText: GUIText | undefined;
-  hue: number = 0;
-   cubes: Cube[] = [];
-  rotationQuaternion = { x: 0, y: 0, z: 0, w: 1 };
+  cubes: Cube[] = [];
+  spaceship;
+  bullets: Bullet[] = [];
+  asteroids: Asteroid[] = [];
+  keysPressed: Set<string> = new Set();
+  lastAsteroidSpawnTime: number = Date.now();
+
   constructor(canvas: HTMLCanvasElement) {
-    super(canvas);
-    this.cube = new Drake.Cube([10, 10, -14]);
-    this.axis = new Drake.GameObject("objects/axis.obj");
-    // Heart icon, problem with svg sizes @MrFishPL
-    // What problem? ~MrFishPL
-    this.icon = new Icon(
-      "M12 21.593c-5.63-5.539-11-10.297-11-14.402 0-3.791 3.068-5.191 5.281-5.191 1.312 0 4.151.501 5.719 4.457 1.59-3.968 4.464-4.447 5.726-4.447 2.54 0 5.274 1.621 5.274 5.181 0 4.069-5.136 8.625-11 14.402m5.726-20.583c-2.203 0-4.446 1.042-5.726 3.238-1.285-2.206-3.522-3.248-5.719-3.248-3.183 0-6.281 2.187-6.281 6.191 0 4.661 5.571 9.429 12 15.809 6.43-6.38 12-11.148 12-15.809 0-4.011-3.095-6.181-6.274-6.181",
-      1050,
-      1050,
-      { x: 20, y: 20 }
-    );
-    // add cubes
-    [...Array(1400)].forEach((_, i) => {
-      this.cubes.push(new Cube([i * 5, 0, 0]));
-    })
+    const camera = new Drake.Camera(69, 0.1, 1000, [0, 0, -10], [0, 0, 1]);
+    super(canvas, camera);
+    this.cubes.forEach((cube) => this.addSceneMesh(cube));
+    this.spaceship = { obj: new Spaceship([0, 0, 0], [0.01, 0.01, 0.01]), rotation: { x: 0, y: 0, z: 0, w: 1 } };
+
+    // 13x, 8y
+    this.asteroids.push(new Asteroid(6, "m", [0, 0, 0], [0.01, 0.01, 0.01]))
+
+    this.addSceneMesh(this.spaceship.obj);
+
+    // this.createRandomAsteroid();
+
+    const bullet = new Bullet([this.spaceship.obj.position.x, this.spaceship.obj.position.y, this.spaceship.obj.position.z]);
+    this.addSceneMesh(bullet);
+    this.bullets.push(bullet);
   }
 
-  handleCameraMove(e: KeyboardEvent) {
-    if(!this.mainCamera) return;
-    if (e.key === "w") this.mainCamera.move(0, 1, 0);
-    if (e.key === "s") this.mainCamera.move(0, -1, 0);
-    if (e.key === "a") this.mainCamera.move(-1, 0, 0);
+  createRandomAsteroid() {
+    console.log("xd")
+
+    // Losowanie rozmiaru (1 do 15)
+    const size = Math.floor(Math.random() * 15) + 1;
+  
+    // Losowanie typu ('l', 'm', 's')
+    const type = ['l', 'm', 's'][Math.floor(Math.random() * 3)];
+  
+    // Losowanie pozycji
+    const edge = ['left', 'right', 'top', 'bottom'][Math.floor(Math.random() * 4)];
+    let position: [number, number, number];
+    if (edge === 'left') {
+      position = [-13, Math.random() * 10 - 5, 0];
+    } else if (edge === 'right') {
+      position = [13, Math.random() * 10 - 5, 0];
+    } else if (edge === 'top') {
+      position = [Math.random() * 26 - 13, 5, 0];
+    } else {
+      position = [Math.random() * 26 - 13, -5, 0];
+    }
+  
+    // Losowanie i obliczanie wektora prędkości
+    const velocityMagnitude = Math.random() * 0.2 + 0.1;
+    const centerPosition = [0, 0];
+    const velocityDirection = [centerPosition[0] - position[0], centerPosition[1] - position[1]];
+    const normalizedVelocity = velocityDirection.map(v => v / Math.sqrt(velocityDirection[0]**2 + velocityDirection[1]**2));
+    const velocity = normalizedVelocity.map(v => v * velocityMagnitude);
+  
+    // Tworzenie asteroidy
+    const ast = new Asteroid(size, type, position, [0.01, 0.01, 0.01]);
+    ast.velocity = {x: velocity[0], y: velocity[1], z: 0};
+    this.addSceneMesh(ast);
+    this.asteroids.push(ast);
   }
+  
+
+  handleSpaceshipMove() {
+    const rotationAmount = Math.PI / 16;
+
+    if (this.keysPressed.has("a")) {
+      const rotationQuaternion = { x: 0, y: 0, z: 0, w: 1 };
+      QuaternionUtils.setFromAxisAngle(rotationQuaternion, { x: 0, y: 0, z: 1 }, rotationAmount);
+      QuaternionUtils.normalize(rotationQuaternion);
+      this.spaceship.obj.applyQuaternion(rotationQuaternion);
+      QuaternionUtils.multiply(this.spaceship.rotation, rotationQuaternion, this.spaceship.rotation);
+      QuaternionUtils.normalize(this.spaceship.rotation);
+
+    }
+    if (this.keysPressed.has("d")) {
+      const rotationQuaternion = { x: 0, y: 0, z: 0, w: 1 };
+      QuaternionUtils.setFromAxisAngle(rotationQuaternion, { x: 0, y: 0, z: -1 }, rotationAmount);
+      QuaternionUtils.normalize(rotationQuaternion);
+      this.spaceship.obj.applyQuaternion(rotationQuaternion);
+      QuaternionUtils.multiply(this.spaceship.rotation, rotationQuaternion, this.spaceship.rotation);
+      QuaternionUtils.normalize(this.spaceship.rotation);
+
+    }
+
+    if (this.keysPressed.has("w")) {
+      const direction = { x: 0, y: 0, z: 0 };
+      QuaternionUtils.rotateVector(this.spaceship.rotation, { x: 0, y: 0.1, z: 0 }, direction);
+      console.log("Kierunek po obróceniu:", direction);
+      this.spaceship.obj.move(direction.x, direction.y, direction.z);
+    }
+
+  }
+
+  handleKeyDown(e: KeyboardEvent) {
+    this.keysPressed.add(e.key)
+    this.handleSpaceshipMove();
+  }
+
+  handleKeyUp(e: KeyboardEvent) {
+    this.keysPressed.delete(e.key);
+  }
+
 
   override Start(): void {
     this.setResolution(1280, 720);
+
     const camera = new Drake.Camera(90, 0.1, 1000, [10, 10, -15], [0, 0, 1]);
-    const mainSceneGUI = new GUI(this.getCanvas, this.getCanvas.getContext("2d")!);
-    // mainSceneGUI.hideCursor = true;
-    mainSceneGUI.addElement(this.icon);
-
-    const exampleText = new GUIText(
-      "Hihihihihihihahi",
-      24,
-      "monospace",
-      "#00ff00",
-      900
-    );
-    const exampleText2 = new GUIText(
-      "Lorem ipsum dolor sit amet",
-      24,
-      "monospace",
-      "#0000ff",
-      900
-    );
-    // this.ranbowText = new RainboxText();
-
-    // To create click event you must extend Button class
-
-    exampleText.position.x = this.width - exampleText.width - 20;
-    exampleText.position.y = 20;
-    // this.ranbowText.position.x = 20;
-    // this.ranbowText.position.y = this.height - 20;
-
-    exampleText2.position.x = this.width - exampleText2.width - 20;
-    exampleText2.position.y = 30 + exampleText.height;
-
-    mainSceneGUI.addElement(exampleText);
-    mainSceneGUI.addElement(exampleText2);
-    // mainSceneGUI.addElement(this.ranbowText);
-    const btn = new MyButton();
-    mainSceneGUI.addElement(btn);
-    const input = new MyInput();
-    mainSceneGUI.addElement(input);
+   
     const mainScene = new Drake.Scene(
       this.width,
       this.height,
       this.idGenerator.id
     );
-
-    const mainSceneGUIId = mainScene.addGUI(mainSceneGUI);
+    
     mainScene.setCamera(camera);
-    mainScene.setCurrentGUI(mainSceneGUIId);
 
     const mainSceneId = this.addScene(mainScene);
     this.setCurrentScene(mainSceneId);
-
-    this.cubes.forEach(cube => mainScene.addSceneMesh(cube));
-    
     this.setResolution(640, 480);
-    document.addEventListener("keydown", this.handleCameraMove.bind(this));
     
+    document.addEventListener("keydown", this.handleKeyDown.bind(this));
+    document.addEventListener("keyup", this.handleKeyUp.bind(this));
   }
+
 
   override Update(): void {
-    const rotationSpeed = Math.PI / 2; // Obrót o 360 stopni na sekundę
 
-    // Aktualizacja kwaternionu rotacji
-    QuaternionUtils.setFromAxisAngle(
-      this.rotationQuaternion, 
-      { x: 0, y: 1, z: 0 }, // Oś obrotu
-      rotationSpeed * this.deltaTime // Kąt obrotu
-    );
+    this.asteroids.forEach(ast => {
+      ast.move(ast.velocity.x, ast.velocity.y, ast.velocity.z)
+    });
 
-    // Normalizacja kwaternionu
-    QuaternionUtils.normalize(this.rotationQuaternion);
+    if (Date.now() - this.lastAsteroidSpawnTime >= 3000) {
+      
+      // Wywołanie funkcji createRandomAsteroid
+      this.createRandomAsteroid();
 
-    // Zastosowanie kwaternionu do obrotu kostek, piramidy i osi
-    this.cubes.forEach(cube => cube.applyQuaternion(this.rotationQuaternion));
+      // Zaktualizowanie czasu ostatniego spawnu asteroidy
+      this.lastAsteroidSpawnTime = Date.now();
+    }
+
   }
+
 }
-  
+
 
 
 const game = new MyGame(canvas);
