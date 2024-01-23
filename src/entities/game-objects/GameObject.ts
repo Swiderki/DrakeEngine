@@ -1,19 +1,28 @@
-import { readObjFile } from "@/src/util/fs";
+import { readObjFile } from "../../..//src/util/fs";
+import { QuaternionUtils } from "../../../src/util/quaternions";
+
+type GameObjectInitialConfig = {
+  position?: Vec3DTuple;
+  size?: Vec3DTuple;
+  rotation?: Vec3DTuple;
+  allowUsingCachedMesh?: boolean;
+};
 
 export default class GameObject {
   private _meshIndexed: LineVerteciesIndexes[] = [];
   private _vertecies: Vec3D[] = [];
-  private _position: Vec3D;
-  private _size: Vec3D;
-  private _rotation: Rotation;
-  private _boxCollider: [Vec3D, Vec3D] | null = null;
 
+  private _position: Vec3D = { x: 0, y: 0, z: 0 };
+  private _size: Vec3D = { x: 1, y: 1, z: 1 };
+  private _rotation: Rotation = { xAxis: 0, yAxis: 0, zAxis: 0 };
+  
+  private _boxCollider: [Vec3D, Vec3D] | null = null;
+  
   readonly meshPath: string;
+  readonly allowUsingCachedMesh: boolean = true;
 
   get mesh() {
-    return this._meshIndexed.map(
-      (triVerIdx) => triVerIdx.map((i) => this._vertecies[i]) as Line
-    );
+    return this._meshIndexed.map((triVerIdx) => triVerIdx.map((i) => this._vertecies[i]) as Line);
   }
 
   get vertecies() { return this._vertecies; } // prettier-ignore
@@ -31,27 +40,29 @@ export default class GameObject {
 
   constructor(
     meshPath: string,
-    position: Vec3DTuple = [0, 0, 0],
-    size: Vec3DTuple = [1, 1, 1],
-    rotation: Vec3DTuple = [0, 0, 0],
+    { allowUsingCachedMesh, position, rotation, size }: GameObjectInitialConfig = {}
   ) {
     this.meshPath = meshPath;
-    
-    this._position = { x: position[0], y: position[1], z: position[2] };
-    this._size = { x: size[0], y: size[1], z: size[2] };
-    this._rotation = {
-      xAxis: rotation[0],
-      yAxis: rotation[1],
-      zAxis: rotation[2],
-    };
+
+    if (allowUsingCachedMesh) this.allowUsingCachedMesh = allowUsingCachedMesh;
+    if (position) this._position = { x: position[0], y: position[1], z: position[2] };
+    if (size) this._size = { x: size[0], y: size[1], z: size[2] };
+    if (rotation)
+      this._rotation = {
+        xAxis: rotation[0],
+        yAxis: rotation[1],
+        zAxis: rotation[2],
+      };
   }
 
   async loadMesh(): Promise<void> {
     const start = Date.now();
     console.log("starting loading mesh...");
     const { lineVerteciesIndexes, vertexPositions } = await readObjFile(
-      this.meshPath
+      this.meshPath,
+      this.allowUsingCachedMesh
     );
+    console.log(this.meshPath, lineVerteciesIndexes, vertexPositions);
     this._vertecies = vertexPositions;
     this._meshIndexed = lineVerteciesIndexes;
     console.log("applying initial position and scale...");
@@ -61,7 +72,9 @@ export default class GameObject {
       this.move(x, y, z);
       this._position = { x, y, z };
     }
-
+    /**
+     * @todo scale and rotation are not being applyed
+     */
     console.log(
       "finished loading mesh! loaded triangles:",
       this._meshIndexed.length,
@@ -78,6 +91,7 @@ export default class GameObject {
       vertex.y += y;
       vertex.z += z;
     }
+
     this._position = {
       x: this._position.x + x,
       y: this._position.y + y,
@@ -136,4 +150,24 @@ export default class GameObject {
 
     this.move(originalPosition.x, originalPosition.y, originalPosition.z);
   }
+
+  applyQuaternion(quaternion: QuaternionUtils.Quaternion): void {
+    const originalPosition = { ...this._position };
+    this.move(-this._position.x, -this._position.y, -this._position.z);
+
+    // Zmodyfikowany obiekt wynikowy dla obrotu wektora
+    let rotatedVertex = { x: 0, y: 0, z: 0 };
+
+    for (const vertex of this._vertecies) {
+      // Używamy zmodyfikowanej funkcji 'rotateVector', która modyfikuje istniejący obiekt
+      QuaternionUtils.rotateVector(quaternion, vertex, rotatedVertex);
+      
+      vertex.x = rotatedVertex.x;
+      vertex.y = rotatedVertex.y;
+      vertex.z = rotatedVertex.z;
+    }
+
+    this.move(originalPosition.x, originalPosition.y, originalPosition.z);
+  }
 }
+
