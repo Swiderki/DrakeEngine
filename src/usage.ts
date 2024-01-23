@@ -1,5 +1,11 @@
 import Cube from "./entities/game-objects/built-in/Cube";
 import Drake from "./index";
+import { GUIText } from "./gui/GUIElements/GUIText";
+import { Button } from "./gui/GUIElements/Button";
+import { Input } from "./gui/GUIElements/Input";
+import { Icon } from "./gui/GUIElements/Icon";
+import GUI from "./gui/Gui";
+
 import { QuaternionUtils } from "@/src/util/quaternions";
 import Asteroid from "./asteroids/objects/asteroid";
 import Spaceship from "./asteroids/objects/spaceship";
@@ -7,8 +13,6 @@ import Bullet from "./asteroids/objects/bullet";
 import { dir } from "console";
 const canvas = document.getElementById("app") as HTMLCanvasElement | null;
 if (!canvas) throw new Error("unable to find canvas");
-
-
 
 class MyGame extends Drake.Engine {
   cubes: Cube[] = [];
@@ -116,12 +120,28 @@ class MyGame extends Drake.Engine {
 
   override Start(): void {
     this.setResolution(1280, 720);
+
+    const camera = new Drake.Camera(90, 0.1, 1000, [10, 10, -15], [0, 0, 1]);
+   
+    const mainScene = new Drake.Scene(
+      this.width,
+      this.height,
+      this.idGenerator.id
+    );
+    
+    mainScene.setCamera(camera);
+
+    const mainSceneId = this.addScene(mainScene);
+    this.setCurrentScene(mainSceneId);
+    this.setResolution(640, 480);
+    
     document.addEventListener("keydown", this.handleKeyDown.bind(this));
     document.addEventListener("keyup", this.handleKeyUp.bind(this));
   }
 
 
   override Update(): void {
+
     this.asteroids.forEach(ast => {
       ast.move(ast.velocity.x, ast.velocity.y, ast.velocity.z)
     });
@@ -134,12 +154,12 @@ class MyGame extends Drake.Engine {
       // Zaktualizowanie czasu ostatniego spawnu asteroidy
       this.lastAsteroidSpawnTime = Date.now();
     }
+
   }
 
 }
 
 
 
-// Super kod 123
 const game = new MyGame(canvas);
 game.run();
