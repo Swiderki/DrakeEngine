@@ -2,9 +2,6 @@ import Scene from "./Scene";
 import IdGenerator from "./util/idGenerator";
 import { Matrix, Vector } from "./util/math";
 
-import { Overlap } from "./behavior/Overlap";
-import GameObject from "./entities/game-objects/GameObject";
-
 import { isClickable } from "./util/fs";
 
 export default class Engine {
@@ -54,27 +51,6 @@ export default class Engine {
   get deltaTime() { return this._deltaTime; } // prettier-ignore
   get frameNumber() { return this._frameNumber; } // prettier-ignore
 
-  // Must be moved to scenes
-  readonly overlaps: Map<number, Overlap> = new Map();
-  getOverlap(id: number): Overlap {
-    if (!this.overlaps.has(id)) throw new Error("There's no overlap with the given id");
-    return this.overlaps.get(id)!;
-  }
-
-  addOverlap(overlap: Overlap): number {
-    const id = this.overlapIdGenerator.id;
-
-    this.overlaps.set(id, overlap);
-    return id;
-  }
-
-  removeOverlap(id: number): number {
-    if (!this.overlaps.has(id)) throw new Error("There's no overlap with the given id");
-
-    this.overlaps.delete(id);
-    return id;
-  }
-
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
     const ctx = canvas.getContext("2d");
@@ -84,7 +60,6 @@ export default class Engine {
       );
     this.ctx = ctx;
   }
-
 
   // Main methods - used to interact with engine's workflow directly
   addScene(scene: Scene): number {
@@ -143,7 +118,7 @@ export default class Engine {
         if (el.isCoordInElement(clickX, clickY)) {
           el.onClick();
         } else {
-          el.onClickOutside()
+          el.onClickOutside();
         }
       });
     });
@@ -184,12 +159,13 @@ export default class Engine {
       (this.prevFrameEndTime - this.penultimateFrameEndTime) / 1000;
     this._frameNumber = frameNumber;
 
-    this.overlaps.forEach((v, key) => {
-      if (!v.enabled) return;
-      if (!v.isHappening()) return;
-      console.log("xd");
-      v.onOverlap();
-    });
+    if (this._currentScene != null) {
+      this._currentScene.overlaps.forEach((v, key) => {
+        if (!v.enabled) return;
+        if (!v.isHappening()) return;
+        v.onOverlap();
+      });
+    }
 
     this.Update();
 
@@ -257,11 +233,15 @@ export default class Engine {
       this._currentScene.sceneCamera.lookDir
     );
 
-    const matCamera = Matrix.lookAt(this._currentScene.sceneCamera.position, targetDir, {
-      x: 0,
-      y: 1,
-      z: 0,
-    });
+    const matCamera = Matrix.lookAt(
+      this._currentScene.sceneCamera.position,
+      targetDir,
+      {
+        x: 0,
+        y: 1,
+        z: 0,
+      }
+    );
     const matView = Matrix.quickInverse(matCamera);
 
     for (const obj of this._currentScene.gameObjects.values()) {
@@ -273,11 +253,20 @@ export default class Engine {
             w: 1,
           });
 
-          const vertexViewed = Matrix.multiplyVector(matView, vertexTransformed);
+          const vertexViewed = Matrix.multiplyVector(
+            matView,
+            vertexTransformed
+          );
 
-          const vertexProjected = Matrix.multiplyVector(this._currentScene.projMatrix, vertexViewed);
+          const vertexProjected = Matrix.multiplyVector(
+            this._currentScene.projMatrix,
+            vertexViewed
+          );
 
-          const vertexNormalized = Vector.divide(vertexProjected, vertexProjected.w);
+          const vertexNormalized = Vector.divide(
+            vertexProjected,
+            vertexProjected.w
+          );
 
           const vertexScaled = Vector.add(vertexNormalized, {
             x: 1,
