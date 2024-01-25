@@ -1,4 +1,4 @@
-import { readObjFile } from "../../..//src/util/fs";
+import { readObjFile } from "../../../src/util/fs";
 import { QuaternionUtils } from "../../../src/util/quaternions";
 
 export default class GameObject {
