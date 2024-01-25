@@ -1,16 +1,8 @@
-import Cube from "./entities/game-objects/built-in/Cube";
 import Drake from "./index";
-import { GUIText } from "./gui/GUIElements/GUIText";
-import { Button } from "./gui/GUIElements/Button";
-import { Input } from "./gui/GUIElements/Input";
-import { Icon } from "./gui/GUIElements/Icon";
-import GUI from "./gui/Gui";
-
 import { QuaternionUtils } from "@/src/util/quaternions";
 import Asteroid from "./asteroids/objects/asteroid";
 import Spaceship from "./asteroids/objects/spaceship";
 import Bullet from "./asteroids/objects/bullet";
-import { dir } from "console";
 import Scene from "./Scene";
 const canvas = document.getElementById("app") as HTMLCanvasElement | null;
 if (!canvas) throw new Error("unable to find canvas");
