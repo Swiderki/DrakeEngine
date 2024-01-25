@@ -6,6 +6,7 @@ import { Overlap } from "./behavior/Overlap";
 import GameObject from "./entities/game-objects/GameObject";
 
 import { isClickable } from "./util/fs";
+import PhysicalObject from "./entities/game-objects/PhysicalObject";
 
 export default class Engine {
   private penultimateFrameEndTime: number = 0;
@@ -182,8 +183,14 @@ export default class Engine {
     // divide difference by 1000 to express delta in seconds not miliseconds
     this._deltaTime =
       (this.prevFrameEndTime - this.penultimateFrameEndTime) / 1000;
-    this._frameNumber = frameNumber;
+    
+      this._frameNumber = frameNumber;
 
+    this.currentScene.gameObjects.forEach(object => {
+      if(object instanceof PhysicalObject) {
+        object.updatePhysics(this._deltaTime);
+      }
+    });
     this.overlaps.forEach((v, key) => {
       if (!v.enabled) return;
       if (!v.isHappening()) return;
