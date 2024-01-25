@@ -1,13 +1,6 @@
 import { readObjFile } from "../../..//src/util/fs";
 import { QuaternionUtils } from "../../../src/util/quaternions";
 
-type GameObjectInitialConfig = {
-  position?: Vec3DTuple;
-  size?: Vec3DTuple;
-  rotation?: Vec3DTuple;
-  allowUsingCachedMesh?: boolean;
-};
-
 export default class GameObject {
   private _meshIndexed: LineVerteciesIndexes[] = [];
   private _vertecies: Vec3D[] = [];

@@ -12,6 +12,7 @@ export default class Scene {
   private _currentGUI: GUI | null = null;
   // prettier-ignore
   get GUIs() { return this._GUIs; }
+  
   get currentGUI() {
     // It must return null to better usage in render.
     if (this._currentGUI == null) return null;
