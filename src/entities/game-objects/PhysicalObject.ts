@@ -1,104 +1,78 @@
 import GameObject from "./GameObject";
-
-interface PhysicsState {
-    velocity: [Vec3D, number]; // [direccion, magnitude]
-    acceleration: [Vec3D, number];
-    mass: number;
-}
+import { Vector } from "@/src/util/math";
 
 export default class PhysicalObject extends GameObject {
-  private _velocity: [Vec3D, number];
-  private _acceleration: [Vec3D, number];
-  private _mass: number;
+  velocity: Vec3D = { x: 0, y: 0, z: 0 };
+  acceleration: Vec3D = { x: 0, y: 0, z: 0 };
+  mass: number;
+
 
   constructor(
     meshPath: string,
-    config?: GameObjectInitialConfig,
-    physicsConfig?: PhysicsState
+    {
+      allowUsingCachedMesh,
+      position,
+      rotation,
+      size,
+      velocity = { x: 0, y: 0, z: 0 },
+      acceleration = { x: 0, y: 0, z: 0 },
+      mass = 1
+    }: PhysicalObjectInitialConfig
   ) {
-    super(meshPath, config);
-    this._velocity = physicsConfig?.velocity || [{ x: 0, y: 0, z: 0 }, 0];
-    this._acceleration = physicsConfig?.acceleration || [
-      { x: 0, y: 0, z: 0 },
-      0,
-    ];
-    this._mass = physicsConfig?.mass || 1;
+    super(meshPath, { allowUsingCachedMesh, position, rotation, size });
+    this.velocity = velocity;
+    this.acceleration = acceleration;
+    this.mass = mass;
   }
 
-  get velocity(): [Vec3D, number] {
-    return this._velocity;
-  }
 
-  set velocity(value: [Vec3D, number]) {
-    this._velocity = value;
-  }
-
-  get acceleration(): [Vec3D, number] {
-    return this._acceleration;
-  }
-
-  set acceleration(value: [Vec3D, number]) {
-    this._acceleration = value;
-  }
-
-  get mass(): number {
-    return this._mass;
-  }
-
-  set mass(value: number) {
-    this._mass = value;
-  }
-
-  applyForce(force: Vec3D): void {
-    // F = m * a  =>  a = F / m
-    const scaledForce = {
-      x: force.x / this.mass,
-      y: force.y / this.mass,
-      z: force.z / this.mass,
-    };
-    this.acceleration = [
-      {
-        x: this.acceleration[0].x + scaledForce.x,
-        y: this.acceleration[0].y + scaledForce.y,
-        z: this.acceleration[0].z + scaledForce.z,
-      },
-      this.acceleration[1],
-    ];
-  }
-
+  // Method to update the object's position based on velocity and acceleration
   updatePhysics(deltaTime: number): void {
-    // Update velocity based on acceleration: v = u + at
-    this.velocity[0].x += this.acceleration[0].x * deltaTime;
-    this.velocity[0].y += this.acceleration[0].y * deltaTime;
-    this.velocity[0].z += this.acceleration[0].z * deltaTime;
-
-    // Normalize the velocity vector
-    const velocityMagnitude = Math.sqrt(
-      this.velocity[0].x ** 2 +
-        this.velocity[0].y ** 2 +
-        this.velocity[0].z ** 2
+    const deltaVelocity = Vector.multiply(this.acceleration, deltaTime);
+    this.move(
+      this.velocity.x * deltaTime + 0.5 * deltaVelocity.x * deltaTime,
+      this.velocity.y * deltaTime + 0.5 * deltaVelocity.y * deltaTime,
+      this.velocity.z * deltaTime + 0.5 * deltaVelocity.z * deltaTime
     );
-    
-    this.velocity[0] = {
-      x: this.velocity[0].x / velocityMagnitude,
-      y: this.velocity[0].y / velocityMagnitude,
-      z: this.velocity[0].z / velocityMagnitude,
-    };
 
-    // Scale the velocity vector
-    this.velocity[0] = {
-      x: this.velocity[0].x * this.velocity[1],
-      y: this.velocity[0].y * this.velocity[1],
-      z: this.velocity[0].z * this.velocity[1],
-    };
-
-    // Update position based on scaled velocity: s = vt
-    const displacement = {
-      x: this.velocity[0].x * deltaTime,
-      y: this.velocity[0].y * deltaTime,
-      z: this.velocity[0].z * deltaTime,
-    };
-
-    this.move(displacement.x, displacement.y, displacement.z);
+    // Update velocity with the acceleration for the next frame
+    this.velocity = Vector.add(this.velocity, deltaVelocity);
   }
+
+  // Method to apply a force to the object
+  applyForce(force: Vec3D): void {
+    const deltaAcceleration = Vector.divide(force, this.mass); // Assuming mass is a property of GameObject
+    this.acceleration = Vector.add(this.acceleration, deltaAcceleration);
+  }
+
+  static createFromGameObject(gameObject: GameObject, initialConfig?: PhysicalObjectInitialConfig): PhysicalObject {
+    const {
+      position = [gameObject.position.x, gameObject.position.y, gameObject.position.z],
+      rotation = [gameObject.rotation.xAxis, gameObject.rotation.yAxis, gameObject.rotation.zAxis],
+      size = [gameObject.size.x, gameObject.size.y, gameObject.size.z],
+      velocity = { x: 0, y: 0, z: 0 },
+      acceleration = { x: 0, y: 0, z: 0 },
+      mass = 1
+    } = initialConfig || {};
+
+    return new PhysicalObject(gameObject.meshPath, {
+      allowUsingCachedMesh: gameObject.allowUsingCachedMesh,
+      position: position,
+      rotation: rotation,
+      size: size,
+      velocity,
+      acceleration,
+      mass,
+    });
+  }
+}
+
+interface PhysicalObjectInitialConfig {
+  allowUsingCachedMesh?: boolean;
+  position?: Vec3DTuple;
+  rotation?: Vec3DTuple;
+  size?: Vec3DTuple;
+  velocity?: Vec3D;
+  acceleration?: Vec3D;
+  mass?: number;
 }

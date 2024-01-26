@@ -1,8 +1,10 @@
 import { Overlap } from "./behavior/Overlap";
+import PhysicalObject from "./entities/game-objects/PhysicalObject";
 import Cube from "./entities/game-objects/built-in/Cube";
 import Drake from "./index";
 
 import { QuaternionUtils } from "@/src/util/quaternions";
+import { Vector } from "./util/math";
 
 const canvas = document.getElementById("app") as HTMLCanvasElement | null;
 if (!canvas) throw new Error("unable to find canvas");
@@ -19,6 +21,7 @@ class MyGame extends Drake.Engine {
   hue: number = 0;
   vec: number = 1;
   cubes: Cube[] = [];
+  physicalCube: PhysicalObject;
   rotationQuaternion = { x: 0, y: 0, z: 0, w: 1 };
   constructor(canvas: HTMLCanvasElement) {
     super(canvas);
@@ -33,6 +36,8 @@ class MyGame extends Drake.Engine {
 
     this.cubes.push(c1);
     this.cubes.push(c2);
+    // this.physicalCube = new PhysicalObject("objects/cube_wire.obj", {position: [0, 3, 0]});
+    this.physicalCube = PhysicalObject.createFromGameObject(new Cube([0, 3, 0]))
   }
 
   handleCameraMove(e: KeyboardEvent) {
@@ -40,11 +45,12 @@ class MyGame extends Drake.Engine {
     if (e.key === "w") this.mainCamera.move(0, 1, 0);
     if (e.key === "s") this.mainCamera.move(0, -1, 0);
     if (e.key === "a") this.mainCamera.move(-1, 0, 0);
+    if (e.key === "d") this.mainCamera.move(1, 0, 0);
   }
 
   override Start(): void {
     this.setResolution(1280, 720);
-    const camera = new Drake.Camera(90, 0.1, 1000, [10, 10, -15], [0, 0, 1]);
+    const camera = new Drake.Camera(90, 0.1, 1000, [10, 3, -15], [0, 0, 1]);
 
     const mainScene = new Drake.Scene(
       this.width,
@@ -58,6 +64,9 @@ class MyGame extends Drake.Engine {
     this.setCurrentScene(mainSceneId);
 
     this.cubes.forEach((cube) => mainScene.addSceneMesh(cube));
+    mainScene.addSceneMesh(this.physicalCube);
+    // this.physicalCube.applyForce({x: 5, y: 0, z: 0});
+    this.physicalCube.velocity = Vector.fromArray([8, 0, 0]);
 
     const ov = new MyOverlap(this.cubes[0], this.cubes[1]);
     mainScene.addOverlap(ov);
@@ -80,10 +89,10 @@ class MyGame extends Drake.Engine {
     QuaternionUtils.normalize(this.rotationQuaternion);
 
     // Zastosowanie kwaternionu do obrotu kostek, piramidy i osi
-    this.cubes.forEach((cube) => cube.applyQuaternion(this.rotationQuaternion));
+    // this.cubes.forEach((cube) => cube.applyQuaternion(this.rotationQuaternion));
 
-    this.cubes[1]!.move(0.2 * this.vec, 0, 0);
-    if (this.cubes[1].position.x > 20 || this.cubes[1].position.x < -5) this.vec *= -1;
+    // this.cubes[1]!.move(0.2 * this.vec, 0, 0);
+    // if (this.cubes[1].position.x > 20 || this.cubes[1].position.x < -5) this.vec *= -1;
   }
 }
 
