@@ -58,4 +58,5 @@ export namespace QuaternionUtils {
         result.y = m[1][0] * vector.x + m[1][1] * vector.y + m[1][2] * vector.z;
         result.z = m[2][0] * vector.x + m[2][1] * vector.y + m[2][2] * vector.z;
     }
+
 }
