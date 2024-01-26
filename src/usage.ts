@@ -91,7 +91,6 @@ class MyGame extends Drake.Engine {
       this.spaceship.obj.move(direction.x, direction.y, direction.z);
     }
 
-
   }
 
   handleKeyDown(e: KeyboardEvent) {
@@ -106,12 +105,12 @@ class MyGame extends Drake.Engine {
   override Start(): void {
     this.setResolution(1280, 720);
 
-
     const camera = new Drake.Camera(69, 0.1, 1000, [0, 0, -10], [0, 0, 1]);
    
-
+    const mainScene = new Drake.Scene(
+      this.width,
+      this.height,
     );
-
 
     mainScene.addSceneMesh(this.spaceship.obj);
     
@@ -132,12 +131,10 @@ class MyGame extends Drake.Engine {
     this.mainScene = mainScene;
 
     this.createRandomAsteroid();
-
   }
 
 
   override Update(): void {
-
 
     this.asteroids.forEach(ast => {
       ast.move(ast.velocity.x, ast.velocity.y, ast.velocity.z)
@@ -155,6 +152,7 @@ class MyGame extends Drake.Engine {
   }
 
 }
+
 
 
 const game = new MyGame(canvas);
