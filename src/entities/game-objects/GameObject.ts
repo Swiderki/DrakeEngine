@@ -1,30 +1,35 @@
-import { readObjFile } from "../../..//src/util/fs";
+import { readObjFile } from "../../../src/util/fs";
 import { QuaternionUtils } from "../../../src/util/quaternions";
-
-type GameObjectInitialConfig = {
-  position?: Vec3DTuple;
-  size?: Vec3DTuple;
-  rotation?: Vec3DTuple;
-  allowUsingCachedMesh?: boolean;
-};
 
 export default class GameObject {
   private _meshIndexed: LineVerteciesIndexes[] = [];
   private _vertecies: Vec3D[] = [];
+
   private _position: Vec3D = { x: 0, y: 0, z: 0 };
   private _size: Vec3D = { x: 1, y: 1, z: 1 };
   private _rotation: Rotation = { xAxis: 0, yAxis: 0, zAxis: 0 };
-
+  
+  private _boxCollider: [Vec3D, Vec3D] | null = null;
+  
   readonly meshPath: string;
   readonly allowUsingCachedMesh: boolean = true;
 
   get mesh() {
     return this._meshIndexed.map((triVerIdx) => triVerIdx.map((i) => this._vertecies[i]) as Line);
   }
+
   get vertecies() { return this._vertecies; } // prettier-ignore
   get position() { return this._position; } // prettier-ignore
   get size() { return this._size; } // prettier-ignore
   get rotation() { return this._rotation; } // prettier-ignore
+
+  set boxCollider(boxCollider: [Vec3D, Vec3D]) {
+    this._boxCollider = boxCollider;
+  }
+
+  get boxCollider(): [Vec3D, Vec3D] | null {
+    return this._boxCollider;
+  }
 
   constructor(
     meshPath: string,
@@ -41,7 +46,6 @@ export default class GameObject {
         yAxis: rotation[1],
         zAxis: rotation[2],
       };
-
   }
 
   async loadMesh(): Promise<void> {

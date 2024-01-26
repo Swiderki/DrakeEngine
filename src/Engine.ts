@@ -1,7 +1,9 @@
 import Scene from "./Scene";
 import IdGenerator from "./util/idGenerator";
 import { Matrix, Vector } from "./util/math";
+
 import { isClickable } from "./util/fs";
+import PhysicalObject from "./entities/game-objects/PhysicalObject";
 
 export default class Engine {
   private penultimateFrameEndTime: number = 0;
@@ -117,7 +119,7 @@ export default class Engine {
         if (el.isCoordInElement(clickX, clickY)) {
           el.onClick();
         } else {
-          el.onClickOutside()
+          el.onClickOutside();
         }
       });
     });
@@ -156,7 +158,21 @@ export default class Engine {
     // divide difference by 1000 to express delta in seconds not miliseconds
     this._deltaTime =
       (this.prevFrameEndTime - this.penultimateFrameEndTime) / 1000;
-    this._frameNumber = frameNumber;
+    
+      this._frameNumber = frameNumber;
+    if(this._currentScene != null) {
+      this.currentScene.gameObjects.forEach(object => {
+        if(object instanceof PhysicalObject) {
+          object.updatePhysics(this._deltaTime);
+        }
+      });
+      this.currentScene.overlaps.forEach((v, key) => {
+        if (!v.enabled) return;
+        if (!v.isHappening()) return;
+        console.log("xd");
+        v.onOverlap();
+      });
+    }
 
     this.Update();
 
@@ -224,11 +240,15 @@ export default class Engine {
       this._currentScene.sceneCamera.lookDir
     );
 
-    const matCamera = Matrix.lookAt(this._currentScene.sceneCamera.position, targetDir, {
-      x: 0,
-      y: 1,
-      z: 0,
-    });
+    const matCamera = Matrix.lookAt(
+      this._currentScene.sceneCamera.position,
+      targetDir,
+      {
+        x: 0,
+        y: 1,
+        z: 0,
+      }
+    );
     const matView = Matrix.quickInverse(matCamera);
 
     for (const obj of this._currentScene.gameObjects.values()) {
@@ -240,11 +260,20 @@ export default class Engine {
             w: 1,
           });
 
-          const vertexViewed = Matrix.multiplyVector(matView, vertexTransformed);
+          const vertexViewed = Matrix.multiplyVector(
+            matView,
+            vertexTransformed
+          );
 
-          const vertexProjected = Matrix.multiplyVector(this._currentScene.projMatrix, vertexViewed);
+          const vertexProjected = Matrix.multiplyVector(
+            this._currentScene.projMatrix,
+            vertexViewed
+          );
 
-          const vertexNormalized = Vector.divide(vertexProjected, vertexProjected.w);
+          const vertexNormalized = Vector.divide(
+            vertexProjected,
+            vertexProjected.w
+          );
 
           const vertexScaled = Vector.add(vertexNormalized, {
             x: 1,

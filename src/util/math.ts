@@ -35,6 +35,14 @@ export namespace Vector {
       z: vec1.x * vec2.y - vec1.y * vec2.x,
     };
   }
+
+  export function resize(vec: Vec3D, magnitiude: number) {
+    return multiply(normalize(vec), magnitiude);
+  }
+  
+  export function fromArray(arr: Vec3DTuple) {
+    return {x: arr[0], y: arr[1], z: arr[2]};
+  }
 }
 
 export namespace Matrix {
@@ -178,3 +186,4 @@ export namespace Matrix {
 export function transpose<T>(m: T[][]): T[][] {
   return m[0].map((_item, i) => m.map((item) => item[i]));
 }
+  

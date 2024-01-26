@@ -34,6 +34,13 @@ interface GameObject {
   loadMesh(): Promise<void>;
 }
 
+type GameObjectInitialConfig = {
+  position?: Vec3DTuple;
+  size?: Vec3DTuple;
+  rotation?: Vec3DTuple;
+  allowUsingCachedMesh?: boolean;
+};
+
 type Mat4x4 = [
   [number, number, number, number],
   [number, number, number, number],
