@@ -70,38 +70,48 @@ class MyGame extends Drake.Engine {
   }
 
 
+  updateSpaceshipRotation(quaternionDelta: any) {
+    // Mnożenie kwaternionu orientacji statku przez kwaternion zmiany
+    QuaternionUtils.multiply(this.spaceship.rotation, this.spaceship.rotation, quaternionDelta);
+    QuaternionUtils.normalize(this.spaceship.rotation);
+  }
+
   handleSpaceshipMove() {
     const rotationAmount = Math.PI / 16;
 
     if (this.keysPressed.has("a")) {
+      // Obrót w lewo
       const rotationQuaternion = { x: 0, y: 0, z: 0, w: 1 };
       QuaternionUtils.setFromAxisAngle(rotationQuaternion, { x: 0, y: 0, z: 1 }, rotationAmount);
       QuaternionUtils.normalize(rotationQuaternion);
-
-      this.spaceship.obj.applyQuaternion(rotationQuaternion);
-      console.log(rotationQuaternion)
-      QuaternionUtils.multiply(this.spaceship.rotation, this.spaceship.rotation, rotationQuaternion);
-      console.log(this.spaceship.rotation)
-      QuaternionUtils.normalize(this.spaceship.rotation);
-
+      this.spaceship.obj.applyQuaternion(rotationQuaternion)
+      this.updateSpaceshipRotation(rotationQuaternion);
     }
+
     if (this.keysPressed.has("d")) {
+      // Obrót w prawo
       const rotationQuaternion = { x: 0, y: 0, z: 0, w: 1 };
       QuaternionUtils.setFromAxisAngle(rotationQuaternion, { x: 0, y: 0, z: -1 }, rotationAmount);
       QuaternionUtils.normalize(rotationQuaternion);
-      this.spaceship.obj.applyQuaternion(rotationQuaternion);
-      QuaternionUtils.multiply(this.spaceship.rotation, this.spaceship.rotation, rotationQuaternion);
-      QuaternionUtils.normalize(this.spaceship.rotation);
-
+      this.spaceship.obj.applyQuaternion(rotationQuaternion)
+      this.updateSpaceshipRotation(rotationQuaternion);
     }
 
+
     if (this.keysPressed.has("w")) {
-      const direction = { x: 0, y: 0, z: 0 };
-      console.log("Kierunek przed obróceniem:", direction)
-      QuaternionUtils.rotateVector(this.spaceship.rotation, { x: 0, y: 0.1, z: 0 }, direction);
-      console.log(this.spaceship.rotation)
-      console.log("Kierunek po obróceniu:", direction);
-      this.spaceship.obj.move(direction.x, direction.y, direction.z);
+      if (this.keysPressed.has("w")) {
+        // Zdefiniuj wektor ruchu do przodu
+        const forwardVector = { x: 0, y: 1, z: 0 };
+
+        // Oblicz nowy kierunek ruchu na podstawie obrotu statku
+        const direction = { x: 0, y: 0, z: 0 };
+        QuaternionUtils.rotateVector(this.spaceship.rotation, forwardVector, direction);
+
+        // Przesuń statek w nowym kierunku
+        const speed = 0.1; // określ prędkość ruchu
+        this.spaceship.obj.move(direction.x * speed, direction.y * speed, direction.z * speed);
+      }
+
       const bullet = new Bullet([this.spaceship.obj.position.x, this.spaceship.obj.position.y, this.spaceship.obj.position.z]);
       this.mainScene!.addSceneMesh(bullet);
       this.bullets.push(bullet);

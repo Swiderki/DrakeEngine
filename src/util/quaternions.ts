@@ -21,9 +21,9 @@ export namespace QuaternionUtils {
         // Normalize the axis
         let axisLength = Math.sqrt(axis.x * axis.x + axis.y * axis.y + axis.z * axis.z);
         let normalizedAxis = {
-            x: roundValue(axis.x / axisLength, 4),
-            y: roundValue(axis.y / axisLength, 4),
-            z: roundValue(axis.z / axisLength, 4)
+            x: roundValue(axis.x / axisLength, 5),
+            y: roundValue(axis.y / axisLength, 5),
+            z: roundValue(axis.z / axisLength, 5)
         };
 
         const halfAngle = angle / 2;
@@ -44,12 +44,13 @@ export namespace QuaternionUtils {
             quaternion.z = 0;
             quaternion.w = 1;
         } else {
-            quaternion.x = roundValue(quaternion.x / length, 4);
-            quaternion.y = roundValue(quaternion.y / length, 4);
-            quaternion.z = roundValue(quaternion.z / length, 4);
-            quaternion.w = roundValue(quaternion.w / length, 4);
+            quaternion.x /= length;
+            quaternion.y /= length;
+            quaternion.z /= length;
+            quaternion.w /= length;
         }
     }
+
 
     export function multiply(result: Quaternion, a: Quaternion, b: Quaternion): void {
         result.x = roundValue(a.w * b.x + a.x * b.w + a.y * b.z - a.z * b.y, 4);

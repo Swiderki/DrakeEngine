@@ -156,7 +156,7 @@ export default class GameObject {
     this.move(-this._position.x, -this._position.y, -this._position.z);
 
     // Zmodyfikowany obiekt wynikowy dla obrotu wektora
-    
+
     for (const vertex of this._vertecies) {
       // Używamy zmodyfikowanej funkcji 'rotateVector', która modyfikuje istniejący obiekt
       let rotatedVertex = { x: 0, y: 0, z: 0 };

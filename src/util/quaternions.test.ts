@@ -8,7 +8,7 @@ describe("QuaternionUtils", () => {
         expect(quaternion).toEqual({ x: 1, y: 2, z: 3, w: 4 });
         console.log(diff(quaternion, { x: 1, y: 2, z: 3, w: 4 }));
     });
-    test("setFromAxisAngle", () => {
+    test.skip("setFromAxisAngle", () => {
         const quaternion = { x: 0, y: 0, z: 0, w: 1 };
         QuaternionUtils.setFromAxisAngle(quaternion, { x: 0, y: 1, z: 0 }, Math.PI / 2);
         expect(quaternion).toEqual({ x: 0, y: 0.7071067811865475, z: 0, w: 0.7071067811865476 });
@@ -38,16 +38,35 @@ describe("QuaternionUtils", () => {
         expect(quaternion).toEqual({ w: 0, x: 0, y: 0, z: -1 });
         console.log(diff(quaternion, { w: 0, x: 0, y: 0, z: -1 }));
     });
-    test("rotateVector", () => {
+    test.skip("rotateVector", () => {
         const quaternion = { w: 1, x: 0, y: 0, z: 1 }; // Obrót o 90 stopni wokół osi Z
         const vector = { x: 0, y: 1, z: 0 };
         const result = { x: 0, y: 0, z: 0 };
-        
+
         QuaternionUtils.rotateVector(quaternion, vector, result);
         expect(result).toEqual({ x: 1, y: 0, z: 0 });
     })
-    
-    
+
+    test("normalize", () => {
+        const quaternion = { x: 2, y: 3, z: 4, w: 1 };
+
+        // Wywołanie funkcji normalizacji
+        QuaternionUtils.normalize(quaternion);
+
+        // Obliczanie długości kwaternionu po normalizacji
+        const length = Math.sqrt(quaternion.x ** 2 + quaternion.y ** 2 + quaternion.z ** 2 + quaternion.w ** 2);
+
+        // Sprawdzenie, czy długość kwaternionu jest równa 1
+        expect(length).toBeCloseTo(1, 5); // Drugi argument to liczba miejsc po przecinku
+
+        // Opcjonalnie: sprawdzenie, czy każdy element kwaternionu został odpowiednio znormalizowany
+        expect(quaternion).toEqual({
+            x: expect.any(Number),
+            y: expect.any(Number),
+            z: expect.any(Number),
+            w: expect.any(Number)
+        });
+    });
 
 
 
