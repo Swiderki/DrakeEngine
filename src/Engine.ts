@@ -169,7 +169,6 @@ export default class Engine {
       this.currentScene.overlaps.forEach((v, key) => {
         if (!v.enabled) return;
         if (!v.isHappening()) return;
-        console.log("xd");
         v.onOverlap();
       });
     }
