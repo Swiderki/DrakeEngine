@@ -50,16 +50,16 @@ export default class GameObject {
 
   async loadMesh(): Promise<void> {
     const start = Date.now();
-    console.log("starting loading mesh...");
+    // console.log("starting loading mesh...");
     const { lineVerteciesIndexes, vertexPositions } = await readObjFile(
       this.meshPath,
       this.allowUsingCachedMesh
     );
-    console.log(this.meshPath, lineVerteciesIndexes, vertexPositions);
+    // console.log(this.meshPath, lineVerteciesIndexes, vertexPositions);
     this._vertecies = vertexPositions;
     this._meshIndexed = lineVerteciesIndexes;
   
-    console.log("applying initial position, scale, and rotation...");
+    // console.log("applying initial position, scale, and rotation...");
     
     // Apply initial scale
     if (Object.values(this._size).some((size) => size !== 1)) {
@@ -77,13 +77,13 @@ export default class GameObject {
     //   this.rotate(this._rotation.xAxis, this._rotation.yAxis, this._rotation.zAxis);
     // }
   
-    console.log(
-      "finished loading mesh! loaded triangles:",
-      this._meshIndexed.length,
-      "time took:",
-      Date.now() - start,
-      "ms"
-    );
+    // console.log(
+    //   "finished loading mesh! loaded triangles:",
+    //   this._meshIndexed.length,
+    //   "time took:",
+    //   Date.now() - start,
+    //   "ms"
+    // );
   }
   
 

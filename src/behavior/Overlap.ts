@@ -16,7 +16,6 @@ export class Overlap {
 
   isHappening(): boolean {
     if (!this.enabled) return false;
-
     const box1 = this.obj1.boxCollider!;
     const box2 = this.obj2.boxCollider!;
     const pos1 = this.obj1.position;
