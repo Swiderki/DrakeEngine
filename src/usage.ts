@@ -27,7 +27,7 @@ class MyGame extends Drake.Engine {
     if (this.mainScene == null) {
       throw new Error("Main scene must be set first.");
     }
-
+  
     // Losowanie rozmiaru (1 do 15)
     const size = Math.floor(Math.random() * 15) + 1;
   
@@ -38,28 +38,35 @@ class MyGame extends Drake.Engine {
     const edge = ['left', 'right', 'top', 'bottom'][Math.floor(Math.random() * 4)];
     let position: [number, number, number];
     if (edge === 'left') {
-      position = [-13, Math.random() * 10 - 5, 0];
+      position = [-18, Math.random() * 16 - 8, 0];
     } else if (edge === 'right') {
-      position = [13, Math.random() * 10 - 5, 0];
+      position = [18, Math.random() * 16 - 8, 0];
     } else if (edge === 'top') {
-      position = [Math.random() * 26 - 13, 5, 0];
-    } else {
-      position = [Math.random() * 26 - 13, -5, 0];
+      position = [Math.random() * 36 - 18, 8, 0];
+    } else { // bottom
+      position = [Math.random() * 36 - 18, -8, 0];
     }
   
+    // Losowanie punktu docelowego, który nie jest środkiem
+    let targetPosition;
+    do {
+      targetPosition = [Math.random() * 26 - 13, Math.random() * 10 - 5];
+    } while (targetPosition[0] === 0 && targetPosition[1] === 0);
+  
     // Losowanie i obliczanie wektora prędkości
-    const velocityMagnitude = Math.random() * 0.2 + 0.1;
-    const centerPosition = [0, 0];
-    const velocityDirection = [centerPosition[0] - position[0], centerPosition[1] - position[1]];
+    const velocityMagnitude = Math.random() * 6 + 3;
+    const velocityDirection = [targetPosition[0] - position[0], targetPosition[1] - position[1]];
     const normalizedVelocity = velocityDirection.map(v => v / Math.sqrt(velocityDirection[0]**2 + velocityDirection[1]**2));
     const velocity = normalizedVelocity.map(v => v * velocityMagnitude);
   
     // Tworzenie asteroidy
     const ast = new Asteroid(size, type, position, [0.01, 0.01, 0.01]);
     ast.velocity = {x: velocity[0], y: velocity[1], z: 0};
-    this.mainScene!.addSceneMesh(ast);
+    this.mainScene.addSceneMesh(ast);
     this.asteroids.push(ast);
   }
+  
+  
   
 
   handleSpaceshipMove() {
@@ -136,12 +143,9 @@ class MyGame extends Drake.Engine {
 
   override Update(): void {
 
-    this.asteroids.forEach(ast => {
-      ast.move(ast.velocity.x, ast.velocity.y, ast.velocity.z)
-    });
-
-    if (Date.now() - this.lastAsteroidSpawnTime >= 2000) {
-      
+    if (Date.now() - this.lastAsteroidSpawnTime >= 1500) {
+      const randimizer = Math.random();
+      if (randimizer > 0.95) return;
       // Wywołanie funkcji createRandomAsteroid
       this.createRandomAsteroid();
 
