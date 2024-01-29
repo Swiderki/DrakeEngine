@@ -40,7 +40,7 @@ class MyGame extends Drake.Engine {
     };
     this.spaceship.obj.boxCollider = [
       { x: -0.2, y: 0.3, z: 0 },
-      { x: 0.3, y: -0.3, z: -5 },
+      { x: 0.3, y: -0.3, z: -3 },
     ];
 
     this.spaceship.obj.showBoxcollider = true;
@@ -197,6 +197,11 @@ class MyGame extends Drake.Engine {
 
       // Zaktualizowanie czasu ostatniego spawnu asteroidy
       this.lastAsteroidSpawnTime = Date.now();
+    }
+
+    if (this.currentScene != null)
+    for (const v of this.currentScene.gameObjects.values()) {
+      console.log(v.position.z)
     }
   }
 }
