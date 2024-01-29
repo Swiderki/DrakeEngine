@@ -52,12 +52,25 @@ export namespace QuaternionUtils {
     }
 
 
-    export function multiply(result: Quaternion, a: Quaternion, b: Quaternion): void {
-        result.x = roundValue(a.w * b.x + a.x * b.w + a.y * b.z - a.z * b.y, 4);
-        result.y = roundValue(a.w * b.y - a.x * b.z + a.y * b.w + a.z * b.x, 4);
-        result.z = roundValue(a.w * b.z + a.x * b.y - a.y * b.x + a.z * b.w, 4);
-        result.w = roundValue(a.w * b.w - a.x * b.x - a.y * b.y - a.z * b.z, 4);
+    // export function multiply(result: Quaternion, a: Quaternion, b: Quaternion): void {
+    //     console.log(a)
+    //     console.log(b)
+    //     result.x = a.w * b.x + a.x * b.w + a.y * b.z - a.z * b.y
+    //     result.y = a.w * b.y - a.x * b.z + a.y * b.w + a.z * b.x;
+    //     result.z = a.w * b.z + a.x * b.y - a.y * b.x + a.z * b.w
+    //     result.w = a.w * b.w - a.x * b.x - a.y * b.y - a.z * b.z
+    // }
+    export function multiply(q1: Quaternion, q2: Quaternion, result: Quaternion): void {
+        const x = q1.x * q2.w + q1.y * q2.z - q1.z * q2.y + q1.w * q2.x;
+        const y = -q1.x * q2.z + q1.y * q2.w + q1.z * q2.x + q1.w * q2.y;
+        const z = q1.x * q2.y - q1.y * q2.x + q1.z * q2.w + q1.w * q2.z;
+        const w = -q1.x * q2.x - q1.y * q2.y - q1.z * q2.z + q1.w * q2.w;
+        result.x = x;
+        result.y = y;
+        result.z = z;
+        result.w = w;
     }
+    
 
     export function rotateVector(quaternion: Quaternion, vector: { x: number; y: number; z: number }, result: { x: number; y: number; z: number }): void {
         const q = quaternion;

@@ -10,12 +10,13 @@ import { QuaternionUtils } from "@/src/util/quaternions";
 import Asteroid from "./asteroids/objects/asteroid";
 import Spaceship from "./asteroids/objects/spaceship";
 import Bullet from "./asteroids/objects/bullet";
-import { dir } from "console";
+import { dir, log } from "console";
 import Scene from "./Scene";
 const canvas = document.getElementById("app") as HTMLCanvasElement | null;
 if (!canvas) throw new Error("unable to find canvas");
 
 // Without destroing elements whene they quit screen
+
 
 class MyGame extends Drake.Engine {
   spaceship;
@@ -24,6 +25,7 @@ class MyGame extends Drake.Engine {
   asteroids: Asteroid[] = [];
   keysPressed: Set<string> = new Set();
   lastAsteroidSpawnTime: number = Date.now();
+  rotationQuaternion = { x: 0, y: 0, z: 0, w: 1 };
 
   constructor(canvas: HTMLCanvasElement) {
     super(canvas);
@@ -70,48 +72,60 @@ class MyGame extends Drake.Engine {
   }
 
 
-  updateSpaceshipRotation(quaternionDelta: any) {
-    // Mnożenie kwaternionu orientacji statku przez kwaternion zmiany
-    QuaternionUtils.multiply(this.spaceship.rotation, this.spaceship.rotation, quaternionDelta);
-    QuaternionUtils.normalize(this.spaceship.rotation);
-  }
 
+  logRotationAngles(): void {
+    const quaternion = this.spaceship.rotation; // Zakładamy, że _rotation jest kwaternionem
+    const angles = this.quaternionToEulerAngles(quaternion);
+    console.log(`Rotation Angles: X=${angles.x}, Y=${angles.y}, Z=${angles.z}`);
+  }
+  quaternionToEulerAngles(quaternion: any): { x: number; y: number; z: number } {
+    // Konwersja kwaternionu na kąty Eulera (w stopniach)
+    const sinr_cosp = 2 * (quaternion.w * quaternion.x + quaternion.y * quaternion.z);
+    const cosr_cosp = 1 - 2 * (quaternion.x * quaternion.x + quaternion.y * quaternion.y);
+    const x = Math.atan2(sinr_cosp, cosr_cosp);
+
+    const sinp = 2 * (quaternion.w * quaternion.y - quaternion.z * quaternion.x);
+    let y;
+    if (Math.abs(sinp) >= 1) {
+      y = Math.PI / 2 * Math.sign(sinp); // Użycie 90 stopni, jeśli wynik jest poza zakresem
+    } else {
+      y = Math.asin(sinp);
+    }
+
+    const siny_cosp = 2 * (quaternion.w * quaternion.z + quaternion.x * quaternion.y);
+    const cosy_cosp = 1 - 2 * (quaternion.y * quaternion.y + quaternion.z * quaternion.z);
+    const z = Math.atan2(siny_cosp, cosy_cosp);
+
+    // Konwersja radianów na stopnie
+    return {
+      x: x * (180 / Math.PI),
+      y: y * (180 / Math.PI),
+      z: z * (180 / Math.PI)
+    };
+  }
   handleSpaceshipMove() {
     const rotationAmount = Math.PI / 16;
 
     if (this.keysPressed.has("a")) {
-      // Obrót w lewo
-      const rotationQuaternion = { x: 0, y: 0, z: 0, w: 1 };
-      QuaternionUtils.setFromAxisAngle(rotationQuaternion, { x: 0, y: 0, z: 1 }, rotationAmount);
-      QuaternionUtils.normalize(rotationQuaternion);
-      this.spaceship.obj.applyQuaternion(rotationQuaternion)
-      this.updateSpaceshipRotation(rotationQuaternion);
+      QuaternionUtils.setFromAxisAngle(this.rotationQuaternion, { x: 0, y: 0, z: 1 }, rotationAmount);
+      QuaternionUtils.multiply(this.spaceship.rotation, this.rotationQuaternion, this.spaceship.rotation);
+      QuaternionUtils.normalize(this.spaceship.rotation);
+      this.spaceship.obj.applyQuaternion(this.rotationQuaternion);
     }
 
     if (this.keysPressed.has("d")) {
-      // Obrót w prawo
-      const rotationQuaternion = { x: 0, y: 0, z: 0, w: 1 };
-      QuaternionUtils.setFromAxisAngle(rotationQuaternion, { x: 0, y: 0, z: -1 }, rotationAmount);
-      QuaternionUtils.normalize(rotationQuaternion);
-      this.spaceship.obj.applyQuaternion(rotationQuaternion)
-      this.updateSpaceshipRotation(rotationQuaternion);
+      QuaternionUtils.setFromAxisAngle(this.rotationQuaternion, { x: 0, y: 0, z: -1 }, rotationAmount);
+      QuaternionUtils.multiply(this.spaceship.rotation, this.rotationQuaternion, this.spaceship.rotation);
+      QuaternionUtils.normalize(this.spaceship.rotation);
+      this.spaceship.obj.applyQuaternion(this.rotationQuaternion);
     }
 
-
     if (this.keysPressed.has("w")) {
-      if (this.keysPressed.has("w")) {
-        // Zdefiniuj wektor ruchu do przodu
-        const forwardVector = { x: 0, y: 1, z: 0 };
-
-        // Oblicz nowy kierunek ruchu na podstawie obrotu statku
-        const direction = { x: 0, y: 0, z: 0 };
-        QuaternionUtils.rotateVector(this.spaceship.rotation, forwardVector, direction);
-
-        // Przesuń statek w nowym kierunku
-        const speed = 0.1; // określ prędkość ruchu
-        this.spaceship.obj.move(direction.x * speed, direction.y * speed, direction.z * speed);
-      }
-
+      const forwardVector = { x: 0, y: 1, z: 0 };
+      const direction = { x: 0, y: 0, z: 0 };
+      QuaternionUtils.rotateVector(this.spaceship.rotation, forwardVector, direction);
+      const speed = 0.1;
+      this.spaceship.obj.move(direction.x * speed, direction.y * speed, direction.z * speed);
       const bullet = new Bullet([this.spaceship.obj.position.x, this.spaceship.obj.position.y, this.spaceship.obj.position.z]);
       this.mainScene!.addSceneMesh(bullet);
       this.bullets.push(bullet);
@@ -126,6 +140,19 @@ class MyGame extends Drake.Engine {
 
   handleKeyUp(e: KeyboardEvent) {
     this.keysPressed.delete(e.key);
+  }
+
+  compareMovementAndRotation() {
+    // Załóżmy, że ruch do przodu statku jest wzdłuż osi Y
+    const movementVector = { x: 0, y: 1, z: 0 };
+
+    // Oblicz kierunek ruchu na podstawie obrotu statku
+    const directionVector = { x: 0, y: 0, z: 0 };
+    QuaternionUtils.rotateVector(this.spaceship.rotation, movementVector, directionVector);
+
+    // Porównaj obliczony kierunek z rzeczywistym wektorem ruchu
+    const angle = angleBetweenVectors(movementVector, directionVector);
+    console.log("Kąt między kierunkiem ruchu a rotacją:", angle);
   }
 
   override Start(): void {
@@ -162,6 +189,8 @@ class MyGame extends Drake.Engine {
 
   override Update(): void {
 
+    // this.compareMovementAndRotation();
+
     // this.asteroids.forEach(ast => {
     //   ast.move(ast.velocity.x, ast.velocity.y, ast.velocity.z)
     // });
@@ -183,3 +212,10 @@ class MyGame extends Drake.Engine {
 
 const game = new MyGame(canvas);
 game.run();
+
+function angleBetweenVectors(v1: any, v2: any) {
+  const dotProduct = v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
+  const magnitudeV1 = Math.sqrt(v1.x * v1.x + v1.y * v1.y + v1.z * v1.z);
+  const magnitudeV2 = Math.sqrt(v2.x * v2.x + v2.y * v2.y + v2.z * v2.z);
+  return Math.acos(dotProduct / (magnitudeV1 * magnitudeV2));
+}
