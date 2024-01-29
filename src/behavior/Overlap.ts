@@ -33,6 +33,8 @@ export class Overlap {
 
     console.log(obj1AABB)
     console.log(obj2AABB)
+    console.log(pos1)
+    console.log(pos2)
     console.log(" ")
 
     if (obj1AABB[0].x < obj2AABB[1].x && obj1AABB[1].x > obj2AABB[0].x) {
