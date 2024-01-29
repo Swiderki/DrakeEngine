@@ -32,6 +32,8 @@ interface GameObject {
   vertecies: Vec3D[];
   mesh: Line[];
   loadMesh(): Promise<void>;
+  showBoxcollider: Boolean;
+  boxColliderMesh: Line[] | null;
 }
 
 type GameObjectInitialConfig = {

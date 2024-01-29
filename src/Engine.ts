@@ -2,6 +2,8 @@ import Scene from "./Scene";
 import IdGenerator from "./util/idGenerator";
 import { Matrix, Vector } from "./util/math";
 
+import GameObject from "./entities/game-objects/GameObject";
+
 import { isClickable } from "./util/fs";
 import PhysicalObject from "./entities/game-objects/PhysicalObject";
 
@@ -251,6 +253,45 @@ export default class Engine {
     const matView = Matrix.quickInverse(matCamera);
 
     for (const obj of this._currentScene.gameObjects.values()) {
+      if(obj.showBoxcollider) {
+        for (const line of obj.boxColliderMesh!) {
+          const finalProjection: Line = Array(2) as Line;
+          for (let i = 0; i < 3; i++) {
+            const vertexTransformed = Matrix.multiplyVector(matWorld, {
+              ...line[i],
+              w: 1,
+            });
+  
+            const vertexViewed = Matrix.multiplyVector(
+              matView,
+              vertexTransformed
+            );
+  
+            const vertexProjected = Matrix.multiplyVector(
+              this._currentScene.projMatrix,
+              vertexViewed
+            );
+  
+            const vertexNormalized = Vector.divide(
+              vertexProjected,
+              vertexProjected.w
+            );
+  
+            const vertexScaled = Vector.add(vertexNormalized, {
+              x: 1,
+              y: 1,
+              z: 0,
+            });
+  
+            vertexScaled.x *= 0.5 * this.canvas.width;
+            vertexScaled.y *= 0.5 * this.canvas.height;
+  
+            finalProjection[i] = vertexScaled;
+          }
+  
+          this.drawLine(finalProjection);
+        } 
+      }
       for (const line of obj.mesh) {
         const finalProjection: Line = Array(2) as Line;
         for (let i = 0; i < 3; i++) {
@@ -288,6 +329,7 @@ export default class Engine {
 
         this.drawLine(finalProjection);
       }
+
     }
 
     if (this.currentScene.currentGUI) this.currentScene.currentGUI.render();

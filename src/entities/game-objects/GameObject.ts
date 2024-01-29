@@ -10,6 +10,7 @@ export default class GameObject {
   private _rotation: Rotation = { xAxis: 0, yAxis: 0, zAxis: 0 };
   
   private _boxCollider: [Vec3D, Vec3D] | null = null;
+  public showBoxcollider: Boolean = false;
   
   readonly meshPath: string;
   readonly allowUsingCachedMesh: boolean = true;
@@ -22,6 +23,34 @@ export default class GameObject {
   get position() { return this._position; } // prettier-ignore
   get size() { return this._size; } // prettier-ignore
   get rotation() { return this._rotation; } // prettier-ignore
+
+  get boxColliderMesh(): Line[] | null {
+    if (!this._boxCollider) {
+      return null;
+    }
+  
+    const [min, max] = this._boxCollider;
+  
+    // Vertices of the box with position offset
+    const vertices = [
+      { x: min.x + this.position.x, y: min.y + this.position.y, z: min.z + this.position.z }, // Vertex 0
+      { x: max.x + this.position.x, y: min.y + this.position.y, z: min.z + this.position.z }, // Vertex 1
+      { x: max.x + this.position.x, y: max.y + this.position.y, z: min.z + this.position.z }, // Vertex 2
+      { x: min.x + this.position.x, y: max.y + this.position.y, z: min.z + this.position.z }, // Vertex 3
+      { x: min.x + this.position.x, y: min.y + this.position.y, z: max.z + this.position.z }, // Vertex 4
+      { x: max.x + this.position.x, y: min.y + this.position.y, z: max.z + this.position.z }, // Vertex 5
+      { x: max.x + this.position.x, y: max.y + this.position.y, z: max.z + this.position.z }, // Vertex 6
+      { x: min.x + this.position.x, y: max.y + this.position.y, z: max.z + this.position.z }  // Vertex 7
+    ];
+  
+    // Edges of the box
+    return [
+      [vertices[0], vertices[1]], [vertices[1], vertices[2]], [vertices[2], vertices[3]], [vertices[3], vertices[0]], // Bottom
+      [vertices[4], vertices[5]], [vertices[5], vertices[6]], [vertices[6], vertices[7]], [vertices[7], vertices[4]], // Top
+      [vertices[0], vertices[4]], [vertices[1], vertices[5]], [vertices[2], vertices[6]], [vertices[3], vertices[7]]  // Sides
+    ];
+  }
+  
 
   set boxCollider(boxCollider: [Vec3D, Vec3D]) {
     this._boxCollider = boxCollider;
@@ -172,5 +201,6 @@ export default class GameObject {
 
     this.move(originalPosition.x, originalPosition.y, originalPosition.z);
   }
+  
 }
 

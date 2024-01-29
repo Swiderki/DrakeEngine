@@ -40,8 +40,10 @@ class MyGame extends Drake.Engine {
     };
     this.spaceship.obj.boxCollider = [
       { x: -0.2, y: 0.3, z: 0 },
-      { x: 0.3, y: -0.3, z: 0.4 },
+      { x: 0.3, y: -0.3, z: 5 },
     ];
+
+    this.spaceship.obj.showBoxcollider = true;
   }
 
   createRandomAsteroid() {
@@ -141,7 +143,7 @@ class MyGame extends Drake.Engine {
         { x: 0, y: 0.1, z: 0 },
         direction
       );
-      console.log("Kierunek po obróceniu:", direction);
+      // console.log("Kierunek po obróceniu:", direction);
       this.spaceship.obj.move(direction.x, direction.y, direction.z);
     }
   }
