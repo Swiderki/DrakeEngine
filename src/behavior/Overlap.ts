@@ -31,11 +31,11 @@ export class Overlap {
       { x: pos2.x + box2[1].x, y: pos2.y + box2[1].y, z: pos2.z + box2[1].z },
     ];
 
-    console.log(obj1AABB)
-    console.log(obj2AABB)
-    console.log(pos1)
-    console.log(pos2)
-    console.log(" ")
+    // console.log(obj1AABB)
+    // console.log(obj1AABB[0].z, obj1AABB[1].z)
+    // console.log(obj2AABB)
+    // console.log(obj2AABB[0].z, obj2AABB[1].z)
+    // console.log(" ")
 
     if (obj1AABB[0].x < obj2AABB[1].x && obj1AABB[1].x > obj2AABB[0].x) {
       if (obj1AABB[0].y < obj2AABB[1].y && obj1AABB[1].y > obj2AABB[0].y) {

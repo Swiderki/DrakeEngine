@@ -40,7 +40,7 @@ class MyGame extends Drake.Engine {
     };
     this.spaceship.obj.boxCollider = [
       { x: -0.2, y: 0.3, z: 0 },
-      { x: 0.3, y: -0.3, z: 5 },
+      { x: 0.3, y: -0.3, z: -5 },
     ];
 
     this.spaceship.obj.showBoxcollider = true;
