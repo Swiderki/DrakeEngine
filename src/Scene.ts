@@ -1,22 +1,21 @@
 import { Overlap } from "./behavior/Overlap";
 import Camera from "./entities/Camera";
+import GameObject from "./entities/game-objects/GameObject";
 import GUI from "./gui/Gui";
 import IdGenerator from "./util/idGenerator";
 import { Matrix } from "./util/math";
 
 export default class Scene {
-  private idGenerator = new IdGenerator();
   private _gameObjects: Map<number, GameObject> = new Map();
   protected _mainCamera: Camera | null = null;
   private _projMatrix: Mat4x4 = Matrix.zeros();
   private _GUIs: Map<number, GUI> = new Map();
   private _currentGUI: GUI | null = null;
-  private overlapIdGenerator = new IdGenerator();
   readonly overlaps: Map<number, Overlap> = new Map();
 
   // prettier-ignore
   get GUIs() { return this._GUIs; }
-  
+
   get currentGUI() {
     // It must return null to better usage in render.
     if (this._currentGUI == null) return null;
@@ -53,9 +52,11 @@ export default class Scene {
 
   addOverlap(overlap: Overlap): number {
     if ([...this.overlaps.values()].includes(overlap))
-      throw new Error("The given overlap is already added to the scene's overlaps.");
+      throw new Error(
+        "The given overlap is already added to the scene's overlaps."
+      );
 
-    const id = this.overlapIdGenerator.id;
+    const id = IdGenerator.new();
 
     this.overlaps.set(id, overlap);
     return id;
@@ -98,7 +99,7 @@ export default class Scene {
   addGUI(gui: GUI): number {
     if ([...this._GUIs.values()].includes(gui))
       throw new Error("The given gui is already added to the scene's GUIs");
-    const guiId = this.idGenerator.id;
+    const guiId = IdGenerator.new();
     this._GUIs.set(guiId, gui);
     return guiId;
   }
@@ -124,9 +125,8 @@ export default class Scene {
   }
 
   addSceneMesh(mesh: GameObject): number {
-    const meshId = this.idGenerator.id;
-    this.gameObjects.set(meshId, mesh);
+    this.gameObjects.set(mesh.id, mesh);
     mesh.loadMesh();
-    return meshId;
+    return mesh.id;
   }
 }

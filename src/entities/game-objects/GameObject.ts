@@ -1,3 +1,4 @@
+import IdGenerator from "@/src/util/idGenerator";
 import { readObjFile } from "../../../src/util/fs";
 import { QuaternionUtils } from "../../../src/util/quaternions";
 
@@ -8,14 +9,17 @@ export default class GameObject {
   private _position: Vec3D = { x: 0, y: 0, z: 0 };
   private _size: Vec3D = { x: 1, y: 1, z: 1 };
   private _rotation: Rotation = { xAxis: 0, yAxis: 0, zAxis: 0 };
-  
+
   private _boxCollider: [Vec3D, Vec3D] | null = null;
-  
+
+  readonly id: number = IdGenerator.new();
   readonly meshPath: string;
   readonly allowUsingCachedMesh: boolean = true;
 
   get mesh() {
-    return this._meshIndexed.map((triVerIdx) => triVerIdx.map((i) => this._vertecies[i]) as Line);
+    return this._meshIndexed.map(
+      (triVerIdx) => triVerIdx.map((i) => this._vertecies[i]) as Line
+    );
   }
 
   get vertecies() { return this._vertecies; } // prettier-ignore
@@ -33,12 +37,18 @@ export default class GameObject {
 
   constructor(
     meshPath: string,
-    { allowUsingCachedMesh, position, rotation, size }: GameObjectInitialConfig = {}
+    {
+      allowUsingCachedMesh,
+      position,
+      rotation,
+      size,
+    }: GameObjectInitialConfig = {}
   ) {
     this.meshPath = meshPath;
 
     if (allowUsingCachedMesh) this.allowUsingCachedMesh = allowUsingCachedMesh;
-    if (position) this._position = { x: position[0], y: position[1], z: position[2] };
+    if (position)
+      this._position = { x: position[0], y: position[1], z: position[2] };
     if (size) this._size = { x: size[0], y: size[1], z: size[2] };
     if (rotation)
       this._rotation = {
@@ -154,7 +164,7 @@ export default class GameObject {
     for (const vertex of this._vertecies) {
       // Używamy zmodyfikowanej funkcji 'rotateVector', która modyfikuje istniejący obiekt
       QuaternionUtils.rotateVector(quaternion, vertex, rotatedVertex);
-      
+
       vertex.x = rotatedVertex.x;
       vertex.y = rotatedVertex.y;
       vertex.z = rotatedVertex.z;
@@ -163,4 +173,3 @@ export default class GameObject {
     this.move(originalPosition.x, originalPosition.y, originalPosition.z);
   }
 }
-

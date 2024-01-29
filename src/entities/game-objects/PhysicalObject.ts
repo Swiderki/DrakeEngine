@@ -6,7 +6,6 @@ export default class PhysicalObject extends GameObject {
   acceleration: Vec3D = { x: 0, y: 0, z: 0 };
   mass: number;
 
-
   constructor(
     meshPath: string,
     {
@@ -16,7 +15,7 @@ export default class PhysicalObject extends GameObject {
       size,
       velocity = { x: 0, y: 0, z: 0 },
       acceleration = { x: 0, y: 0, z: 0 },
-      mass = 1
+      mass = 1,
     }: PhysicalObjectInitialConfig
   ) {
     super(meshPath, { allowUsingCachedMesh, position, rotation, size });
@@ -25,9 +24,9 @@ export default class PhysicalObject extends GameObject {
     this.mass = mass;
   }
 
-
   // Method to update the object's position based on velocity and acceleration
   updatePhysics(deltaTime: number): void {
+    console.log(new Date().getTime());
     const deltaVelocity = Vector.multiply(this.acceleration, deltaTime);
     this.move(
       this.velocity.x * deltaTime + 0.5 * deltaVelocity.x * deltaTime,
@@ -45,14 +44,25 @@ export default class PhysicalObject extends GameObject {
     this.acceleration = Vector.add(this.acceleration, deltaAcceleration);
   }
 
-  static createFromGameObject(gameObject: GameObject, initialConfig?: PhysicalObjectInitialConfig): PhysicalObject {
+  static createFromGameObject(
+    gameObject: GameObject,
+    initialConfig?: PhysicalObjectInitialConfig
+  ): PhysicalObject {
     const {
-      position = [gameObject.position.x, gameObject.position.y, gameObject.position.z],
-      rotation = [gameObject.rotation.xAxis, gameObject.rotation.yAxis, gameObject.rotation.zAxis],
+      position = [
+        gameObject.position.x,
+        gameObject.position.y,
+        gameObject.position.z,
+      ],
+      rotation = [
+        gameObject.rotation.xAxis,
+        gameObject.rotation.yAxis,
+        gameObject.rotation.zAxis,
+      ],
       size = [gameObject.size.x, gameObject.size.y, gameObject.size.z],
       velocity = { x: 0, y: 0, z: 0 },
       acceleration = { x: 0, y: 0, z: 0 },
-      mass = 1
+      mass = 1,
     } = initialConfig || {};
 
     return new PhysicalObject(gameObject.meshPath, {

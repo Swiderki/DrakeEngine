@@ -25,14 +25,14 @@ type Line = [Vec3D, Vec3D];
 
 type Line4D = [Vec4D, Vec4D];
 
-interface GameObject {
-  position: Vec3D;
-  size: Vec3D;
-  rotation: Rotation;
-  vertecies: Vec3D[];
-  mesh: Line[];
-  loadMesh(): Promise<void>;
-}
+// interface GameObject {
+//   position: Vec3D;
+//   size: Vec3D;
+//   rotation: Rotation;
+//   vertecies: Vec3D[];
+//   mesh: Line[];
+//   loadMesh(): Promise<void>;
+// }
 
 type GameObjectInitialConfig = {
   position?: Vec3DTuple;

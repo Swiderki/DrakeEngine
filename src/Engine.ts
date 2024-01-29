@@ -4,6 +4,7 @@ import { Matrix, Vector } from "./util/math";
 
 import { isClickable } from "./util/fs";
 import PhysicalObject from "./entities/game-objects/PhysicalObject";
+import Piramide from "./entities/game-objects/built-in/Piramide";
 
 export default class Engine {
   private penultimateFrameEndTime: number = 0;
@@ -12,7 +13,6 @@ export default class Engine {
   private _frameNumber: number = 0;
   private _currentScene: Scene | null = null;
   private _scenes: Map<number, Scene> = new Map();
-  private _idGenerator = new IdGenerator();
 
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
@@ -32,9 +32,6 @@ export default class Engine {
   }
   get scenes(): Map<number, Scene> {
     return this._scenes;
-  }
-  get idGenerator(): IdGenerator {
-    return this._idGenerator;
   }
   get currentScene() {
     if (this._currentScene == null)
@@ -64,7 +61,7 @@ export default class Engine {
 
   // Main methods - used to interact with engine's workflow directly
   addScene(scene: Scene): number {
-    const sceneId = this.idGenerator.id;
+    const sceneId = IdGenerator.new();
     this._scenes.set(sceneId, scene);
     return sceneId;
   }
@@ -158,11 +155,11 @@ export default class Engine {
     // divide difference by 1000 to express delta in seconds not miliseconds
     this._deltaTime =
       (this.prevFrameEndTime - this.penultimateFrameEndTime) / 1000;
-    
-      this._frameNumber = frameNumber;
-    if(this._currentScene != null) {
-      this.currentScene.gameObjects.forEach(object => {
-        if(object instanceof PhysicalObject) {
+
+    this._frameNumber = frameNumber;
+    if (this._currentScene != null) {
+      this.currentScene.gameObjects.forEach((object) => {
+        if (object instanceof PhysicalObject) {
           object.updatePhysics(this._deltaTime);
         }
       });
@@ -213,9 +210,23 @@ export default class Engine {
   }
 
   addSceneMesh(mesh: Scene): number {
-    const meshId = this.idGenerator.id;
+    const meshId = IdGenerator.new();
     this._scenes.set(meshId, mesh);
     return meshId;
+  }
+
+  animateObjectDestroy(physicalObject: PhysicalObject, scene: Scene) {
+    scene.addSceneMesh(
+      new PhysicalObject("objects/piramide.obj", {
+        velocity: { x: 1, y: 1, z: 0 },
+        position: [
+          physicalObject.position.x,
+          physicalObject.position.y,
+          physicalObject.position.z,
+        ],
+      })
+    );
+    scene.gameObjects.delete(physicalObject.id);
   }
 
   private drawLine(line: Line): void {
