@@ -6,6 +6,7 @@ import Bullet from "./asteroids/objects/bullet";
 import Scene from "./Scene";
 import GameObject from "./entities/game-objects/GameObject";
 import { Overlap } from "./behavior/Overlap";
+import Cube from "./entities/game-objects/built-in/Cube";
 const canvas = document.getElementById("app") as HTMLCanvasElement | null;
 if (!canvas) throw new Error("unable to find canvas");
 
@@ -23,6 +24,12 @@ class AsteroidPlayerOverlap extends Overlap {
   }
 }
 
+class TestOverlap extends Overlap {
+  constructor(obj1: GameObject, obj2: GameObject) {
+    super(obj1, obj2);
+  }
+}
+
 class MyGame extends Drake.Engine {
   spaceship;
   mainScene: Scene | null = null;
@@ -31,8 +38,10 @@ class MyGame extends Drake.Engine {
   keysPressed: Set<string> = new Set();
   lastAsteroidSpawnTime: number = Date.now();
   rotationQuaternion: { x: number; y: number; z: number; w: number } = {x: 0, y: 0, z: 0, w: 1};
+  cube: Cube = new Cube([2, 2, 0]);
+  cube2: Cube = new Cube([3, 2, 0]);
 
-    constructor(canvas: HTMLCanvasElement) {
+  constructor(canvas: HTMLCanvasElement) {
       super(canvas);
 
       this.spaceship = {
@@ -44,7 +53,7 @@ class MyGame extends Drake.Engine {
         { x: 0.3, y: -0.3, z: -3 },
       ];
 
-      this.spaceship.obj.showBoxcollider = true;
+      // this.spaceship.obj.showBoxcollider = true;
     }
 
   createRandomAsteroid() {
@@ -143,21 +152,14 @@ class MyGame extends Drake.Engine {
   override Start(): void {
       this.setResolution(1280, 720);
 
-      const camera = new Drake.Camera(69, 0.1, 1000, [0, 0, -10], [0, 0, 1]);
+      const camera = new Drake.Camera(60, 0.1, 1000, [0, 0, -10], [0, 0, 1]);
 
       const mainScene = new Drake.Scene(this.width, this.height);
 
       mainScene.addSceneMesh(this.spaceship.obj);
 
       mainScene.setCamera(camera);
-
-      const bullet = new Bullet([
-        this.spaceship.obj.position.x,
-        this.spaceship.obj.position.y,
-        this.spaceship.obj.position.z,
-      ]);
-      mainScene.addSceneMesh(bullet);
-      this.bullets.push(bullet);
+      
 
       const mainSceneId = this.addScene(mainScene);
       this.setCurrentScene(mainSceneId);
@@ -165,27 +167,21 @@ class MyGame extends Drake.Engine {
 
       document.addEventListener("keydown", this.handleKeyDown.bind(this));
       document.addEventListener("keyup", this.handleKeyUp.bind(this));
-
+      this.cube.showBoxcollider = true;
+      // this.cube2.showBoxcollider = true;
+      console.log(this.cube.boxCollider);
+      mainScene.addSceneMesh(this.cube);
+      // mainScene.addSceneMesh(this.cube2);
       this.mainScene = mainScene;
-
-      this.createRandomAsteroid();
+      
     }
 
   override Update(): void {
-      if (Date.now() - this.lastAsteroidSpawnTime >= 1500) {
-        const randimizer = Math.random();
-        if (randimizer > 0.95) return;
-        // Wywołanie funkcji createRandomAsteroid
-        this.createRandomAsteroid();
-
-        // Zaktualizowanie czasu ostatniego spawnu asteroidy
-        this.lastAsteroidSpawnTime = Date.now();
-      }
-
-      if (this.currentScene != null)
-        for (const v of this.currentScene.gameObjects.values()) {
-          console.log(v.position.z)
-        }
+      
+      // if (this.currentScene != null)
+      //   for (const v of this.currentScene.gameObjects.values()) {
+      //     console.log(v.position.z)
+      //   }
     }
   }
 

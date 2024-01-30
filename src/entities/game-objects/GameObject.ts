@@ -1,3 +1,4 @@
+import { Vector } from "@/src/util/math";
 import { readObjFile } from "../../../src/util/fs";
 import { QuaternionUtils } from "../../../src/util/quaternions";
 
@@ -28,19 +29,20 @@ export default class GameObject {
     if (!this._boxCollider) {
       return null;
     }
-  
-    const [min, max] = this._boxCollider;
-  
+    
+    const [localMin, localMax] = this._boxCollider;
+    const [min, max] = [Vector.add(localMin, this.position), Vector.add(localMax, this.position)];
+    console.log(min, this.position, this.size);
     // Vertices of the box with position offset
     const vertices = [
-      { x: min.x + this.position.x, y: min.y + this.position.y, z: min.z + this.position.z }, // Vertex 0
-      { x: max.x + this.position.x, y: min.y + this.position.y, z: min.z + this.position.z }, // Vertex 1
-      { x: max.x + this.position.x, y: max.y + this.position.y, z: min.z + this.position.z }, // Vertex 2
-      { x: min.x + this.position.x, y: max.y + this.position.y, z: min.z + this.position.z }, // Vertex 3
-      { x: min.x + this.position.x, y: min.y + this.position.y, z: max.z + this.position.z }, // Vertex 4
-      { x: max.x + this.position.x, y: min.y + this.position.y, z: max.z + this.position.z }, // Vertex 5
-      { x: max.x + this.position.x, y: max.y + this.position.y, z: max.z + this.position.z }, // Vertex 6
-      { x: min.x + this.position.x, y: max.y + this.position.y, z: max.z + this.position.z }  // Vertex 7
+      { x: min.x, y: min.y , z: min.z }, // Vertex 0
+      { x: max.x, y: min.y , z: min.z }, // Vertex 1
+      { x: max.x, y: max.y , z: min.z }, // Vertex 2
+      { x: min.x, y: max.y , z: min.z }, // Vertex 3
+      { x: min.x, y: min.y , z: max.z }, // Vertex 4
+      { x: max.x, y: min.y , z: max.z }, // Vertex 5
+      { x: max.x, y: max.y , z: max.z }, // Vertex 6
+      { x: min.x, y: max.y , z: max.z }  // Vertex 7
     ];
   
     // Edges of the box
@@ -97,6 +99,7 @@ export default class GameObject {
 
     // Apply custom start position
     if (Object.values(this._position).some((pos) => pos !== 0)) {
+      console.log(123)
       this.move(this._position.x, this._position.y, this._position.z);
     }
   
