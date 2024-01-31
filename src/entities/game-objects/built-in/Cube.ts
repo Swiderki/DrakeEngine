@@ -4,6 +4,6 @@ import GameObject from "../GameObject";
 export default class Cube extends GameObject {
   constructor(position?: Vec3DTuple, size?: Vec3DTuple, rotation?: Vec3DTuple) {
     super("objects/cube_wire.obj", { position, size, rotation });
-    this.boxCollider = [Vector.zero(), this.size];
+    this.boxCollider = [Vector.multiply(this.size, -1), this.size];
   }
 }
