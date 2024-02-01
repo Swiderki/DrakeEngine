@@ -1,4 +1,8 @@
 export namespace Vector {
+  export function zero(): Vec3D {
+    return { x: 0, y: 0, z: 0}
+  }
+
   export function add(vec1: Vec3D, vec2: Vec3D): Vec3D {
     return { x: vec1.x + vec2.x, y: vec1.y + vec2.y, z: vec1.z + vec2.z };
   }
