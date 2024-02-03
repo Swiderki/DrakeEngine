@@ -1,5 +1,7 @@
+import { Vector } from "@/src/util/math";
 import { readObjFile } from "../../../src/util/fs";
 import { QuaternionUtils } from "../../../src/util/quaternions";
+import Camera from "../Camera";
 
 export default class GameObject {
   private _meshIndexed: LineVerteciesIndexes[] = [];
@@ -10,6 +12,9 @@ export default class GameObject {
   private _rotation: Rotation = { xAxis: 0, yAxis: 0, zAxis: 0 };
 
   private _boxCollider: [Vec3D, Vec3D] | null = null;
+
+  public showBoxcollider: Boolean = false;
+
 
   readonly meshPath: string;
   readonly allowUsingCachedMesh: boolean = true;
@@ -22,6 +27,43 @@ export default class GameObject {
   get position() { return this._position; } // prettier-ignore
   get size() { return this._size; } // prettier-ignore
   get rotation() { return this._rotation; } // prettier-ignore
+
+  get boxColliderMesh(): Line[] | null {
+    if (!this._boxCollider) {
+      return null;
+    }
+
+    const [localMin, localMax] = this._boxCollider;
+    const [min, max] = [Vector.add(localMin, this.position), Vector.add(localMax, this.position)];
+    // console.log(localMin, min, this.position, this.size);
+    // Vertices of the box with position offset
+    const vertices = [
+      { x: min.x, y: min.y, z: min.z }, // Vertex 0
+      { x: max.x, y: min.y, z: min.z }, // Vertex 1
+      { x: max.x, y: max.y, z: min.z }, // Vertex 2
+      { x: min.x, y: max.y, z: min.z }, // Vertex 3
+      { x: min.x, y: min.y, z: max.z }, // Vertex 4
+      { x: max.x, y: min.y, z: max.z }, // Vertex 5
+      { x: max.x, y: max.y, z: max.z }, // Vertex 6
+      { x: min.x, y: max.y, z: max.z }, // Vertex 7
+    ];
+
+    // Edges of the box
+    return [
+      [vertices[0], vertices[1]],
+      [vertices[1], vertices[2]],
+      [vertices[2], vertices[3]],
+      [vertices[3], vertices[0]], // Bottom
+      [vertices[4], vertices[5]],
+      [vertices[5], vertices[6]],
+      [vertices[6], vertices[7]],
+      [vertices[7], vertices[4]], // Top
+      [vertices[0], vertices[4]],
+      [vertices[1], vertices[5]],
+      [vertices[2], vertices[6]],
+      [vertices[3], vertices[7]], // Sides
+    ];
+  }
 
   set boxCollider(boxCollider: [Vec3D, Vec3D]) {
     this._boxCollider = boxCollider;
@@ -50,21 +92,31 @@ export default class GameObject {
 
   async loadMesh(): Promise<void> {
     const start = Date.now();
-    console.log("starting loading mesh...");
+    // console.log("starting loading mesh...");
     const { lineVerteciesIndexes, vertexPositions } = await readObjFile(
       this.meshPath,
       this.allowUsingCachedMesh
     );
-    console.log(this.meshPath, lineVerteciesIndexes, vertexPositions);
+
     this._vertecies = vertexPositions;
     this._meshIndexed = lineVerteciesIndexes;
-    console.log("applying initial position and scale...");
-    // apply custom start position
-    if (Object.values(this._position).some((pos) => pos !== 0)) {
-      const { x, y, z } = this._position;
-      this.move(x, y, z);
-      this._position = { x, y, z };
+
+    // console.log("applying initial position, scale, and rotation...");
+
+    // Apply initial scale
+    if (Object.values(this._size).some((size) => size !== 1)) {
+      this.scale(this._size.x, this._size.y, this._size.z);
     }
+
+    // Apply custom start position
+    if (Object.values(this._position).some((pos) => pos !== 0)) {
+      for (const vertex of this._vertecies) {
+        vertex.x += this.position.x;
+        vertex.y += this.position.y;
+        vertex.z += this.position.z;
+      }
+    }
+
     if (Object.values(this._size).some((size) => size !== 1)) {
       const { x, y, z } = this._size;
       this.scale(x, y, z);
@@ -96,7 +148,17 @@ export default class GameObject {
       z: this._position.z + z,
     };
   }
+  setPosition(x: number, y: number, z: number): void {
 
+    for (const vertex of this._vertecies) {
+      vertex.x += x - this._position.x;
+      vertex.y += y - this._position.y;
+      vertex.z += z - this._position.z;
+    }
+  
+    this._position = { x, y, z };
+  }
+  
   scale(x: number, y: number, z: number) {
     const originalPosition = {
       x: this._position.x,
@@ -163,11 +225,9 @@ export default class GameObject {
     const originalPosition = { ...this._position };
     this.move(-this._position.x, -this._position.y, -this._position.z);
 
-    // Zmodyfikowany obiekt wynikowy dla obrotu wektora
     let rotatedVertex = { x: 0, y: 0, z: 0 };
 
     for (const vertex of this._vertecies) {
-      // Używamy zmodyfikowanej funkcji 'rotateVector', która modyfikuje istniejący obiekt
       QuaternionUtils.rotateVector(quaternion, vertex, rotatedVertex);
 
       vertex.x = rotatedVertex.x;
@@ -177,4 +237,5 @@ export default class GameObject {
 
     this.move(originalPosition.x, originalPosition.y, originalPosition.z);
   }
+
 }

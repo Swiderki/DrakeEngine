@@ -85,3 +85,4 @@ export namespace QuaternionUtils {
     }
 
 }
+

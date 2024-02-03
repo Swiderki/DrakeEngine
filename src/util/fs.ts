@@ -49,7 +49,7 @@ export function parseObj(text: string): parsedObj {
         break;
 
       default:
-        console.table([dataType, parts]);
+        // console.table([dataType, parts]);
         break;
     }
   }
@@ -65,6 +65,7 @@ export async function readObjFile(path: string, allowUsingCachedMesh: boolean): 
   cachedObjects.set(
     path,
     (async () => {
+      // console.log(location.pathname + path)
       const res = await fetch(location.pathname + path);
       const text = await res.text();
       return parseObj(text);
