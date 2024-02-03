@@ -1,6 +1,7 @@
 import { Vector } from "@/src/util/math";
 import { readObjFile } from "../../../src/util/fs";
 import { QuaternionUtils } from "../../../src/util/quaternions";
+import Camera from "../Camera";
 
 export default class GameObject {
   private _meshIndexed: LineVerteciesIndexes[] = [];
@@ -32,7 +33,7 @@ export default class GameObject {
 
     const [localMin, localMax] = this._boxCollider;
     const [min, max] = [Vector.add(localMin, this.position), Vector.add(localMax, this.position)];
-    console.log(localMin, min, this.position, this.size);
+    // console.log(localMin, min, this.position, this.size);
     // Vertices of the box with position offset
     const vertices = [
       { x: min.x, y: min.y, z: min.z }, // Vertex 0
@@ -199,11 +200,9 @@ export default class GameObject {
     const originalPosition = { ...this._position };
     this.move(-this._position.x, -this._position.y, -this._position.z);
 
-    // Zmodyfikowany obiekt wynikowy dla obrotu wektora
     let rotatedVertex = { x: 0, y: 0, z: 0 };
 
     for (const vertex of this._vertecies) {
-      // Używamy zmodyfikowanej funkcji 'rotateVector', która modyfikuje istniejący obiekt
       QuaternionUtils.rotateVector(quaternion, vertex, rotatedVertex);
 
       vertex.x = rotatedVertex.x;
@@ -213,4 +212,10 @@ export default class GameObject {
 
     this.move(originalPosition.x, originalPosition.y, originalPosition.z);
   }
+
+
+
+  
+
+
 }
