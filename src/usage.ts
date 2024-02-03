@@ -51,7 +51,7 @@ class MyGame extends Drake.Engine {
       { x: 0.3, y: -0.3, z: -5 },
     ];
 
-    this.spaceship.obj.showBoxcollider = true;
+    // this.spaceship.obj.showBoxcollider = true;
   }
 
   createRandomAsteroid() {
