@@ -38,8 +38,6 @@ class MyGame extends Drake.Engine {
   keysPressed: Set<string> = new Set();
   lastAsteroidSpawnTime: number = Date.now();
   rotationQuaternion: { x: number; y: number; z: number; w: number } = { x: 0, y: 0, z: 0, w: 1 };
-  cube: Cube = new Cube([2, 2, 0]);
-  cube2: Cube = new Cube([3, 2, 0]);
 
   constructor(canvas: HTMLCanvasElement) {
     super(canvas);
@@ -161,11 +159,6 @@ class MyGame extends Drake.Engine {
 
     document.addEventListener("keydown", this.handleKeyDown.bind(this));
     document.addEventListener("keyup", this.handleKeyUp.bind(this));
-    this.cube.showBoxcollider = true;
-    // this.cube2.showBoxcollider = true;
-    // console.log(this.cube.boxCollider);
-    mainScene.addSceneMesh(this.cube);
-    // mainScene.addSceneMesh(this.cube2);
     this.mainScene = mainScene;
   }
 
