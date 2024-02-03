@@ -31,13 +31,19 @@ class MyGame extends Drake.Engine {
     const c1 = new Cube([0, 0, 0], [1, 1, 1]);
     const c2 = new Cube([5, 0, 0], [1, 1, 1]);
 
-    c1.boxCollider = [{x: 0, y: 0, z: 0}, {x: 1, y: 1, z: 1}]
-    c2.boxCollider = [{x: 0, y: 0, z: 0}, {x: 1, y: 1, z: 1}]
+    c1.boxCollider = [
+      { x: 0, y: 0, z: 0 },
+      { x: 1, y: 1, z: 1 },
+    ];
+    c2.boxCollider = [
+      { x: 0, y: 0, z: 0 },
+      { x: 1, y: 1, z: 1 },
+    ];
 
     this.cubes.push(c1);
     this.cubes.push(c2);
     // this.physicalCube = new PhysicalObject("objects/cube_wire.obj", {position: [0, 3, 0]});
-    this.physicalCube = PhysicalObject.createFromGameObject(new Cube([0, 3, 0]))
+    this.physicalCube = PhysicalObject.createFromGameObject(new Cube([0, 3, 0]));
   }
 
   handleCameraMove(e: KeyboardEvent) {
@@ -52,11 +58,7 @@ class MyGame extends Drake.Engine {
     this.setResolution(1280, 720);
     const camera = new Drake.Camera(90, 0.1, 1000, [10, 3, -15], [0, 0, 1]);
 
-    const mainScene = new Drake.Scene(
-      this.width,
-      this.height,
-      this.idGenerator.id
-    );
+    const mainScene = new Drake.Scene(this.width, this.height, this.idGenerator.id);
 
     mainScene.setCamera(camera);
 

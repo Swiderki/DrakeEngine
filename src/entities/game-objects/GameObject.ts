@@ -8,9 +8,9 @@ export default class GameObject {
   private _position: Vec3D = { x: 0, y: 0, z: 0 };
   private _size: Vec3D = { x: 1, y: 1, z: 1 };
   private _rotation: Rotation = { xAxis: 0, yAxis: 0, zAxis: 0 };
-  
+
   private _boxCollider: [Vec3D, Vec3D] | null = null;
-  
+
   readonly meshPath: string;
   readonly allowUsingCachedMesh: boolean = true;
 
@@ -65,6 +65,11 @@ export default class GameObject {
       this.move(x, y, z);
       this._position = { x, y, z };
     }
+    if (Object.values(this._size).some((size) => size !== 1)) {
+      const { x, y, z } = this._size;
+      this.scale(x, y, z);
+      this._size = { x, y, z };
+    }
     /**
      * @todo scale and rotation are not being applyed
      */
@@ -93,12 +98,22 @@ export default class GameObject {
   }
 
   scale(x: number, y: number, z: number) {
+    const originalPosition = {
+      x: this._position.x,
+      y: this._position.y,
+      z: this._position.z,
+    };
+
+    this.move(-this._position.x, -this._position.y, -this._position.z);
+
     for (const vertex of this._vertecies) {
       vertex.x *= x;
       vertex.y *= y;
       vertex.z *= z;
     }
     this._size = { x, y, z };
+
+    this.move(originalPosition.x, originalPosition.y, originalPosition.z);
   }
 
   /** Rotates the cube relatively, if you need to set its absolute rotation use the `setRotation` method */
@@ -154,7 +169,7 @@ export default class GameObject {
     for (const vertex of this._vertecies) {
       // Używamy zmodyfikowanej funkcji 'rotateVector', która modyfikuje istniejący obiekt
       QuaternionUtils.rotateVector(quaternion, vertex, rotatedVertex);
-      
+
       vertex.x = rotatedVertex.x;
       vertex.y = rotatedVertex.y;
       vertex.z = rotatedVertex.z;
@@ -163,4 +178,3 @@ export default class GameObject {
     this.move(originalPosition.x, originalPosition.y, originalPosition.z);
   }
 }
-
