@@ -47,7 +47,7 @@ class MyGame extends Drake.Engine {
       rotation: { x: 0, y: 0, z: 0, w: 1 }
     };
     this.spaceship = {
-      obj: new Spaceship([0, 0, 0], [0.01, 0.01, 0.01]),
+      obj: new Spaceship([0, 0, 0], [0.1, 0.1, 0.1]),
       rotation: { x: 0, y: 0, z: 0, w: 1 },
     };
     this.spaceship.obj.boxCollider = [
