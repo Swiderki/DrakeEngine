@@ -164,10 +164,6 @@ class MyGame extends Drake.Engine {
 
   override Update(): void {
     if (this.currentScene != null) {
-      // for (const v of this.currentScene.gameObjects.values()) {
-      //   console.log(v.position.z)
-      // }
-
       const currentTime = Date.now();
 
       if (currentTime - this.lastAsteroidSpawnTime >= 1500) {

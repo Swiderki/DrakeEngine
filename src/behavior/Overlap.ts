@@ -25,7 +25,7 @@ export class Overlap {
       { x: pos1.x + box1[0].x, y: pos1.y + box1[0].y, z: pos1.z + box1[0].z },
       { x: pos1.x + box1[1].x, y: pos1.y + box1[1].y, z: pos1.z + box1[1].z },
     ];
-    console.table(obj1AABB[0]);
+
     const obj2AABB = [
       { x: pos2.x + box2[0].x, y: pos2.y + box2[0].y, z: pos2.z + box2[0].z },
       { x: pos2.x + box2[1].x, y: pos2.y + box2[1].y, z: pos2.z + box2[1].z },
