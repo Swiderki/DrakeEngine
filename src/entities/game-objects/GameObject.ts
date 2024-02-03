@@ -90,7 +90,7 @@ export default class GameObject {
 
   async loadMesh(): Promise<void> {
     const start = Date.now();
-    console.log("starting loading mesh...");
+    // console.log("starting loading mesh...");
     const { lineVerteciesIndexes, vertexPositions } = await readObjFile(
       this.meshPath,
       this.allowUsingCachedMesh
@@ -99,7 +99,7 @@ export default class GameObject {
     this._vertecies = vertexPositions;
     this._meshIndexed = lineVerteciesIndexes;
 
-    console.log("applying initial position, scale, and rotation...");
+    // console.log("applying initial position, scale, and rotation...");
 
     // Apply initial scale
     if (Object.values(this._size).some((size) => size !== 1)) {

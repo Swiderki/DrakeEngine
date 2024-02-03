@@ -171,8 +171,8 @@ class MyGame extends Drake.Engine {
           this.lastAsteroidSpawnTime = currentTime;
       }
 
-      console.log([...this.currentScene.gameObjects.values()][0])
-      console.log([...this.currentScene.gameObjects.values()][1])
+      // console.log([...this.currentScene.gameObjects.values()][0])
+      // console.log([...this.currentScene.gameObjects.values()][1])
     }
   }
 }
