@@ -50,10 +50,10 @@ class MyGame extends Drake.Engine {
     };
     this.spaceship.obj.boxCollider = [
       { x: -0.2, y: 0.3, z: 0 },
-      { x: 0.3, y: -0.3, z: -3 },
+      { x: 0.3, y: -0.3, z: -5 },
     ];
 
-    // this.spaceship.obj.showBoxcollider = true;
+    this.spaceship.obj.showBoxcollider = true;
   }
 
   createRandomAsteroid() {
@@ -163,17 +163,28 @@ class MyGame extends Drake.Engine {
     document.addEventListener("keyup", this.handleKeyUp.bind(this));
     this.cube.showBoxcollider = true;
     // this.cube2.showBoxcollider = true;
-    console.log(this.cube.boxCollider);
+    // console.log(this.cube.boxCollider);
     mainScene.addSceneMesh(this.cube);
     // mainScene.addSceneMesh(this.cube2);
     this.mainScene = mainScene;
   }
 
   override Update(): void {
-    // if (this.currentScene != null)
-    //   for (const v of this.currentScene.gameObjects.values()) {
-    //     console.log(v.position.z)
-    //   }
+    if (this.currentScene != null) {
+      // for (const v of this.currentScene.gameObjects.values()) {
+      //   console.log(v.position.z)
+      // }
+
+      const currentTime = Date.now();
+
+      if (currentTime - this.lastAsteroidSpawnTime >= 1500) {
+          this.createRandomAsteroid();
+          this.lastAsteroidSpawnTime = currentTime;
+      }
+
+      console.log([...this.currentScene.gameObjects.values()][0])
+      console.log([...this.currentScene.gameObjects.values()][1])
+    }
   }
 }
 
