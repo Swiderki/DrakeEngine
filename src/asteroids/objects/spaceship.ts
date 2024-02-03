@@ -1,8 +1,8 @@
 import PhysicalObject from "@/src/entities/game-objects/PhysicalObject";
 
 export default class Spaceship extends PhysicalObject {
-    canvasWidth: number = 11; // Przykładowa szerokość canvasa
-    canvasHeight: number = 6.3; // Przykładowa wysokość canvasa
+    canvasWidth: number = 11; 
+    canvasHeight: number = 6; 
     constructor(position?: Vec3DTuple, size?: Vec3DTuple, rotation?: Vec3DTuple
       ) {
       super(`src/asteroids/objects/obj/spaceship.obj`, { position, size, rotation });

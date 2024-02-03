@@ -6,7 +6,7 @@ import Bullet from "./asteroids/objects/bullet";
 import Scene from "./Scene";
 import GameObject from "./entities/game-objects/GameObject";
 import { Overlap } from "./behavior/Overlap";
-import Cube from "./entities/game-objects/built-in/Cube";
+import Flame from "./asteroids/objects/flame";
 const canvas = document.getElementById("app") as HTMLCanvasElement | null;
 if (!canvas) throw new Error("unable to find canvas");
 
@@ -38,10 +38,14 @@ class MyGame extends Drake.Engine {
   keysPressed: Set<string> = new Set();
   lastAsteroidSpawnTime: number = Date.now();
   rotationQuaternion: { x: number; y: number; z: number; w: number } = { x: 0, y: 0, z: 0, w: 1 };
+  flame;
 
   constructor(canvas: HTMLCanvasElement) {
     super(canvas);
-
+    this.flame = {
+      obj: new Flame([0, 0, 0], [0.01, 0.01, 0.01]),
+      rotation: { x: 0, y: 0, z: 0, w: 1 }
+    };
     this.spaceship = {
       obj: new Spaceship([0, 0, 0], [0.01, 0.01, 0.01]),
       rotation: { x: 0, y: 0, z: 0, w: 1 },
@@ -50,7 +54,7 @@ class MyGame extends Drake.Engine {
       { x: -0.2, y: 0.3, z: 0 },
       { x: 0.3, y: -0.3, z: -5 },
     ];
-
+    
     // this.spaceship.obj.showBoxcollider = true;
   }
 
@@ -108,26 +112,33 @@ class MyGame extends Drake.Engine {
     if (this.keysPressed.has("a")) {
       QuaternionUtils.setFromAxisAngle(this.rotationQuaternion, { x: 0, y: 0, z: 1 }, rotationAmount);
       QuaternionUtils.multiply(this.spaceship.rotation, this.rotationQuaternion, this.spaceship.rotation);
+      QuaternionUtils.multiply(this.flame.rotation, this.rotationQuaternion, this.flame.rotation);
       QuaternionUtils.normalize(this.spaceship.rotation);
+      QuaternionUtils.normalize(this.flame.rotation);
       this.spaceship.obj.applyQuaternion(this.rotationQuaternion);
+      this.flame.obj.applyQuaternion(this.rotationQuaternion);
+
     }
 
     if (this.keysPressed.has("d")) {
       QuaternionUtils.setFromAxisAngle(this.rotationQuaternion, { x: 0, y: 0, z: -1 }, rotationAmount);
       QuaternionUtils.multiply(this.spaceship.rotation, this.rotationQuaternion, this.spaceship.rotation);
+      QuaternionUtils.multiply(this.flame.rotation, this.rotationQuaternion, this.flame.rotation);
+      QuaternionUtils.normalize(this.flame.rotation);
       QuaternionUtils.normalize(this.spaceship.rotation);
       this.spaceship.obj.applyQuaternion(this.rotationQuaternion);
+      this.flame.obj.applyQuaternion(this.rotationQuaternion);
     }
 
     if (this.keysPressed.has("w")) {
       const forwardVector = { x: 0, y: 1, z: 0 };
       const direction = { x: 0, y: 0, z: 0 };
       QuaternionUtils.rotateVector(this.spaceship.rotation, forwardVector, direction);
-      const speed = 0.5;
+      const speed = 0.3;
       direction.x *= speed;
       direction.y *= speed;
       direction.z *= speed;
-      // this.spaceship.obj.move(direction.x * speed, direction.y * speed, direction.z * speed);
+      this.flame.obj.applyForce(direction);
       this.spaceship.obj.applyForce(direction);
 
     }
@@ -136,10 +147,13 @@ class MyGame extends Drake.Engine {
   handleKeyDown(e: KeyboardEvent) {
     this.keysPressed.add(e.key);
     this.handleSpaceshipMove();
+    if(e.key == "w"){
+    }
   }
 
   handleKeyUp(e: KeyboardEvent) {
     this.keysPressed.delete(e.key);
+
   }
 
   override Start(): void {
@@ -150,6 +164,7 @@ class MyGame extends Drake.Engine {
     const mainScene = new Drake.Scene(this.width, this.height);
 
     mainScene.addSceneMesh(this.spaceship.obj);
+    mainScene.addSceneMesh(this.flame.obj);
 
     mainScene.setCamera(camera);
 
