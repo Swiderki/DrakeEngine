@@ -12,11 +12,13 @@ export default class Scene {
   private _GUIs: Map<number, GUI> = new Map();
   private _currentGUI: GUI | null = null;
   private overlapIdGenerator = new IdGenerator();
-  readonly overlaps: Map<number, Overlap> = new Map();
+  private _overlaps: Map<number, Overlap> = new Map();
 
   // prettier-ignore
+  get overlaps() { return this._overlaps };
+  // prettier-ignore
   get GUIs() { return this._GUIs; }
-  
+
   get currentGUI() {
     // It must return null to better usage in render.
     if (this._currentGUI == null) return null;
@@ -26,6 +28,20 @@ export default class Scene {
   width: number;
   height: number;
 
+  // EXPERIMENTAL
+  killObject(id: number) {
+    if (!this._gameObjects.has(id)) throw new Error("There's no game object with the given id");
+
+    const gm = this._gameObjects.get(id);
+
+    for (let [key, value] of this._overlaps) {
+      if ((value as Overlap).obj1 == gm || (value as Overlap).obj2 == gm) {
+        this._overlaps.delete(key);
+      }
+    }
+
+    this._gameObjects.delete(id);
+  }
   // It is good to add more cameras in the future to switch them
   get sceneCamera() {
     if (this._mainCamera == null) return null;

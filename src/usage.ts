@@ -101,6 +101,7 @@ class MyGame extends Drake.Engine {
     const ast = new Asteroid(size, type, position, [0.01, 0.01, 0.01]);
     ast.velocity = { x: velocity[0], y: velocity[1], z: 0 };
     this.mainScene.addSceneMesh(ast);
+
     this.asteroids.push(ast);
 
     this.currentScene.addOverlap(new AsteroidPlayerOverlap(this.spaceship.obj, ast, this));
