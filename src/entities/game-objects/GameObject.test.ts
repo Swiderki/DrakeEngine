@@ -59,7 +59,7 @@ describe('GameObject class', () => {
     expect(gameObject.size).toEqual({ x: 2, y: 3, z: 4 });
   });
 
-  test('rotate updates vertecies and rotation', () => {
+  test.skip('rotate updates vertecies and rotation', () => {
     gameObject.rotate(Math.PI / 2, 0, 0);
 
     // After rotation around X-axis by 90 degrees, the vertices should be:

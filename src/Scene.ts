@@ -42,6 +42,7 @@ export default class Scene {
 
     this._gameObjects.delete(id);
   }
+
   // It is good to add more cameras in the future to switch them
   get sceneCamera() {
     if (this._mainCamera == null) return null;
@@ -62,8 +63,7 @@ export default class Scene {
   }
 
   getOverlap(id: number): Overlap {
-    if (!this.overlaps.has(id))
-      throw new Error("There's no overlap with the given id");
+    if (!this.overlaps.has(id)) throw new Error("There's no overlap with the given id");
     return this.overlaps.get(id)!;
   }
 
@@ -78,8 +78,7 @@ export default class Scene {
   }
 
   removeOverlap(id: number): number {
-    if (!this.overlaps.has(id))
-      throw new Error("There's no overlap with the given id");
+    if (!this.overlaps.has(id)) throw new Error("There's no overlap with the given id");
 
     this.overlaps.delete(id);
     return id;
@@ -87,8 +86,7 @@ export default class Scene {
 
   // Main methods
   setCurrentGUI(guiId: number) {
-    if (!this._GUIs.has(guiId))
-      throw new Error("GUIs array does not include the given gui.");
+    if (!this._GUIs.has(guiId)) throw new Error("GUIs array does not include the given gui.");
 
     const gui = this._GUIs.get(guiId)!;
     this._currentGUI = gui;
@@ -97,12 +95,9 @@ export default class Scene {
   }
 
   removeGUI(guiId: number) {
-    if (!this._GUIs.has(guiId))
-      throw new Error("A GUI with the given id was not found.");
+    if (!this._GUIs.has(guiId)) throw new Error("A GUI with the given id was not found.");
     if (this._currentGUI == this._GUIs.get(guiId))
-      throw new Error(
-        "The GUI you want to remove is now set as a current GUI. Remove current GUI first."
-      );
+      throw new Error("The GUI you want to remove is now set as a current GUI. Remove current GUI first.");
 
     this._GUIs.delete(guiId);
   }
@@ -130,19 +125,13 @@ export default class Scene {
 
     const aspectRatio = this.height / this.width;
 
-    Matrix.makeProjection(
-      this.projMatrix,
-      this.sceneCamera!.fov,
-      aspectRatio,
-      NEAR,
-      FAR
-    );
+    Matrix.makeProjection(this.projMatrix, this.sceneCamera!.fov, aspectRatio, NEAR, FAR);
   }
 
   addSceneMesh(mesh: GameObject): number {
     const meshId = this.idGenerator.id;
     this.gameObjects.set(meshId, mesh);
-    mesh.loadMesh();
+    // mesh.loadMesh();
     return meshId;
   }
 }

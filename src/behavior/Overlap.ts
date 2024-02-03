@@ -6,7 +6,10 @@ export class Overlap {
   enabled: boolean = true;
 
   constructor(obj1: GameObject, obj2: GameObject) {
-    if (obj1.boxCollider == null || obj2.boxCollider == null) throw new Error("You need to set up a box collider for both objects first.");
+    if (obj1.boxCollider == null || obj2.boxCollider == null)
+      throw new Error(
+        "You need to set up a box collider for both objects first."
+      );
     this.obj1 = obj1;
     this.obj2 = obj2;
   }

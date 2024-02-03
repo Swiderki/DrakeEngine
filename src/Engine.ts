@@ -92,7 +92,7 @@ export default class Engine {
       this._currentScene.currentGUI.hideCursor = this._currentScene.currentGUI.hideCursor;
   }
 
-  private async _CoreStart(): Promise<void> {
+  private async _BeforeStart(): Promise<void> {
     this.fpsDisplay = document.getElementById("fps");
     if (this.fpsDisplay) {
       this.fpsDisplay.style.position = "fixed";
@@ -142,7 +142,14 @@ export default class Engine {
   /** Gets called once the program starts */
   Start(): void {}
 
-  private _CoreUpdate(lastFrameEnd: number, frameNumber: number = 0): void {
+  private async _AfterStart(): Promise<void> {
+    const objectsLoading = [...this.currentScene.gameObjects.values()].map((obj) => obj.loadMesh());
+
+    // wait until all objects' meshes are loaded
+    await Promise.all(objectsLoading);
+  }
+
+  private _BeforeUpdate(lastFrameEnd: number, frameNumber: number = 0): void {
     // generate last rendered frame
     this.clearScreen();
     this.render();
@@ -172,7 +179,7 @@ export default class Engine {
     requestAnimationFrame((renderTime) => {
       if (this.fpsDisplay && frameNumber % 10 === 0)
         this.fpsDisplay.textContent = Math.floor(1000 / (renderTime - lastFrameEnd)) + " FPS";
-      this._CoreUpdate(renderTime, ++frameNumber);
+      this._BeforeUpdate(renderTime, ++frameNumber);
     });
   }
 
@@ -182,9 +189,10 @@ export default class Engine {
   // Utility methods
 
   async run(): Promise<void> {
-    await this._CoreStart();
+    await this._BeforeStart();
     this.Start();
-    this._CoreUpdate(0);
+    await this._AfterStart();
+    this._BeforeUpdate(0);
   }
 
   setResolution(width: number, height: number): void {

@@ -169,6 +169,7 @@ class MyGame extends Drake.Engine {
   override Start(): void {
     this.setResolution(1280, 720);
 
+
     const camera = new Drake.Camera(60, 0.1, 1000, [0, 0, -10], [0, 0, 1]);
 
     const mainScene = new Drake.Scene(this.width, this.height);
