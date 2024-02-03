@@ -43,12 +43,14 @@ class MyGame extends Drake.Engine {
   constructor(canvas: HTMLCanvasElement) {
     super(canvas);
     this.flame = {
-      obj: new Flame([0, 0, 0], [0.01, 0.01, 0.01]),
-      rotation: { x: 0, y: 0, z: 0, w: 1 }
+      obj: new Flame([0, 0, 0], [0.1, 0.1, 0.1]),
+      rotation: { x: 0, y: 0, z: 0, w: 1 },
+      id: 0
     };
     this.spaceship = {
       obj: new Spaceship([0, 0, 0], [0.1, 0.1, 0.1]),
       rotation: { x: 0, y: 0, z: 0, w: 1 },
+      id: 0
     };
     this.spaceship.obj.boxCollider = [
       { x: -0.2, y: 0.3, z: 0 },
@@ -134,6 +136,7 @@ class MyGame extends Drake.Engine {
     if (this.keysPressed.has("w")) {
       const forwardVector = { x: 0, y: 1, z: 0 };
       const direction = { x: 0, y: 0, z: 0 };
+      
       QuaternionUtils.rotateVector(this.spaceship.rotation, forwardVector, direction);
       const speed = 0.3;
       direction.x *= speed;
@@ -146,9 +149,15 @@ class MyGame extends Drake.Engine {
     if(this.keysPressed.has("l")){
       const x = Math.random()*20-10
       const y = Math.random()*10-5
-      //? @TODO przerwa miedzy teleportacja 
-      this.spaceship.obj.setPosition(x,y,0)
-      this.flame.obj.setPosition(x,y,0)
+      this.mainScene?.killObject(this.spaceship.id)
+      this.mainScene?.killObject(this.flame.id)
+
+      setTimeout(() => {
+        this.spaceship.obj.setPosition(x, y, 0);
+        this.flame.obj.setPosition(x, y, 0);
+        this.spaceship.id = this.mainScene?.addSceneMesh(this.spaceship.obj)!;
+        this.flame.id = this.mainScene?.addSceneMesh(this.flame.obj)!;
+      }, 700);
 
     }
 
@@ -156,14 +165,22 @@ class MyGame extends Drake.Engine {
 
   handleKeyDown(e: KeyboardEvent) {
     this.keysPressed.add(e.key);
-    this.handleSpaceshipMove();
     if(e.key == "w"){
+      this.flame.obj.setPosition(this.spaceship.obj.position.x,this.spaceship.obj.position.y,this.spaceship.obj.position.z)      
     }
+    console.log(this.flame.obj.position)
+    this.handleSpaceshipMove();
+
   }
 
   handleKeyUp(e: KeyboardEvent) {
     this.keysPressed.delete(e.key);
+    console.log(this.flame.obj.position)
 
+    if(e.key == "w"){
+      this.flame.obj.setPosition(1231231231,123123123,123123123)
+
+    }
   }
 
   override Start(): void {
@@ -174,9 +191,8 @@ class MyGame extends Drake.Engine {
 
     const mainScene = new Drake.Scene(this.width, this.height);
 
-    mainScene.addSceneMesh(this.spaceship.obj);
-    mainScene.addSceneMesh(this.flame.obj);
-
+    this.spaceship.id = mainScene.addSceneMesh(this.spaceship.obj);
+    this.flame.id = mainScene.addSceneMesh(this.flame.obj);
     mainScene.setCamera(camera);
 
     const mainSceneId = this.addScene(mainScene);
