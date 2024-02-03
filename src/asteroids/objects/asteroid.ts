@@ -1,4 +1,3 @@
-import GameObject from "@/src/entities/game-objects/GameObject";
 import PhysicalObject from "@/src/entities/game-objects/PhysicalObject";
 
 export default class Asteroids extends PhysicalObject {

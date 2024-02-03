@@ -125,15 +125,13 @@ class MyGame extends Drake.Engine {
       const forwardVector = { x: 0, y: 1, z: 0 };
       const direction = { x: 0, y: 0, z: 0 };
       QuaternionUtils.rotateVector(this.spaceship.rotation, forwardVector, direction);
-      const speed = 0.1;
-      this.spaceship.obj.move(direction.x * speed, direction.y * speed, direction.z * speed);
-      const bullet = new Bullet([
-        this.spaceship.obj.position.x,
-        this.spaceship.obj.position.y,
-        this.spaceship.obj.position.z,
-      ]);
-      this.mainScene!.addSceneMesh(bullet);
-      this.bullets.push(bullet);
+      const speed = 0.5;
+      direction.x *= speed;
+      direction.y *= speed;
+      direction.z *= speed;
+      // this.spaceship.obj.move(direction.x * speed, direction.y * speed, direction.z * speed);
+      this.spaceship.obj.applyForce(direction);
+
     }
   }
 
