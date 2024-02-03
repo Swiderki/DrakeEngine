@@ -143,7 +143,17 @@ export default class GameObject {
       z: this._position.z + z,
     };
   }
+  setPosition(x: number, y: number, z: number): void {
 
+    for (const vertex of this._vertecies) {
+      vertex.x += x - this._position.x;
+      vertex.y += y - this._position.y;
+      vertex.z += z - this._position.z;
+    }
+  
+    this._position = { x, y, z };
+  }
+  
   scale(x: number, y: number, z: number) {
     for (const vertex of this._vertecies) {
       vertex.x *= x;

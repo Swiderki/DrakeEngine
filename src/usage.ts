@@ -142,6 +142,15 @@ class MyGame extends Drake.Engine {
       this.spaceship.obj.applyForce(direction);
 
     }
+    if(this.keysPressed.has("l")){
+      const x = Math.random()*20-10
+      const y = Math.random()*10-5
+      //? @TODO przerwa miedzy teleportacja 
+      this.spaceship.obj.setPosition(x,y,0)
+      this.flame.obj.setPosition(x,y,0)
+
+    }
+
   }
 
   handleKeyDown(e: KeyboardEvent) {
