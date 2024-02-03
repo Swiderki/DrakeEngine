@@ -1,7 +1,9 @@
 import PhysicalObject from "@/src/entities/game-objects/PhysicalObject";
 
 export default class Flame extends PhysicalObject {
-    constructor(position?: Vec3DTuple, size?: Vec3DTuple, rotation?: Vec3DTuple) {
+  canvasWidth: number = 11; 
+  canvasHeight: number = 6;   
+  constructor(position?: Vec3DTuple, size?: Vec3DTuple, rotation?: Vec3DTuple) {
       super(`src/asteroids/objects/obj/flame.obj`, { position, size, rotation });
     }
     override updatePhysics(deltaTime: number): void {
