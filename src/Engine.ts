@@ -35,9 +35,7 @@ export default class Engine {
   }
   get currentScene() {
     if (this._currentScene == null)
-      throw new Error(
-        "There is not a scene to get. You must set current scene first."
-      );
+      throw new Error("There is not a scene to get. You must set current scene first.");
     return this._currentScene;
   }
 
@@ -67,8 +65,7 @@ export default class Engine {
   }
 
   removeScene(sceneId: number) {
-    if (!this._scenes.has(sceneId))
-      throw new Error("A scene with the given id was not found.");
+    if (!this._scenes.has(sceneId)) throw new Error("A scene with the given id was not found.");
     if (!this._currentScene != null)
       throw new Error(
         "The scene you want to remove is now set as a current scene. Remove current scene first."
@@ -81,18 +78,16 @@ export default class Engine {
   }
 
   setCurrentScene(sceneId: number) {
-    if (!this._scenes.has(sceneId))
-      throw new Error("Scenes array does not include the given scene.");
+    if (!this._scenes.has(sceneId)) throw new Error("Scenes array does not include the given scene.");
 
     this._currentScene = this._scenes.get(sceneId)!;
     this._currentScene.initProjection();
 
     if (this._currentScene.currentGUI)
-      this._currentScene.currentGUI.hideCursor =
-        this._currentScene.currentGUI.hideCursor;
+      this._currentScene.currentGUI.hideCursor = this._currentScene.currentGUI.hideCursor;
   }
 
-  private async _CoreStart(): Promise<void> {
+  private async _BeforeStart(): Promise<void> {
     this.fpsDisplay = document.getElementById("fps");
     if (this.fpsDisplay) {
       this.fpsDisplay.style.position = "fixed";
@@ -102,8 +97,7 @@ export default class Engine {
 
     // Click event
     document.addEventListener("click", (e) => {
-      if (!this._currentScene || !this._currentScene.currentGUI || !this.canvas)
-        return;
+      if (!this._currentScene || !this._currentScene.currentGUI || !this.canvas) return;
 
       const canvasRect = this.canvas.getBoundingClientRect();
 
@@ -123,8 +117,7 @@ export default class Engine {
 
     // Hover event
     document.addEventListener("mousemove", (e) => {
-      if (!this._currentScene || !this._currentScene.currentGUI || !this.canvas)
-        return;
+      if (!this._currentScene || !this._currentScene.currentGUI || !this.canvas) return;
 
       const canvasRect = this.canvas.getBoundingClientRect();
 
@@ -144,7 +137,7 @@ export default class Engine {
   /** Gets called once the program starts */
   Start(): void {}
 
-  private _CoreUpdate(lastFrameEnd: number, frameNumber: number = 0): void {
+  private _BeforeUpdate(lastFrameEnd: number, frameNumber: number = 0): void {
     // generate last rendered frame
     this.clearScreen();
     this.render();
@@ -153,8 +146,7 @@ export default class Engine {
     this.penultimateFrameEndTime = this.prevFrameEndTime;
     this.prevFrameEndTime = lastFrameEnd;
     // divide difference by 1000 to express delta in seconds not miliseconds
-    this._deltaTime =
-      (this.prevFrameEndTime - this.penultimateFrameEndTime) / 1000;
+    this._deltaTime = (this.prevFrameEndTime - this.penultimateFrameEndTime) / 1000;
 
     this._frameNumber = frameNumber;
     if (this._currentScene != null) {
@@ -172,12 +164,12 @@ export default class Engine {
     }
 
     this.Update();
+    this.currentScene.gameObjects.forEach((gameObject) => gameObject.Update(this.deltaTime));
 
     requestAnimationFrame((renderTime) => {
       if (this.fpsDisplay && frameNumber % 10 === 0)
-        this.fpsDisplay.textContent =
-          Math.floor(1000 / (renderTime - lastFrameEnd)) + " FPS";
-      this._CoreUpdate(renderTime, ++frameNumber);
+        this.fpsDisplay.textContent = Math.floor(1000 / (renderTime - lastFrameEnd)) + " FPS";
+      this._BeforeUpdate(renderTime, ++frameNumber);
     });
   }
 
@@ -187,9 +179,10 @@ export default class Engine {
   // Utility methods
 
   async run(): Promise<void> {
-    await this._CoreStart();
+    await this._BeforeStart();
     this.Start();
-    this._CoreUpdate(0);
+    this.currentScene.gameObjects.forEach((gameObject) => gameObject.Start());
+    this._BeforeUpdate(0);
   }
 
   setResolution(width: number, height: number): void {
@@ -215,20 +208,6 @@ export default class Engine {
     return meshId;
   }
 
-  animateObjectDestroy(physicalObject: PhysicalObject, scene: Scene) {
-    scene.addSceneMesh(
-      new PhysicalObject("objects/piramide.obj", {
-        velocity: { x: 1, y: 1, z: 0 },
-        position: [
-          physicalObject.position.x,
-          physicalObject.position.y,
-          physicalObject.position.z,
-        ],
-      })
-    );
-    scene.gameObjects.delete(physicalObject.id);
-  }
-
   private drawLine(line: Line): void {
     this.ctx.beginPath();
     this.ctx.moveTo(line[0].x, line[0].y);
@@ -241,8 +220,7 @@ export default class Engine {
   }
 
   private render(): void {
-    if (this._currentScene == null || this._currentScene.sceneCamera == null)
-      return;
+    if (this._currentScene == null || this._currentScene.sceneCamera == null) return;
 
     let matWorld = Matrix.makeTranslation(0, 0, 0);
 
@@ -251,15 +229,11 @@ export default class Engine {
       this._currentScene.sceneCamera.lookDir
     );
 
-    const matCamera = Matrix.lookAt(
-      this._currentScene.sceneCamera.position,
-      targetDir,
-      {
-        x: 0,
-        y: 1,
-        z: 0,
-      }
-    );
+    const matCamera = Matrix.lookAt(this._currentScene.sceneCamera.position, targetDir, {
+      x: 0,
+      y: 1,
+      z: 0,
+    });
     const matView = Matrix.quickInverse(matCamera);
 
     for (const obj of this._currentScene.gameObjects.values()) {
@@ -271,20 +245,11 @@ export default class Engine {
             w: 1,
           });
 
-          const vertexViewed = Matrix.multiplyVector(
-            matView,
-            vertexTransformed
-          );
+          const vertexViewed = Matrix.multiplyVector(matView, vertexTransformed);
 
-          const vertexProjected = Matrix.multiplyVector(
-            this._currentScene.projMatrix,
-            vertexViewed
-          );
+          const vertexProjected = Matrix.multiplyVector(this._currentScene.projMatrix, vertexViewed);
 
-          const vertexNormalized = Vector.divide(
-            vertexProjected,
-            vertexProjected.w
-          );
+          const vertexNormalized = Vector.divide(vertexProjected, vertexProjected.w);
 
           const vertexScaled = Vector.add(vertexNormalized, {
             x: 1,

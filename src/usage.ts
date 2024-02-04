@@ -44,14 +44,12 @@ class MyGame extends Drake.Engine {
     this.cubes.push(c1);
     this.cubes.push(c2);
     // this.physicalCube = new PhysicalObject("objects/cube_wire.obj", {position: [0, 3, 0]});
-    this.physicalCube = PhysicalObject.createFromGameObject(
-      new Cube([0, 3, 0]),
-      { acceleration: { x: 0, y: 1, z: 0 } }
-    );
+    this.physicalCube = PhysicalObject.createFromGameObject(new Cube([0, 3, 0]), {
+      // acceleration: { x: 0, y: 1, z: 0 },
+    });
   }
 
   handleCameraMove(e: KeyboardEvent) {
-    this.animateObjectDestroy(this.physicalCube, this.currentScene);
     if (!this.mainCamera) return;
     if (e.key === "w") this.mainCamera.move(0, 1, 0);
     if (e.key === "s") this.mainCamera.move(0, -1, 0);
@@ -63,11 +61,7 @@ class MyGame extends Drake.Engine {
     this.setResolution(1280, 720);
     const camera = new Drake.Camera(90, 0.1, 1000, [10, 3, -15], [0, 0, 1]);
 
-    const mainScene = new Drake.Scene(
-      this.width,
-      this.height,
-      IdGenerator.new()
-    );
+    const mainScene = new Drake.Scene(this.width, this.height, IdGenerator.new());
 
     mainScene.setCamera(camera);
 
@@ -82,6 +76,8 @@ class MyGame extends Drake.Engine {
 
     const ov = new MyOverlap(this.cubes[0], this.cubes[1]);
     mainScene.addOverlap(ov);
+
+    this.currentScene.animatedObjectDestruction(this.physicalCube);
 
     this.setResolution(640, 480);
     document.addEventListener("keydown", this.handleCameraMove.bind(this));

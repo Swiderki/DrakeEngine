@@ -17,9 +17,7 @@ export default class GameObject {
   readonly allowUsingCachedMesh: boolean = true;
 
   get mesh() {
-    return this._meshIndexed.map(
-      (triVerIdx) => triVerIdx.map((i) => this._vertecies[i]) as Line
-    );
+    return this._meshIndexed.map((triVerIdx) => triVerIdx.map((i) => this._vertecies[i]) as Line);
   }
 
   get vertecies() { return this._vertecies; } // prettier-ignore
@@ -37,18 +35,12 @@ export default class GameObject {
 
   constructor(
     meshPath: string,
-    {
-      allowUsingCachedMesh,
-      position,
-      rotation,
-      size,
-    }: GameObjectInitialConfig = {}
+    { allowUsingCachedMesh, position, rotation, size }: GameObjectInitialConfig = {}
   ) {
     this.meshPath = meshPath;
 
     if (allowUsingCachedMesh) this.allowUsingCachedMesh = allowUsingCachedMesh;
-    if (position)
-      this._position = { x: position[0], y: position[1], z: position[2] };
+    if (position) this._position = { x: position[0], y: position[1], z: position[2] };
     if (size) this._size = { x: size[0], y: size[1], z: size[2] };
     if (rotation)
       this._rotation = {
@@ -75,6 +67,11 @@ export default class GameObject {
       this.move(x, y, z);
       this._position = { x, y, z };
     }
+    if (Object.values(this._size).some((size) => size !== 1)) {
+      const { x, y, z } = this._size;
+      this.scale(x, y, z);
+      this._size = { x, y, z };
+    }
     /**
      * @todo scale and rotation are not being applyed
      */
@@ -86,6 +83,10 @@ export default class GameObject {
       "ms"
     );
   }
+
+  Start() {}
+
+  Update(deltaTime: number) {}
 
   /** Moves the cube relatively, if you need to move it absolutely use the `setPosition` method */
   move(x: number, y: number, z: number): void {
@@ -103,12 +104,22 @@ export default class GameObject {
   }
 
   scale(x: number, y: number, z: number) {
+    const originalPosition = {
+      x: this._position.x,
+      y: this._position.y,
+      z: this._position.z,
+    };
+
+    this.move(-this._position.x, -this._position.y, -this._position.z);
+
     for (const vertex of this._vertecies) {
       vertex.x *= x;
       vertex.y *= y;
       vertex.z *= z;
     }
     this._size = { x, y, z };
+
+    this.move(originalPosition.x, originalPosition.y, originalPosition.z);
   }
 
   /** Rotates the cube relatively, if you need to set its absolute rotation use the `setRotation` method */
