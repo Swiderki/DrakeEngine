@@ -39,6 +39,7 @@ class MyGame extends Drake.Engine {
   lastAsteroidSpawnTime: number = Date.now();
   rotationQuaternion: { x: number; y: number; z: number; w: number } = { x: 0, y: 0, z: 0, w: 1 };
   flame;
+  
 
   constructor(canvas: HTMLCanvasElement) {
     super(canvas);
