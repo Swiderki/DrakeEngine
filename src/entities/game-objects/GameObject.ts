@@ -88,6 +88,7 @@ export default class GameObject {
         yAxis: rotation[1],
         zAxis: rotation[2],
       };
+      this.loadMesh()
   }
 
   async loadMesh(): Promise<void> {

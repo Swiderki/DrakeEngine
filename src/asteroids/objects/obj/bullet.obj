@@ -1,0 +1,13 @@
+# Blender 4.0.2
+# www.blender.org
+mtllib untitled.mtl 
+o bullet
+v 0.06 -0.06 0.0
+v 0.06 0.06 0.0
+v -0.06 0.06 0.0
+v -0.06 -0.06 0.0
+s off
+l 1 2
+l 2 3
+l 3 4
+l 4 1

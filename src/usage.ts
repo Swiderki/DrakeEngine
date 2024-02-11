@@ -165,7 +165,9 @@ class MyGame extends Drake.Engine {
 
     }
     if (this.keysPressed.has("k")) {
-
+      const bullet = new Bullet([this.spaceship.obj.position.x, this.spaceship.obj.position.y,this.spaceship.obj.position.z], [0.5,0.5,0.5], [0,0,0],this.spaceship.rotation );
+      const bulletID = this.mainScene?.addSceneMesh(bullet);
+      console.log(this.spaceship.obj.position)
     }
 
 
