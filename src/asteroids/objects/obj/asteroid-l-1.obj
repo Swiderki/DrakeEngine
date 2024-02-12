@@ -1,0 +1,21 @@
+# Blender 4.0.2
+    # www.blender.org
+    mtllib untitled.mtl 
+o asteroid-l-1
+v 198 0 0
+v 117 -117 0
+v 0 -172 0
+v -47 -47 0
+v -129 0 0
+v -107 107 0
+v 0 150 0
+v 122 122 0
+s off
+l 1 2
+l 2 3
+l 3 4
+l 4 5
+l 5 6
+l 6 7
+l 7 8
+l 8 1

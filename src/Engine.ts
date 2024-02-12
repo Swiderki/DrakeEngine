@@ -2,6 +2,8 @@ import Scene from "./Scene";
 import IdGenerator from "./util/idGenerator";
 import { Matrix, Vector } from "./util/math";
 
+import GameObject from "./entities/game-objects/GameObject";
+
 import { isClickable } from "./util/fs";
 import PhysicalObject from "./entities/game-objects/PhysicalObject";
 import Piramide from "./entities/game-objects/built-in/Piramide";
@@ -137,6 +139,14 @@ export default class Engine {
   /** Gets called once the program starts */
   Start(): void {}
 
+
+  private async _AfterStart(): Promise<void> {
+    const objectsLoading = [...this.currentScene.gameObjects.values()].map((obj) => obj.loadMesh());
+
+    // wait until all objects' meshes are loaded
+    await Promise.all(objectsLoading);
+  }
+
   private _BeforeUpdate(lastFrameEnd: number, frameNumber: number = 0): void {
     // generate last rendered frame
     this.clearScreen();
@@ -158,7 +168,6 @@ export default class Engine {
       this.currentScene.overlaps.forEach((v, key) => {
         if (!v.enabled) return;
         if (!v.isHappening()) return;
-        console.log("xd");
         v.onOverlap();
       });
     }
@@ -181,7 +190,11 @@ export default class Engine {
   async run(): Promise<void> {
     await this._BeforeStart();
     this.Start();
+
     this.currentScene.gameObjects.forEach((gameObject) => gameObject.Start());
+
+    await this._AfterStart();
+
     this._BeforeUpdate(0);
   }
 
@@ -208,14 +221,14 @@ export default class Engine {
     return meshId;
   }
 
-  private drawLine(line: Line): void {
+  private drawLine(line: Line, color = "#fff"): void {
     this.ctx.beginPath();
     this.ctx.moveTo(line[0].x, line[0].y);
     this.ctx.lineTo(line[1].x, line[1].y);
     this.ctx.closePath();
 
     this.ctx.lineWidth = 2;
-    this.ctx.strokeStyle = "#fff";
+    this.ctx.strokeStyle = color;
     this.ctx.stroke();
   }
 
@@ -237,6 +250,36 @@ export default class Engine {
     const matView = Matrix.quickInverse(matCamera);
 
     for (const obj of this._currentScene.gameObjects.values()) {
+      if (obj.showBoxcollider) {
+        for (const line of obj.boxColliderMesh!) {
+          const finalProjection: Line = Array(2) as Line;
+          for (let i = 0; i < 3; i++) {
+            const vertexTransformed = Matrix.multiplyVector(matWorld, {
+              ...line[i],
+              w: 1,
+            });
+
+            const vertexViewed = Matrix.multiplyVector(matView, vertexTransformed);
+
+            const vertexProjected = Matrix.multiplyVector(this._currentScene.projMatrix, vertexViewed);
+
+            const vertexNormalized = Vector.divide(vertexProjected, vertexProjected.w);
+
+            const vertexScaled = Vector.add(vertexNormalized, {
+              x: 1,
+              y: 1,
+              z: 0,
+            });
+
+            vertexScaled.x *= 0.5 * this.canvas.width;
+            vertexScaled.y *= 0.5 * this.canvas.height;
+
+            finalProjection[i] = vertexScaled;
+          }
+
+          this.drawLine(finalProjection, "#0f0");
+        }
+      }
       for (const line of obj.mesh) {
         const finalProjection: Line = Array(2) as Line;
         for (let i = 0; i < 3; i++) {

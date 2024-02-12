@@ -13,8 +13,13 @@ export default class Scene {
   private _projMatrix: Mat4x4 = Matrix.zeros();
   private _GUIs: Map<number, GUI> = new Map();
   private _currentGUI: GUI | null = null;
-  readonly overlaps: Map<number, Overlap> = new Map();
 
+  private overlapIdGenerator = new IdGenerator();
+  private _overlaps: Map<number, Overlap> = new Map();
+
+
+  // prettier-ignore
+  get overlaps() { return this._overlaps };
   // prettier-ignore
   get GUIs() { return this._GUIs; }
 
@@ -26,6 +31,21 @@ export default class Scene {
 
   width: number;
   height: number;
+
+  // EXPERIMENTAL
+  killObject(id: number) {
+    if (!this._gameObjects.has(id)) throw new Error("There's no game object with the given id");
+
+    const gm = this._gameObjects.get(id);
+
+    for (let [key, value] of this._overlaps) {
+      if ((value as Overlap).obj1 == gm || (value as Overlap).obj2 == gm) {
+        this._overlaps.delete(key);
+      }
+    }
+
+    this._gameObjects.delete(id);
+  }
 
   // It is good to add more cameras in the future to switch them
   get sceneCamera() {
@@ -41,7 +61,7 @@ export default class Scene {
     return this._projMatrix;
   }
 
-  constructor(width: number, height: number, id: number) {
+  constructor(width: number, height: number) {
     this.width = width;
     this.height = height;
   }
@@ -113,6 +133,7 @@ export default class Scene {
   }
 
   addSceneMesh(mesh: GameObject): number {
+
     this.gameObjects.set(mesh.id, mesh);
     mesh.loadMesh();
     return mesh.id;
