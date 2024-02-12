@@ -17,7 +17,7 @@ if (!canvas) throw new Error("unable to find canvas");
 
 class AsteroidPlayerOverlap extends Overlap {
   private game: MyGame;
-  constructor(obj1: GameObject, obj2: GameObject, game: MyGame) {
+  constructor(obj1: Spaceship, obj2: Asteroid, game: MyGame) {
     super(obj1, obj2);
     this.game = game;
   }
