@@ -97,7 +97,6 @@ export default class GameObject {
       this.meshPath,
       this.allowUsingCachedMesh
     );
-
     this._vertecies = vertexPositions;
     this._meshIndexed = lineVerteciesIndexes;
 
@@ -238,4 +237,6 @@ export default class GameObject {
     this.move(originalPosition.x, originalPosition.y, originalPosition.z);
   }
 
+  
+  
 }

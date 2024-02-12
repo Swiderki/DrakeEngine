@@ -1,5 +1,8 @@
 import Drake from "./index";
 import { QuaternionUtils } from "@/src/util/quaternions";
+
+import { Howl } from "howler";
+
 import Asteroid from "./asteroids/objects/asteroid";
 import Spaceship from "./asteroids/objects/spaceship";
 import Bullet from "./asteroids/objects/bullet";
@@ -7,6 +10,7 @@ import Scene from "./Scene";
 import GameObject from "./entities/game-objects/GameObject";
 import { Overlap } from "./behavior/Overlap";
 import Flame from "./asteroids/objects/flame";
+
 const canvas = document.getElementById("app") as HTMLCanvasElement | null;
 if (!canvas) throw new Error("unable to find canvas");
 
@@ -186,11 +190,13 @@ class MyGame extends Drake.Engine {
     document.addEventListener("keydown", this.handleKeyDown.bind(this));
     document.addEventListener("keyup", this.handleKeyUp.bind(this));
     this.mainScene = mainScene;
+
   }
 
   override Update(): void {
     if (this.currentScene != null) {
       const currentTime = Date.now();
+
 
       if (currentTime - this.lastAsteroidSpawnTime >= 1500) {
           this.createRandomAsteroid();
@@ -200,6 +206,7 @@ class MyGame extends Drake.Engine {
       // console.log([...this.currentScene.gameObjects.values()][0])
       // console.log([...this.currentScene.gameObjects.values()][1])
     }
+
   }
 }
 
