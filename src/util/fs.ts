@@ -72,5 +72,5 @@ export async function readObjFile(path: string, allowUsingCachedMesh: boolean): 
     })()
   );
 
-  return await cachedObjects.get(path)!;
+  return structuredClone(await cachedObjects.get(path)!);
 }
