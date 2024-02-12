@@ -55,11 +55,13 @@ class MyGame extends Drake.Engine {
     if (e.key === "s") this.mainCamera.move(0, -1, 0);
     if (e.key === "a") this.mainCamera.move(-1, 0, 0);
     if (e.key === "d") this.mainCamera.move(1, 0, 0);
+    if (e.key === "q") this.mainCamera.rotate({x: 0, y: 1, z: 0}, Math.PI / 180 * -5);
+    if (e.key === "e") this.mainCamera.rotate({x: 0, y: 1, z: 0}, Math.PI / 180 * 5);
   }
 
   override Start(): void {
     this.setResolution(1280, 720);
-    const camera = new Drake.Camera(90, 0.1, 1000, [10, 3, -15], [0, 0, 1]);
+    const camera = new Drake.Camera(60, 0.1, 1000, [10, 3, -15], [0, 0, 1]);
 
     const mainScene = new Drake.Scene(this.width, this.height, IdGenerator.new());
 
