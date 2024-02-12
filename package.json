@@ -1,8 +1,11 @@
 {
   "name": "drake-engine",
-  "private": true,
-  "version": "0.0.0",
+  "main": "src/index.ts",
+  "version": "0.0.1",
   "type": "module",
+  "author": "Swirl Team",
+  "url": "https://vawofohqnj.cfolks.pl/",
+  "license": "CREATIVE COMMONS ATTRIBUTION 4.0 INTERNATIONAL LICENSE",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",

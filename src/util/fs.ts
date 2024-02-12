@@ -1,3 +1,13 @@
+import { Clickable } from "../gui/GUIElements/Clickable";
+import { transpose } from "./math";
+
+export function isClickable(obj: any): obj is Clickable {
+  return obj
+    && typeof obj.onClick === 'function'
+    && typeof obj.onHover === 'function'
+    && typeof obj.isCoordInElement === 'function';
+}
+
 export interface parsedObj {
   vertexPositions: Vec3D[];
   lineVerteciesIndexes: LineVerteciesIndexes[];
@@ -39,7 +49,7 @@ export function parseObj(text: string): parsedObj {
         break;
 
       default:
-        console.table([dataType, parts]);
+        // console.table([dataType, parts]);
         break;
     }
   }
@@ -55,6 +65,7 @@ export async function readObjFile(path: string, allowUsingCachedMesh: boolean): 
   cachedObjects.set(
     path,
     (async () => {
+      // console.log(location.pathname + path)
       const res = await fetch(location.pathname + path);
       const text = await res.text();
       return parseObj(text);

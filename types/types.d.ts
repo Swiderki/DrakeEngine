@@ -32,7 +32,16 @@ interface GameObject {
   vertecies: Vec3D[];
   mesh: Line[];
   loadMesh(): Promise<void>;
+  showBoxcollider: Boolean;
+  boxColliderMesh: Line[] | null;
 }
+
+type GameObjectInitialConfig = {
+  position?: Vec3DTuple;
+  size?: Vec3DTuple;
+  rotation?: Vec3DTuple;
+  allowUsingCachedMesh?: boolean;
+};
 
 type Mat4x4 = [
   [number, number, number, number],
