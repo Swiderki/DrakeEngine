@@ -55,8 +55,8 @@ class MyGame extends Drake.Engine {
     if (e.key === "s") this.mainCamera.move(0, -1, 0);
     if (e.key === "a") this.mainCamera.move(-1, 0, 0);
     if (e.key === "d") this.mainCamera.move(1, 0, 0);
-    if (e.key === "q") this.mainCamera.rotate({x: 0, y: 1, z: 0}, Math.PI / 180 * -5);
-    if (e.key === "e") this.mainCamera.rotate({x: 0, y: 1, z: 0}, Math.PI / 180 * 5);
+    if (e.key === "q") this.mainCamera.rotate({ x: 0, y: 1, z: 0 }, (Math.PI / 180) * -5);
+    if (e.key === "e") this.mainCamera.rotate({ x: 0, y: 1, z: 0 }, (Math.PI / 180) * 5);
   }
 
   override Start(): void {

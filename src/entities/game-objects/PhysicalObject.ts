@@ -49,16 +49,8 @@ export default class PhysicalObject extends GameObject {
     initialConfig?: PhysicalObjectInitialConfig
   ): PhysicalObject {
     const {
-      position = [
-        gameObject.position.x,
-        gameObject.position.y,
-        gameObject.position.z,
-      ],
-      rotation = [
-        gameObject.rotation.xAxis,
-        gameObject.rotation.yAxis,
-        gameObject.rotation.zAxis,
-      ],
+      position = [gameObject.position.x, gameObject.position.y, gameObject.position.z],
+      rotation = [gameObject.rotation.xAxis, gameObject.rotation.yAxis, gameObject.rotation.zAxis],
       size = [gameObject.size.x, gameObject.size.y, gameObject.size.z],
       velocity = { x: 0, y: 0, z: 0 },
       acceleration = { x: 0, y: 0, z: 0 },

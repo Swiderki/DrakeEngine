@@ -13,7 +13,7 @@ export default class GameObject {
   private _rotation: Rotation = { xAxis: 0, yAxis: 0, zAxis: 0 };
 
   private _boxCollider: [Vec3D, Vec3D] | null = null;
-  
+
   readonly id: number = IdGenerator.new();
 
   public showBoxcollider: Boolean = false;
@@ -159,16 +159,15 @@ export default class GameObject {
     };
   }
   setPosition(x: number, y: number, z: number): void {
-
     for (const vertex of this._vertecies) {
       vertex.x += x - this._position.x;
       vertex.y += y - this._position.y;
       vertex.z += z - this._position.z;
     }
-  
+
     this._position = { x, y, z };
   }
-  
+
   scale(x: number, y: number, z: number) {
     const originalPosition = {
       x: this._position.x,

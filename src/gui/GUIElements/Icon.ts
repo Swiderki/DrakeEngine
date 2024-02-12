@@ -4,7 +4,7 @@ export class Icon implements GuiElement {
   protected _width: number;
   protected _height: number;
   position: { x: number; y: number } = { x: 0, y: 0 };
-  fillColor?: string; 
+  fillColor?: string;
   strokeColor: string;
   constructor(
     svgPath: string,
@@ -12,7 +12,7 @@ export class Icon implements GuiElement {
     height: number,
     position: { x: number; y: number },
     strokeColor: string,
-    fillColor?: string 
+    fillColor?: string
   ) {
     this.path = svgPath;
     this._width = width;
@@ -39,10 +39,7 @@ export class Icon implements GuiElement {
     const path = new Path2D(this.path);
     ctx.save();
     ctx.translate(this.position.x, this.position.y);
-    const scale = Math.min(
-      this._width / ctx.canvas.width,
-      this._height / ctx.canvas.height
-    );
+    const scale = Math.min(this._width / ctx.canvas.width, this._height / ctx.canvas.height);
     ctx.scale(scale, scale);
     ctx.strokeStyle = this.strokeColor;
     if (this.fillColor) {

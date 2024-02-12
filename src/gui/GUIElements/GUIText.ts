@@ -10,18 +10,12 @@ export class GUIText implements GuiElement {
   get width(): number {
     return this.getTextWidth();
   }
-  
+
   get height(): number {
-   return this.getTextHeight();
+    return this.getTextHeight();
   }
 
-  constructor(
-    text: string,
-    fontSize: number,
-    fontFamily: string,
-    color: string,
-    fontWeight: number
-  ) {
+  constructor(text: string, fontSize: number, fontFamily: string, color: string, fontWeight: number) {
     this.text = text;
     this.fontSize = fontSize;
     this.fontFamily = fontFamily;
@@ -49,8 +43,7 @@ export class GUIText implements GuiElement {
     // Use the measureText method to get the text metrics
     const metrics = ctx!.measureText(this.text);
     // Calculate the actual height by considering the metrics
-    const actualHeight =
-      metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
+    const actualHeight = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
 
     // In case actualHeight is not available, fallback to an approximation
     // This is a simplification and may not be accurate for all fonts

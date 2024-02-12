@@ -139,7 +139,6 @@ export default class Engine {
   /** Gets called once the program starts */
   Start(): void {}
 
-
   private async _AfterStart(): Promise<void> {
     const objectsLoading = [...this.currentScene.gameObjects.values()].map((obj) => obj.loadMesh());
 

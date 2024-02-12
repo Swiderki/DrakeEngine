@@ -36,8 +36,7 @@ export default class GUI {
   }
 
   removeElement(elementId: number) {
-    if (!this._elements.has(elementId))
-      throw new Error("A GUI element with the given id was not found.");
+    if (!this._elements.has(elementId)) throw new Error("A GUI element with the given id was not found.");
     this._elements.delete(elementId);
   }
 

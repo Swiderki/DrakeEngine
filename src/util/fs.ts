@@ -2,10 +2,12 @@ import { Clickable } from "../gui/GUIElements/Clickable";
 import { transpose } from "./math";
 
 export function isClickable(obj: any): obj is Clickable {
-  return obj
-    && typeof obj.onClick === 'function'
-    && typeof obj.onHover === 'function'
-    && typeof obj.isCoordInElement === 'function';
+  return (
+    obj &&
+    typeof obj.onClick === "function" &&
+    typeof obj.onHover === "function" &&
+    typeof obj.isCoordInElement === "function"
+  );
 }
 
 export interface parsedObj {
@@ -53,7 +55,7 @@ export function parseObj(text: string): parsedObj {
         break;
     }
   }
-  
+
   return { vertexPositions, lineVerteciesIndexes };
 }
 
@@ -72,5 +74,5 @@ export async function readObjFile(path: string, allowUsingCachedMesh: boolean): 
     })()
   );
 
-  return await cachedObjects.get(path)!;
+  return structuredClone(await cachedObjects.get(path)!);
 }

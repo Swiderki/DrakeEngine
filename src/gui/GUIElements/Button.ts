@@ -29,13 +29,7 @@ export class Button extends GUIText implements GuiElement, Clickable {
     right: 40,
   };
 
-  constructor(
-    text: string,
-    fontSize: number,
-    fontFamily: string,
-    color: string,
-    fontWeight: number = 400
-  ) {
+  constructor(text: string, fontSize: number, fontFamily: string, color: string, fontWeight: number = 400) {
     super(text, fontSize, fontFamily, color, fontWeight);
   }
 
@@ -58,11 +52,7 @@ export class Button extends GUIText implements GuiElement, Clickable {
       { x: this.position.x + this.border.left.width / 2, y: this.position.y },
       {
         x: this.position.x + this.border.left.width / 2,
-        y:
-          this.position.y +
-          this.getTextHeight() +
-          this.padding.top +
-          this.padding.bottom,
+        y: this.position.y + this.getTextHeight() + this.padding.top + this.padding.bottom,
       },
       this.border.left.color,
       this.border.left.width
@@ -87,11 +77,7 @@ export class Button extends GUIText implements GuiElement, Clickable {
           this.border.right.width / 2 +
           this.padding.left +
           this.padding.right,
-        y:
-          this.position.y +
-          this.getTextHeight() +
-          this.padding.top +
-          this.padding.bottom,
+        y: this.position.y + this.getTextHeight() + this.padding.top + this.padding.bottom,
       },
       this.border.right.color,
       this.border.right.width
@@ -102,8 +88,7 @@ export class Button extends GUIText implements GuiElement, Clickable {
       ctx,
       { x: this.position.x, y: this.position.y + this.border.top.width / 2 },
       {
-        x:
-          this.position.x + this.getTextWidth() + this.padding.left + this.padding.right,
+        x: this.position.x + this.getTextWidth() + this.padding.left + this.padding.right,
         y: this.position.y + this.border.top.width / 2,
       },
       this.border.top.color,
@@ -123,8 +108,7 @@ export class Button extends GUIText implements GuiElement, Clickable {
           this.padding.bottom,
       },
       {
-        x:
-          this.position.x + this.getTextWidth() + this.padding.left + this.padding.right,
+        x: this.position.x + this.getTextWidth() + this.padding.left + this.padding.right,
         y:
           this.position.y +
           this.getTextHeight() -
@@ -158,7 +142,6 @@ export class Button extends GUIText implements GuiElement, Clickable {
     ctx.restore();
   }
 
-  
   isCoordInElement(x: number, y: number) {
     return (
       x >= this.position.x &&

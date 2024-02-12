@@ -1,6 +1,6 @@
 export namespace Vector {
   export function zero(): Vec3D {
-    return { x: 0, y: 0, z: 0}
+    return { x: 0, y: 0, z: 0 };
   }
 
   export function add(vec1: Vec3D, vec2: Vec3D): Vec3D {
@@ -43,9 +43,9 @@ export namespace Vector {
   export function resize(vec: Vec3D, magnitiude: number) {
     return multiply(normalize(vec), magnitiude);
   }
-  
+
   export function fromArray(arr: Vec3DTuple) {
-    return {x: arr[0], y: arr[1], z: arr[2]};
+    return { x: arr[0], y: arr[1], z: arr[2] };
   }
 }
 
@@ -190,4 +190,3 @@ export namespace Matrix {
 export function transpose<T>(m: T[][]): T[][] {
   return m[0].map((_item, i) => m.map((item) => item[i]));
 }
-  

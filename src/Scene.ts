@@ -17,9 +17,8 @@ export default class Scene {
   private overlapIdGenerator = new IdGenerator();
   private _overlaps: Map<number, Overlap> = new Map();
 
-
   // prettier-ignore
-  get overlaps() { return this._overlaps };
+  get overlaps() { return this._overlaps }
   // prettier-ignore
   get GUIs() { return this._GUIs; }
 
@@ -133,7 +132,6 @@ export default class Scene {
   }
 
   addSceneMesh(mesh: GameObject): number {
-
     this.gameObjects.set(mesh.id, mesh);
     mesh.loadMesh();
     return mesh.id;
