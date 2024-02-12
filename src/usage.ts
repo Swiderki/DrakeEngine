@@ -206,9 +206,9 @@ class MyGame extends Drake.Engine {
     const mainSceneGUI = new GUI(this.getCanvas, this.getCanvas.getContext("2d")!);
     const resultText = new GUIText("00", 35, "Arial", "white", 100);
     const bestResultText = new GUIText("00", 35, "Arial", "white", 100);
-    const icon1 = new Icon(svgPath, 770, 770, { x: 245, y: 60 });
-    const icon2 = new Icon(svgPath, 770, 770, { x: 265, y: 60 });
-    const icon3 = new Icon(svgPath, 770, 770, { x: 285, y: 60 });
+    const icon1 = new Icon(svgPath, 770, 770, { x: 245, y: 60 }, "white");
+    const icon2 = new Icon(svgPath, 770, 770, { x: 265, y: 60 }, "white");
+    const icon3 = new Icon(svgPath, 770, 770, { x: 285, y: 60 }, "white");
 
     resultText.position = { x: 250, y: 30 };
     bestResultText.position = { x: 600, y: 30 };

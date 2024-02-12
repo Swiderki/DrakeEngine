@@ -4,20 +4,22 @@ export class Icon implements GuiElement {
   protected _width: number;
   protected _height: number;
   position: { x: number; y: number } = { x: 0, y: 0 };
-  fillColor?: string; // Optional fill color
-
+  fillColor?: string; 
+  strokeColor: string;
   constructor(
     svgPath: string,
     width: number,
     height: number,
     position: { x: number; y: number },
-    fillColor?: string // Add fillColor to constructor
+    strokeColor: string,
+    fillColor?: string 
   ) {
     this.path = svgPath;
     this._width = width;
     this._height = height;
     this.position = position;
-    this.fillColor = fillColor; // Initialize fillColor
+    this.fillColor = fillColor;
+    this.strokeColor = strokeColor;
   }
 
   get width(): number {
@@ -42,8 +44,7 @@ export class Icon implements GuiElement {
       this._height / ctx.canvas.height
     );
     ctx.scale(scale, scale);
-
-    // If fillColor is defined, fill the path with it
+    ctx.strokeStyle = this.strokeColor;
     if (this.fillColor) {
       ctx.fillStyle = this.fillColor;
       ctx.fill(path);
