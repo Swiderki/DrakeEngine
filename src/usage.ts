@@ -197,13 +197,15 @@ class MyGame extends Drake.Engine {
   override Start(): void {
     this.setResolution(1280, 720);
 
-
-
     const camera = new Drake.Camera(60, 0.1, 1000, [0, 0, -10], [0, 0, 1]);
 
     const mainScene = new Drake.Scene(this.width, this.height);
+    const GUIScene = new Drake.Scene(this.width, this.height);
+    const GUISceneGUI = new GUI(this.getCanvas, this.getCanvas.getContext("2d")!)
+
     const svgPath = "m 10 0 l 10 40 l -3 -5 l -14 0 l -3 5 z"
     const mainSceneGUI = new GUI(this.getCanvas, this.getCanvas.getContext("2d")!);
+    mainSceneGUI.hideCursor = true;
     const resultText = new GUIText("00", 35, "Arial", "white", 100);
     const bestResultText = new GUIText("00", 35, "Arial", "white", 100);
     const icon1 = new Icon(svgPath, 770, 770, { x: 245, y: 60 }, "white");
@@ -221,8 +223,6 @@ class MyGame extends Drake.Engine {
     mainSceneGUI.addElement(icon3);
     resultText.text = "10";
     mainScene.setCurrentGUI(mainSceneGUIID);
-
-
 
     this.spaceship.id = mainScene.addSceneMesh(this.spaceship.obj);
     this.flame.id = mainScene.addSceneMesh(this.flame.obj);
