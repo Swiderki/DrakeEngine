@@ -11,6 +11,7 @@ const canvas = document.getElementById("app") as HTMLCanvasElement | null;
 import GUI from "./gui/Gui";
 import { GUIText } from "./gui/GUIElements/GUIText";
 import { Icon } from "./gui/GUIElements/Icon";
+import { Button } from "./gui/GUIElements/Button";
 if (!canvas) throw new Error("unable to find canvas");
 
 // Without destroing elements whene they quit screen
@@ -28,6 +29,27 @@ class AsteroidPlayerOverlap extends Overlap {
   }
 }
 
+class StartButton extends Button {
+  game: MyGame;
+  constructor(game: MyGame) {
+    super("Start", 35, "monospace", "#fff");
+    this.game = game;
+  }
+
+  override onHover(): void {
+    const color = "lime";
+    this.color = color;
+    this.border.bottom.color = color;
+    this.border.top.color = color;
+    this.border.left.color = color;
+    this.border.right.color = color;
+  }
+
+  override onClick(): void {
+    this.game.changeScene();
+  }
+}
+
 class TestOverlap extends Overlap {
   constructor(obj1: GameObject, obj2: GameObject) {
     super(obj1, obj2);
@@ -37,6 +59,9 @@ class TestOverlap extends Overlap {
 class MyGame extends Drake.Engine {
   spaceship;
   mainScene: Scene | null = null;
+  gameScene: number | null = null;
+  GUIScene: number | null = null;
+  startButton: Button | null = null;
   bullets: Bullet[] = [];
   asteroids: Asteroid[] = [];
   keysPressed: Set<string> = new Set();
@@ -63,6 +88,10 @@ class MyGame extends Drake.Engine {
 
 
     this.spaceship.obj.showBoxcollider = true;
+  }
+
+  changeScene() {
+    this.setCurrentScene(this.gameScene!);
   }
 
   createRandomAsteroid() {
@@ -200,8 +229,6 @@ class MyGame extends Drake.Engine {
     const camera = new Drake.Camera(60, 0.1, 1000, [0, 0, -10], [0, 0, 1]);
 
     const mainScene = new Drake.Scene(this.width, this.height);
-    const GUIScene = new Drake.Scene(this.width, this.height);
-    const GUISceneGUI = new GUI(this.getCanvas, this.getCanvas.getContext("2d")!)
 
     const svgPath = "m 10 0 l 10 40 l -3 -5 l -14 0 l -3 5 z"
     const mainSceneGUI = new GUI(this.getCanvas, this.getCanvas.getContext("2d")!);
@@ -228,13 +255,60 @@ class MyGame extends Drake.Engine {
     this.flame.id = mainScene.addSceneMesh(this.flame.obj);
     mainScene.setCamera(camera);
 
+    const GUIScene = new Drake.Scene(this.width, this.height);
+    const GUISceneGUI = new GUI(this.getCanvas, this.getCanvas.getContext("2d")!);
+    GUIScene.setCamera(camera);
+
+    const t1 = new GUIText("Asteroids", 70, "monospace", "#fff", 700);
+    const t2 = new GUIText("Made by Świderki", 16, "monospace", "#fff", 700);
+    const t3 = new StartButton(this);
+    t3.padding.bottom = 30;
+    t3.padding.top = 30;
+    t3.padding.right = 90;
+    t3.padding.left = 90;
+    t1.position.x = (this.width - t1.width)/2;
+    t1.position.y = this.height/2 - 100;
+    t2.position.x = (this.width - t1.width)/2;
+    t3.position.x = (this.width - t1.width)/2;
+
+    t3.position.y = t1.position.y + t1.height + 5 + t2.height + 30;
+    t2.position.y = t1.position.y + t1.height + 5;
+
+    this.startButton = t3;
+
+    GUISceneGUI.addElement(t1);
+    GUISceneGUI.addElement(t2);
+    GUISceneGUI.addElement(t3);
+
+    const GUISceneGUIID = GUIScene.addGUI(GUISceneGUI);
+    GUIScene.setCurrentGUI(GUISceneGUIID);
+
     const mainSceneId = this.addScene(mainScene);
-    this.setCurrentScene(mainSceneId);
+    const GUISceneID = this.addScene(GUIScene);
+    this.setCurrentScene(GUISceneID);
     this.setResolution(1280, 720);
+
+    this.gameScene = mainSceneId;
+    this.GUIScene = GUISceneID;
 
     document.addEventListener("keydown", this.handleKeyDown.bind(this));
     document.addEventListener("keyup", this.handleKeyUp.bind(this));
-    this.mainScene = mainScene;
+
+    this.mainScene = GUIScene;
+
+    this.getCanvas.addEventListener("mousemove", (e: MouseEvent) => {
+      console.log(e.clientX);
+      console.log(e.clientY);
+      if (this.startButton && !this.startButton!.isCoordInElement(e.clientX, e.clientY)) {
+        console.log("xd2");
+        const color = "white";
+        this.startButton!.color = color;
+        this.startButton!.border.bottom.color = color;
+        this.startButton!.border.top.color = color;
+        this.startButton!.border.left.color = color;
+        this.startButton!.border.right.color = color;
+      }
+    });
   }
   override Update(): void {
     if (this.currentScene != null) {
