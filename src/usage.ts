@@ -104,7 +104,7 @@ class MyGame extends Drake.Engine {
     const velocity = normalizedVelocity.map((v) => v * velocityMagnitude);
 
     // Tworzenie asteroidy
-    const ast = new Asteroid(size, type, position, [0.01, 0.01, 0.01]);
+    const ast = new Asteroid(size, type, position, [0.1, 0.1, 0.1]);
     ast.velocity = { x: velocity[0], y: velocity[1], z: 0 };
     this.mainScene.addSceneMesh(ast);
 
