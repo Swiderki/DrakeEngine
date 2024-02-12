@@ -1,19 +1,12 @@
-import GuiElement from "./GuiElement";
-
-export class GUIText implements GuiElement {
+export default class GUIText implements GUIElement {
   text: string;
   fontSize: number;
   fontFamily: string;
   fontWeight: number;
   color: string;
-  position: { x: number; y: number } = { x: 0, y: 0 };
-  get width(): number {
-    return this.getTextWidth();
-  }
-
-  get height(): number {
-    return this.getTextHeight();
-  }
+  position: Vec2D = { x: 0, y: 0 };
+  get width(): number { return this.getTextWidth(); } // prettier-ignore
+  get height(): number { return this.getTextHeight(); } // prettier-ignore
 
   constructor(text: string, fontSize: number, fontFamily: string, color: string, fontWeight: number) {
     this.text = text;

@@ -1,28 +1,14 @@
-import { Clickable } from "./Clickable";
-import { GUIText } from "./GUIText";
-import GuiElement from "./GuiElement";
+import GUIText from "./GUIText";
 
-export class Button extends GUIText implements GuiElement, Clickable {
-  override position: { x: number; y: number } = { x: 0, y: 0 };
-
-  border: {
-    top: { color: string; width: number };
-    bottom: { color: string; width: number };
-    left: { color: string; width: number };
-    right: { color: string; width: number };
-  } = {
+export default class Button extends GUIText implements GUIElement, Clickable {
+  border: GUIDirectionalProperty<{ color: string; width: number }> = {
     top: { color: "#ffffff", width: 1 },
     bottom: { color: "#ffffff", width: 1 },
     left: { color: "#ffffff", width: 1 },
     right: { color: "#ffffff", width: 1 },
   };
 
-  padding: {
-    top: number;
-    bottom: number;
-    left: number;
-    right: number;
-  } = {
+  padding: GUIDirectionalProperty<number> = {
     top: 20,
     bottom: 20,
     left: 40,

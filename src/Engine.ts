@@ -1,16 +1,11 @@
 import Scene from "./Scene";
-import IdGenerator from "./util/idGenerator";
 import { Matrix, Vector } from "./util/math";
-
-import GameObject from "./entities/game-objects/GameObject";
-
-import { isClickable } from "./util/fs";
-import PhysicalObject from "./entities/game-objects/PhysicalObject";
-import Piramide from "./entities/game-objects/built-in/Piramide";
+import { isClickable } from "./util/isClickable";
+import PhysicalGameObject from "./entities/game-objects/PhysicalGameObject";
 
 export default class Engine {
-  private penultimateFrameEndTime: number = 0;
-  private prevFrameEndTime: number = 0;
+  private _penultimateFrameEndTime: number = 0;
+  private _prevFrameEndTime: number = 0;
   private _deltaTime: number = 0;
   private _frameNumber: number = 0;
   private _currentScene: Scene | null = null;
@@ -20,73 +15,30 @@ export default class Engine {
   private ctx: CanvasRenderingContext2D;
   private fpsDisplay: HTMLElement | null = null;
 
-  get width() {
-    return this.canvas.width;
-  }
-
-  get height() {
-    return this.canvas.height;
-  }
-
-  // added canvas getter
-  get getCanvas(): HTMLCanvasElement {
-    return this.canvas;
-  }
-  get scenes(): Map<number, Scene> {
-    return this._scenes;
-  }
+  get width() { return this.canvas.width; } // prettier-ignore
+  get height() { return this.canvas.height; } // prettier-ignore
+  get getCanvas(): HTMLCanvasElement { return this.canvas; } // prettier-ignore
+  get scenes(): Map<number, Scene> { return this._scenes; } // prettier-ignore
   get currentScene() {
-    if (this._currentScene == null)
+    if (this._currentScene == null) {
       throw new Error("There is not a scene to get. You must set current scene first.");
+    }
     return this._currentScene;
   }
-
-  get mainCamera() {
-    return this._currentScene?.sceneCamera;
-  }
-
-  /** The interval in seconds from the last frame to the current one */
+  get mainCamera() { return this._currentScene?.mainCamera; } // prettier-ignore
+  /** The interval from the last frame to the current one. Measured in seconds. */
   get deltaTime() { return this._deltaTime; } // prettier-ignore
   get frameNumber() { return this._frameNumber; } // prettier-ignore
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
     const ctx = canvas.getContext("2d");
-    if (!ctx)
+    if (!ctx) {
       throw new Error(
         "ctx identifier is not supported, or the canvas has already been set to a different ctx mode"
       );
+    }
     this.ctx = ctx;
-  }
-
-  // Main methods - used to interact with engine's workflow directly
-  addScene(scene: Scene): number {
-    const sceneId = IdGenerator.new();
-    this._scenes.set(sceneId, scene);
-    return sceneId;
-  }
-
-  removeScene(sceneId: number) {
-    if (!this._scenes.has(sceneId)) throw new Error("A scene with the given id was not found.");
-    if (!this._currentScene != null)
-      throw new Error(
-        "The scene you want to remove is now set as a current scene. Remove current scene first."
-      );
-    this._scenes.delete(sceneId);
-  }
-
-  removeCurrentScene() {
-    this._currentScene = null;
-  }
-
-  setCurrentScene(sceneId: number) {
-    if (!this._scenes.has(sceneId)) throw new Error("Scenes array does not include the given scene.");
-
-    this._currentScene = this._scenes.get(sceneId)!;
-    this._currentScene.initProjection();
-
-    if (this._currentScene.currentGUI)
-      this._currentScene.currentGUI.hideCursor = this._currentScene.currentGUI.hideCursor;
   }
 
   private async _BeforeStart(): Promise<void> {
@@ -152,22 +104,22 @@ export default class Engine {
     this.render();
 
     // prepare for next frame render
-    this.penultimateFrameEndTime = this.prevFrameEndTime;
-    this.prevFrameEndTime = lastFrameEnd;
+    this._penultimateFrameEndTime = this._prevFrameEndTime;
+    this._prevFrameEndTime = lastFrameEnd;
     // divide difference by 1000 to express delta in seconds not miliseconds
-    this._deltaTime = (this.prevFrameEndTime - this.penultimateFrameEndTime) / 1000;
+    this._deltaTime = (this._prevFrameEndTime - this._penultimateFrameEndTime) / 1000;
 
     this._frameNumber = frameNumber;
     if (this._currentScene != null) {
       this.currentScene.gameObjects.forEach((object) => {
-        if (object instanceof PhysicalObject) {
+        if (object instanceof PhysicalGameObject) {
           object.updatePhysics(this._deltaTime);
         }
       });
-      this.currentScene.overlaps.forEach((v, key) => {
-        if (!v.enabled) return;
-        if (!v.isHappening()) return;
-        v.onOverlap();
+      this.currentScene.overlaps.forEach((overlap) => {
+        if (!overlap.enabled) return;
+        if (!overlap.isHappening()) return;
+        overlap.onOverlap();
       });
     }
 
@@ -200,12 +152,8 @@ export default class Engine {
   setResolution(width: number, height: number): void {
     this.canvas.width = width;
     this.canvas.height = height;
-    this._scenes.forEach((sc) => {
-      sc.width = width;
-      sc.height = height;
-    });
 
-    if (this._currentScene) this._currentScene.initProjection();
+    if (this._currentScene) this._currentScene.initProjection(this.width, this.height);
   }
 
   clearScreen(color: string = "#000"): void {
@@ -214,13 +162,38 @@ export default class Engine {
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
   }
 
-  addSceneMesh(mesh: Scene): number {
-    const meshId = IdGenerator.new();
-    this._scenes.set(meshId, mesh);
-    return meshId;
+  addScene(scene: Scene): number {
+    this._scenes.set(scene.id, scene);
+    return scene.id;
   }
 
-  private drawLine(line: Line, color = "#fff"): void {
+  removeScene(sceneID: number) {
+    if (!this._scenes.has(sceneID)) {
+      throw new Error("A scene with the given id was not found.");
+    }
+    if (!this._currentScene != null) {
+      throw new Error(
+        "The scene you want to remove is now set as a current scene. Remove current scene first."
+      );
+    }
+    this._scenes.delete(sceneID);
+  }
+
+  setCurrentScene(sceneID: number): void {
+    if (!this._scenes.has(sceneID)) throw new Error("Scenes array does not include the given scene.");
+
+    this._currentScene = this._scenes.get(sceneID)!;
+    this._currentScene.initProjection(this.width, this.height);
+
+    if (this._currentScene.currentGUI)
+      this._currentScene.currentGUI.isCursorHidden = this._currentScene.currentGUI.isCursorHidden;
+  }
+
+  removeCurrentScene(): void {
+    this._currentScene = null;
+  }
+
+  private drawLine(line: Line3D, color = "#fff"): void {
     this.ctx.beginPath();
     this.ctx.moveTo(line[0].x, line[0].y);
     this.ctx.lineTo(line[1].x, line[1].y);
@@ -232,16 +205,16 @@ export default class Engine {
   }
 
   private render(): void {
-    if (this._currentScene == null || this._currentScene.sceneCamera == null) return;
+    if (this._currentScene == null || this._currentScene.mainCamera == null) return;
 
-    let matWorld = Matrix.makeTranslation(0, 0, 0);
+    const matWorld = Matrix.makeTranslation(0, 0, 0);
 
     const targetDir = Vector.add(
-      this._currentScene.sceneCamera.position,
-      this._currentScene.sceneCamera.lookDir
+      this._currentScene.mainCamera.position,
+      this._currentScene.mainCamera.lookDir
     );
 
-    const matCamera = Matrix.lookAt(this._currentScene.sceneCamera.position, targetDir, {
+    const matCamera = Matrix.lookAt(this._currentScene.mainCamera.position, targetDir, {
       x: 0,
       y: 1,
       z: 0,
@@ -250,8 +223,8 @@ export default class Engine {
 
     for (const obj of this._currentScene.gameObjects.values()) {
       if (obj.showBoxcollider) {
-        for (const line of obj.boxColliderMesh!) {
-          const finalProjection: Line = Array(2) as Line;
+        for (const line of obj.getBoxColliderMesh()!) {
+          const finalProjection: Line3D = Array(2) as Line3D;
           for (let i = 0; i < 3; i++) {
             const vertexTransformed = Matrix.multiplyVector(matWorld, {
               ...line[i],
@@ -279,8 +252,8 @@ export default class Engine {
           this.drawLine(finalProjection, "#0f0");
         }
       }
-      for (const line of obj.mesh) {
-        const finalProjection: Line = Array(2) as Line;
+      for (const line of obj.getMesh()) {
+        const finalProjection: Line3D = Array(2) as Line3D;
         for (let i = 0; i < 3; i++) {
           const vertexTransformed = Matrix.multiplyVector(matWorld, {
             ...line[i],

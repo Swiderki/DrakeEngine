@@ -1,27 +1,29 @@
-import GameObject from "./GameObject";
+import GameObject, { GameObjectInitialConfig } from "./GameObject";
 import { Vector } from "@/src/util/math";
 
-export default class PhysicalObject extends GameObject {
+type PhysicalObjectInitialConfig = GameObjectInitialConfig & {
+  velocity?: Vec3D;
+  acceleration?: Vec3D;
+  mass?: number;
+};
+
+export default class PhysicalGameObject extends GameObject {
   velocity: Vec3D = { x: 0, y: 0, z: 0 };
   acceleration: Vec3D = { x: 0, y: 0, z: 0 };
-  mass: number;
+  mass: number = 1;
 
-  constructor(
-    meshPath: string,
-    {
-      allowUsingCachedMesh,
-      position,
-      rotation,
-      size,
-      velocity = { x: 0, y: 0, z: 0 },
-      acceleration = { x: 0, y: 0, z: 0 },
-      mass = 1,
-    }: PhysicalObjectInitialConfig
-  ) {
-    super(meshPath, { allowUsingCachedMesh, position, rotation, size });
-    this.velocity = velocity;
-    this.acceleration = acceleration;
-    this.mass = mass;
+  constructor(meshPath: string, initialConfig: PhysicalObjectInitialConfig) {
+    super(meshPath, initialConfig);
+
+    if (initialConfig.velocity) {
+      this.velocity = initialConfig.velocity;
+    }
+    if (initialConfig.acceleration) {
+      this.acceleration = initialConfig.acceleration;
+    }
+    if (initialConfig.mass) {
+      this.mass = initialConfig.mass;
+    }
   }
 
   // Method to update the object's position based on velocity and acceleration
@@ -46,35 +48,26 @@ export default class PhysicalObject extends GameObject {
 
   static createFromGameObject(
     gameObject: GameObject,
-    initialConfig?: PhysicalObjectInitialConfig
-  ): PhysicalObject {
+    initialConfig: PhysicalObjectInitialConfig = {}
+  ): PhysicalGameObject {
     const {
+      allowUsingCachedMesh = gameObject.allowUsingCachedMesh,
       position = [gameObject.position.x, gameObject.position.y, gameObject.position.z],
       rotation = [gameObject.rotation.xAxis, gameObject.rotation.yAxis, gameObject.rotation.zAxis],
       size = [gameObject.size.x, gameObject.size.y, gameObject.size.z],
-      velocity = { x: 0, y: 0, z: 0 },
-      acceleration = { x: 0, y: 0, z: 0 },
-      mass = 1,
-    } = initialConfig || {};
+      velocity,
+      acceleration,
+      mass,
+    } = initialConfig;
 
-    return new PhysicalObject(gameObject.meshPath, {
-      allowUsingCachedMesh: gameObject.allowUsingCachedMesh,
-      position: position,
-      rotation: rotation,
-      size: size,
+    return new PhysicalGameObject(gameObject.meshPath, {
+      allowUsingCachedMesh,
+      position,
+      rotation,
+      size,
       velocity,
       acceleration,
       mass,
     });
   }
-}
-
-interface PhysicalObjectInitialConfig {
-  allowUsingCachedMesh?: boolean;
-  position?: Vec3DTuple;
-  rotation?: Vec3DTuple;
-  size?: Vec3DTuple;
-  velocity?: Vec3D;
-  acceleration?: Vec3D;
-  mass?: number;
 }

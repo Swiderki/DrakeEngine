@@ -1,153 +1,123 @@
 import { Overlap } from "./behavior/Overlap";
 import Camera from "./entities/Camera";
 import GameObject from "./entities/game-objects/GameObject";
-import PhysicalObject from "./entities/game-objects/PhysicalObject";
-import Cube from "./entities/game-objects/built-in/Cube";
-import GUI from "./gui/Gui";
-import IdGenerator from "./util/idGenerator";
+import PhysicalGameObject from "./entities/game-objects/PhysicalGameObject";
+import GUI from "./gui/GUI";
+import IDGenerator from "./util/IDGenerator";
 import { Matrix } from "./util/math";
 
 export default class Scene {
   private _gameObjects: Map<number, GameObject> = new Map();
-  protected _mainCamera: Camera | null = null;
+  private _mainCamera: Camera | null = null;
   private _projMatrix: Mat4x4 = Matrix.zeros();
   private _GUIs: Map<number, GUI> = new Map();
   private _currentGUI: GUI | null = null;
-
-  private overlapIdGenerator = new IdGenerator();
   private _overlaps: Map<number, Overlap> = new Map();
 
-  // prettier-ignore
-  get overlaps() { return this._overlaps }
-  // prettier-ignore
-  get GUIs() { return this._GUIs; }
+  readonly id: number = IDGenerator.new();
 
-  get currentGUI() {
-    // It must return null to better usage in render.
-    if (this._currentGUI == null) return null;
-    return this._currentGUI;
-  }
+  get overlaps() { return this._overlaps; } // prettier-ignore
+  get GUIs() { return this._GUIs; } // prettier-ignore
+  get currentGUI() { return this._currentGUI; } // prettier-ignore
+  get mainCamera() { return this._mainCamera; } // prettier-ignore
+  get gameObjects() { return this._gameObjects; } // prettier-ignore
+  get projMatrix() { return this._projMatrix; } // prettier-ignore
 
-  width: number;
-  height: number;
-
-  // EXPERIMENTAL
-  killObject(id: number) {
-    if (!this._gameObjects.has(id)) throw new Error("There's no game object with the given id");
-
-    const gm = this._gameObjects.get(id);
-
-    for (let [key, value] of this._overlaps) {
-      if ((value as Overlap).obj1 == gm || (value as Overlap).obj2 == gm) {
-        this._overlaps.delete(key);
-      }
+  getOverlap(overlapID: number): Overlap {
+    if (!this.overlaps.has(overlapID)) {
+      throw new Error("There's no overlap with the given id");
     }
-
-    this._gameObjects.delete(id);
-  }
-
-  // It is good to add more cameras in the future to switch them
-  get sceneCamera() {
-    if (this._mainCamera == null) return null;
-    return this._mainCamera;
-  }
-
-  get gameObjects() {
-    return this._gameObjects;
-  }
-
-  get projMatrix() {
-    return this._projMatrix;
-  }
-
-  constructor(width: number, height: number) {
-    this.width = width;
-    this.height = height;
-  }
-
-  getOverlap(id: number): Overlap {
-    if (!this.overlaps.has(id)) throw new Error("There's no overlap with the given id");
-    return this.overlaps.get(id)!;
+    return this.overlaps.get(overlapID)!;
   }
 
   addOverlap(overlap: Overlap): number {
     if ([...this.overlaps.values()].includes(overlap))
       throw new Error("The given overlap is already added to the scene's overlaps.");
 
-    const id = IdGenerator.new();
+    const overlapID = IDGenerator.new();
 
-    this.overlaps.set(id, overlap);
-    return id;
+    this.overlaps.set(overlapID, overlap);
+    return overlapID;
   }
 
-  removeOverlap(id: number): number {
-    if (!this.overlaps.has(id)) throw new Error("There's no overlap with the given id");
+  removeOverlap(overlapID: number): number {
+    if (!this.overlaps.has(overlapID)) {
+      throw new Error("There's no overlap with the given id");
+    }
 
-    this.overlaps.delete(id);
-    return id;
+    this.overlaps.delete(overlapID);
+    return overlapID;
   }
 
-  // Main methods
-  setCurrentGUI(guiId: number) {
-    if (!this._GUIs.has(guiId)) throw new Error("GUIs array does not include the given gui.");
+  addGUI(gui: GUI): number {
+    if ([...this._GUIs.values()].includes(gui)) {
+      throw new Error("Given gui is already added to this scene");
+    }
+    const guiID = IDGenerator.new();
+    this._GUIs.set(guiID, gui);
+    return guiID;
+  }
 
-    const gui = this._GUIs.get(guiId)!;
+  removeGUI(guiID: number) {
+    if (!this._GUIs.has(guiID)) {
+      throw new Error("A GUI with the given id was not found.");
+    }
+    if (this._currentGUI == this._GUIs.get(guiID)) {
+      throw new Error("The GUI you want to remove is now set as a current GUI. Remove current GUI first.");
+    }
+
+    this._GUIs.delete(guiID);
+  }
+
+  setCurrentGUI(guiID: number) {
+    if (!this._GUIs.has(guiID)) {
+      throw new Error("GUIs array does not include the given gui.");
+    }
+
+    const gui = this._GUIs.get(guiID)!;
     this._currentGUI = gui;
     // This stupid thing must be done to refresh scene cursor
-    gui.hideCursor = gui.hideCursor;
-  }
-
-  removeGUI(guiId: number) {
-    if (!this._GUIs.has(guiId)) throw new Error("A GUI with the given id was not found.");
-    if (this._currentGUI == this._GUIs.get(guiId))
-      throw new Error("The GUI you want to remove is now set as a current GUI. Remove current GUI first.");
-
-    this._GUIs.delete(guiId);
+    gui.isCursorHidden = gui.isCursorHidden;
   }
 
   removeCurrentGUI() {
     this._currentGUI = null;
   }
 
-  addGUI(gui: GUI): number {
-    if ([...this._GUIs.values()].includes(gui))
-      throw new Error("The given gui is already added to the scene's GUIs");
-    const guiId = IdGenerator.new();
-    this._GUIs.set(guiId, gui);
-    return guiId;
-  }
-
-  setCamera(camera: Camera) {
+  setMainCamera(camera: Camera, renderWidth: number, renderHeight: number) {
     this._mainCamera = camera;
-    this.initProjection();
+    this.initProjection(renderWidth, renderHeight);
   }
 
-  initProjection(): void {
+  initProjection(renderWidth: number, renderHeight: number): void {
     const NEAR = 0.1;
     const FAR = 1000;
 
-    const aspectRatio = this.height / this.width;
+    const aspectRatio = renderHeight / renderWidth;
 
-    Matrix.makeProjection(this.projMatrix, this.sceneCamera!.fov, aspectRatio, NEAR, FAR);
+    Matrix.makeProjection(this.projMatrix, this.mainCamera!.fov, aspectRatio, NEAR, FAR);
   }
 
-  addSceneMesh(mesh: GameObject): number {
-    this.gameObjects.set(mesh.id, mesh);
-    mesh.loadMesh();
-    return mesh.id;
+  addGameObject(gameObject: GameObject): number {
+    this.gameObjects.set(gameObject.id, gameObject);
+    gameObject.loadMesh();
+    return gameObject.id;
   }
 
-  killObject(gameObjectId: number): void;
-  killObject(gameObject: GameObject): void;
-  killObject(objOrId: GameObject | number): void {
-    if (typeof objOrId === "number") {
-      this.gameObjects.delete(objOrId);
-    } else {
-      this.gameObjects.delete(objOrId?.id);
+  removeGameObject(gameObjectID: number): void {
+    console.log("killed");
+    this.gameObjects.delete(gameObjectID);
+
+    for (const [key, value] of this._overlaps) {
+      if ((value as Overlap).obj1.id == gameObjectID || (value as Overlap).obj2.id == gameObjectID) {
+        this._overlaps.delete(key);
+      }
     }
   }
 
-  animatedObjectDestruction(gameObject: GameObject) {
+  animatedObjectDestruction(gameObjectID: number) {
+    const gameObject = this.gameObjects.get(gameObjectID);
+    if (!gameObject) throw new Error("No objects with this id");
     const positionTuple: Vec3DTuple = [gameObject.position.x, gameObject.position.y, gameObject.position.z];
 
     const velocities = [
@@ -164,7 +134,7 @@ export default class Scene {
       // between 0 and 1.5
       const randomRotation = [...Array(3)].map(() => Math.random() * 1.5) as Vec3DTuple;
 
-      const cube = new PhysicalObject("objects/cube_wire.obj", {
+      const cube = new PhysicalGameObject("objects/cube_wire.obj", {
         position: positionTuple,
         size: randomScale,
         velocity: velocities[i],
@@ -180,10 +150,10 @@ export default class Scene {
           randomRotation[2] * deltaTime
         );
       };
-      return this.addSceneMesh(cube);
+      return this.addGameObject(cube);
     });
 
-    this.killObject(gameObject);
-    setTimeout(() => cubes.forEach((cubeId) => this.killObject(cubeId)), 4500);
+    this.removeGameObject(gameObjectID);
+    setTimeout(() => cubes.forEach((cubeID) => this.removeGameObject(cubeID)), 4500);
   }
 }

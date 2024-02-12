@@ -68,7 +68,7 @@ export namespace Matrix {
     return v;
   }
 
-  export function makeIdentity(): Mat4x4 {
+  export function makeIDentity(): Mat4x4 {
     return [
       [1, 0, 0, 0],
       [0, 1, 0, 0],
@@ -99,15 +99,6 @@ export namespace Matrix {
       [s, 0, c, 0],
       [0, 0, 0, 1],
     ];
-
-    const matrix = Matrix.zeros();
-    matrix[0][0] = Math.cos(angleRad);
-    matrix[0][2] = Math.sin(angleRad);
-    matrix[2][0] = -Math.sin(angleRad);
-    matrix[1][1] = 1;
-    matrix[2][2] = Math.cos(angleRad);
-    matrix[3][3] = 1;
-    return matrix;
   }
 
   export function makeRotationZ(angleRad: number): Mat4x4 {

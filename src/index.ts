@@ -5,14 +5,15 @@ import Piramide from "./entities/game-objects/built-in/Piramide";
 import GameObject from "./entities/game-objects/GameObject";
 import Camera from "./entities/Camera";
 import Scene from "./Scene";
-import GUI from "./gui/Gui";
-import { Button } from "./gui/GUIElements/Button";
-import { GUIText } from "./gui/GUIElements/GUIText";
-import { Icon } from "./gui/GUIElements/Icon";
-import { Input } from "./gui/GUIElements/Input";
-import { isClickable, parsedObj, parseObj, readObjFile } from "./util/fs";
-import IdGenerator from "./util/idGenerator";
-import { Vector, Matrix, transpose } from "./util/math";
+import GUI from "./gui/GUI";
+import Button from "./gui/GUIElements/Button";
+import GUIText from "./gui/GUIElements/GUIText";
+import Icon from "./gui/GUIElements/Icon";
+import Input from "./gui/GUIElements/Input";
+import { parseObj, readObjFile } from "./util/fs";
+import { isClickable } from "./util/isClickable";
+import IDGenerator from "./util/IDGenerator";
+import { transpose } from "./util/math";
 import { QuaternionUtils } from "./util/quaternions";
 
 export default {
@@ -33,5 +34,5 @@ export default {
   parseObj,
   readObjFile,
   transpose,
-  IdGenerator,
+  IDGenerator,
 };

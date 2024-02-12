@@ -1,8 +1,14 @@
-import IdGenerator from "@/src/util/idGenerator";
+import IDGenerator from "@/src/util/IDGenerator";
 import { Vector } from "@/src/util/math";
-import { readObjFile } from "../../../src/util/fs";
-import { QuaternionUtils } from "../../../src/util/quaternions";
-import Camera from "../Camera";
+import { readObjFile } from "@/src/util/fs";
+import { QuaternionUtils } from "@/src/util/quaternions";
+
+export type GameObjectInitialConfig = {
+  position?: Vec3DTuple;
+  size?: Vec3DTuple;
+  rotation?: Rotation3DTuple;
+  allowUsingCachedMesh?: boolean;
+};
 
 export default class GameObject {
   private _meshIndexed: LineVerteciesIndexes[] = [];
@@ -10,32 +16,62 @@ export default class GameObject {
 
   private _position: Vec3D = { x: 0, y: 0, z: 0 };
   private _size: Vec3D = { x: 1, y: 1, z: 1 };
-  private _rotation: Rotation = { xAxis: 0, yAxis: 0, zAxis: 0 };
+  private _rotation: Rotation3D = { xAxis: 0, yAxis: 0, zAxis: 0 };
 
-  private _boxCollider: [Vec3D, Vec3D] | null = null;
+  // represents diagonal of the cube
+  boxCollider: Line3D | null = null;
+  showBoxcollider: boolean = false;
 
-  readonly id: number = IdGenerator.new();
-
-  public showBoxcollider: Boolean = false;
+  readonly id: number = IDGenerator.new();
 
   readonly meshPath: string;
   readonly allowUsingCachedMesh: boolean = true;
-
-  get mesh() {
-    return this._meshIndexed.map((triVerIdx) => triVerIdx.map((i) => this._vertecies[i]) as Line);
-  }
 
   get vertecies() { return this._vertecies; } // prettier-ignore
   get position() { return this._position; } // prettier-ignore
   get size() { return this._size; } // prettier-ignore
   get rotation() { return this._rotation; } // prettier-ignore
 
-  get boxColliderMesh(): Line[] | null {
-    if (!this._boxCollider) {
+  constructor(meshPath: string, initialConfig: GameObjectInitialConfig = {}) {
+    this.meshPath = meshPath;
+
+    if (initialConfig.allowUsingCachedMesh) {
+      this.allowUsingCachedMesh = initialConfig.allowUsingCachedMesh;
+    }
+    if (initialConfig.position) {
+      this._position = {
+        x: initialConfig.position[0],
+        y: initialConfig.position[1],
+        z: initialConfig.position[2],
+      };
+    }
+    if (initialConfig.size) {
+      this._size = { x: initialConfig.size[0], y: initialConfig.size[1], z: initialConfig.size[2] };
+    }
+    if (initialConfig.rotation) {
+      this._rotation = {
+        xAxis: initialConfig.rotation[0],
+        yAxis: initialConfig.rotation[1],
+        zAxis: initialConfig.rotation[2],
+      };
+    }
+  }
+
+  Start(): void {}
+
+  Update(deltaTime: number): void;
+  Update(): void {}
+
+  getMesh() {
+    return this._meshIndexed.map((triVerIDx) => triVerIDx.map((i) => this._vertecies[i]) as Line3D);
+  }
+
+  getBoxColliderMesh(): Line3D[] | null {
+    if (!this.boxCollider) {
       return null;
     }
 
-    const [localMin, localMax] = this._boxCollider;
+    const [localMin, localMax] = this.boxCollider;
     const [min, max] = [Vector.add(localMin, this.position), Vector.add(localMax, this.position)];
     // console.log(localMin, min, this.position, this.size);
     // Vertices of the box with position offset
@@ -67,34 +103,10 @@ export default class GameObject {
     ];
   }
 
-  set boxCollider(boxCollider: [Vec3D, Vec3D]) {
-    this._boxCollider = boxCollider;
-  }
-
-  get boxCollider(): [Vec3D, Vec3D] | null {
-    return this._boxCollider;
-  }
-
-  constructor(
-    meshPath: string,
-    { allowUsingCachedMesh, position, rotation, size }: GameObjectInitialConfig = {}
-  ) {
-    this.meshPath = meshPath;
-
-    if (allowUsingCachedMesh) this.allowUsingCachedMesh = allowUsingCachedMesh;
-    if (position) this._position = { x: position[0], y: position[1], z: position[2] };
-    if (size) this._size = { x: size[0], y: size[1], z: size[2] };
-    if (rotation)
-      this._rotation = {
-        xAxis: rotation[0],
-        yAxis: rotation[1],
-        zAxis: rotation[2],
-      };
-  }
-
   async loadMesh(): Promise<void> {
-    const start = Date.now();
-    // console.log("starting loading mesh...");
+    console.log("starting loading mesh...");
+    const loadingStartTime = Date.now();
+
     const { lineVerteciesIndexes, vertexPositions } = await readObjFile(
       this.meshPath,
       this.allowUsingCachedMesh
@@ -102,13 +114,22 @@ export default class GameObject {
     this._vertecies = vertexPositions;
     this._meshIndexed = lineVerteciesIndexes;
 
-    // console.log("applying initial position, scale, and rotation...");
+    console.log("applying initial position, scale, and rotation...");
+    this.applyInitialParams();
 
-    // Apply initial scale
-    if (Object.values(this._size).some((size) => size !== 1)) {
-      this.scale(this._size.x, this._size.y, this._size.z);
-    }
+    /**
+     * @todo  rotation is not being applyed
+     */
+    console.log(
+      "finished loading mesh! loaded triangles:",
+      this._meshIndexed.length,
+      "time took:",
+      Date.now() - loadingStartTime,
+      "ms"
+    );
+  }
 
+  applyInitialParams() {
     // Apply custom start position
     if (Object.values(this._position).some((pos) => pos !== 0)) {
       for (const vertex of this._vertecies) {
@@ -123,28 +144,9 @@ export default class GameObject {
       this.scale(x, y, z);
       this._size = { x, y, z };
     }
-    if (Object.values(this._size).some((size) => size !== 1)) {
-      const { x, y, z } = this._size;
-      this.scale(x, y, z);
-      this._size = { x, y, z };
-    }
-    /**
-     * @todo scale and rotation are not being applyed
-     */
-    console.log(
-      "finished loading mesh! loaded triangles:",
-      this._meshIndexed.length,
-      "time took:",
-      Date.now() - start,
-      "ms"
-    );
   }
 
-  Start() {}
-
-  Update(deltaTime: number) {}
-
-  /** Moves the cube relatively, if you need to move it absolutely use the `setPosition` method */
+  /** Moves the GameObject relatively, if you need to move it absolutely use the `setPosition` method instead */
   move(x: number, y: number, z: number): void {
     for (const vertex of this._vertecies) {
       vertex.x += x;
@@ -158,6 +160,7 @@ export default class GameObject {
       z: this._position.z + z,
     };
   }
+
   setPosition(x: number, y: number, z: number): void {
     for (const vertex of this._vertecies) {
       vertex.x += x - this._position.x;
@@ -168,6 +171,7 @@ export default class GameObject {
     this._position = { x, y, z };
   }
 
+  /** Scales the GameObject relatively, if you need to set its absolute scale use the `setScale` method instead */
   scale(x: number, y: number, z: number) {
     const originalPosition = {
       x: this._position.x,
@@ -187,7 +191,7 @@ export default class GameObject {
     this.move(originalPosition.x, originalPosition.y, originalPosition.z);
   }
 
-  /** Rotates the cube relatively, if you need to set its absolute rotation use the `setRotation` method */
+  /** Rotates the GameObject relatively, if you need to set its absolute rotation use the `setRotation` method instead */
   rotate(xAxis: number, yAxis: number, zAxis: number): void {
     const originalPosition = {
       x: this._position.x,
@@ -234,7 +238,7 @@ export default class GameObject {
     const originalPosition = { ...this._position };
     this.move(-this._position.x, -this._position.y, -this._position.z);
 
-    let rotatedVertex = { x: 0, y: 0, z: 0 };
+    const rotatedVertex = { x: 0, y: 0, z: 0 };
 
     for (const vertex of this._vertecies) {
       QuaternionUtils.rotateVector(quaternion, vertex, rotatedVertex);

@@ -1,15 +1,3 @@
-import { Clickable } from "../gui/GUIElements/Clickable";
-import { transpose } from "./math";
-
-export function isClickable(obj: any): obj is Clickable {
-  return (
-    obj &&
-    typeof obj.onClick === "function" &&
-    typeof obj.onHover === "function" &&
-    typeof obj.isCoordInElement === "function"
-  );
-}
-
 export interface parsedObj {
   vertexPositions: Vec3D[];
   lineVerteciesIndexes: LineVerteciesIndexes[];
@@ -48,10 +36,6 @@ export function parseObj(text: string): parsedObj {
           // subtract 1 from every index because blender starts vertecies indexing from 1 not 0
           lineVerteciesIndexes.push([vertexIndexes[i] - 1, vertexIndexes[(i + 1) % parts.length] - 1]);
         }
-        break;
-
-      default:
-        // console.table([dataType, parts]);
         break;
     }
   }

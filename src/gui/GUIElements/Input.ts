@@ -1,30 +1,17 @@
-import { Clickable } from "./Clickable";
-import { GUIText } from "./GUIText";
-import GuiElement from "./GuiElement";
+import GUIText from "./GUIText";
 
-export class Input extends GUIText implements GuiElement, Clickable {
-  override position: { x: number; y: number } = { x: 0, y: 0 };
+export default class Input extends GUIText implements GUIElement, Clickable {
   isFocused: boolean = false;
   private predefinedWidth: number;
   private predefinedHeight: number;
-  border: {
-    top: { color: string; width: number };
-    bottom: { color: string; width: number };
-    left: { color: string; width: number };
-    right: { color: string; width: number };
-  } = {
-    top: { color: "#ff0000", width: 6 },
-    bottom: { color: "#ff0000", width: 6 },
+  border: GUIDirectionalProperty<{ color: string; width: number }> = {
+    top: { color: "#f00", width: 6 },
+    bottom: { color: "#f00", width: 6 },
     left: { color: "#fff", width: 6 },
     right: { color: "#fff", width: 6 },
   };
 
-  padding: {
-    top: number;
-    bottom: number;
-    left: number;
-    right: number;
-  } = { top: 0, bottom: 0, left: 0, right: 0 };
+  padding: GUIDirectionalProperty<number> = { top: 0, bottom: 0, left: 0, right: 0 };
 
   constructor(
     text: string,
@@ -42,7 +29,7 @@ export class Input extends GUIText implements GuiElement, Clickable {
     const totalVerticalPadding = this.predefinedHeight - textHeight;
     this.padding.top = totalVerticalPadding / 2;
     this.padding.bottom = totalVerticalPadding / 2;
-    let textWidth = 100;
+    const textWidth = 100;
     this.padding.left = (this.predefinedWidth - textWidth) / 2;
     this.padding.right = this.padding.left;
     document.addEventListener("keydown", this.handleKeyDown.bind(this));

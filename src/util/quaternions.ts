@@ -1,5 +1,3 @@
-import { Vector } from "./math";
-
 export namespace QuaternionUtils {
   export type Quaternion = {
     x: number;
@@ -25,8 +23,8 @@ export namespace QuaternionUtils {
     angle: number
   ): void {
     // Normalize the axis
-    let axisLength = Math.sqrt(axis.x * axis.x + axis.y * axis.y + axis.z * axis.z);
-    let normalizedAxis = {
+    const axisLength = Math.sqrt(axis.x * axis.x + axis.y * axis.y + axis.z * axis.z);
+    const normalizedAxis = {
       x: roundValue(axis.x / axisLength, 5),
       y: roundValue(axis.y / axisLength, 5),
       z: roundValue(axis.z / axisLength, 5),
@@ -62,14 +60,6 @@ export namespace QuaternionUtils {
     }
   }
 
-  // export function multiply(result: Quaternion, a: Quaternion, b: Quaternion): void {
-  //     console.log(a)
-  //     console.log(b)
-  //     result.x = a.w * b.x + a.x * b.w + a.y * b.z - a.z * b.y
-  //     result.y = a.w * b.y - a.x * b.z + a.y * b.w + a.z * b.x;
-  //     result.z = a.w * b.z + a.x * b.y - a.y * b.x + a.z * b.w
-  //     result.w = a.w * b.w - a.x * b.x - a.y * b.y - a.z * b.z
-  // }
   export function multiply(q1: Quaternion, q2: Quaternion, result: Quaternion): void {
     const x = q1.x * q2.w + q1.y * q2.z - q1.z * q2.y + q1.w * q2.x;
     const y = -q1.x * q2.z + q1.y * q2.w + q1.z * q2.x + q1.w * q2.y;
