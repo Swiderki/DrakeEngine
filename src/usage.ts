@@ -24,6 +24,7 @@ class AsteroidPlayerOverlap extends Overlap {
 
   override onOverlap(): void {
     console.log("xd");
+    if (!game.currentScene) return;
   }
 }
 
@@ -61,7 +62,7 @@ class MyGame extends Drake.Engine {
     ];
 
 
-    // this.spaceship.obj.showBoxcollider = true;
+    this.spaceship.obj.showBoxcollider = true;
   }
 
   createRandomAsteroid() {
@@ -108,7 +109,7 @@ class MyGame extends Drake.Engine {
     ast.velocity = { x: velocity[0], y: velocity[1], z: 0 };
     this.mainScene.addSceneMesh(ast);
 
-    this.asteroids.push(ast);
+    const astId = this.asteroids.push(ast);
 
     this.currentScene.addOverlap(new AsteroidPlayerOverlap(this.spaceship.obj, ast, this));
   }
@@ -166,6 +167,8 @@ class MyGame extends Drake.Engine {
     }
     if (this.keysPressed.has("k")) {
       const bullet = new Bullet([this.spaceship.obj.position.x, this.spaceship.obj.position.y,this.spaceship.obj.position.z], [0.5,0.5,0.5], [0,0,0],this.spaceship.rotation );
+      bullet.boxCollider = [{x: -0.05, y: -0.05, z: 0}, {x: 0.05, y: 0.05, z: 5}]
+      bullet.showBoxcollider = true;
       const bulletID = this.mainScene?.addSceneMesh(bullet);
       console.log(this.spaceship.obj.position)
     }
