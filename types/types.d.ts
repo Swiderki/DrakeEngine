@@ -25,6 +25,7 @@ type Line = [Vec3D, Vec3D];
 
 type Line4D = [Vec4D, Vec4D];
 
+
 interface GameObject {
   position: Vec3D;
   size: Vec3D;

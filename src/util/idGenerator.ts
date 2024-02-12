@@ -1,7 +1,8 @@
 export default class IdGenerator {
-  private _id: number = 1;
+  private static _id: number = 1;
 
-  get id(): number {
-    return this._id++;
+  static new(): number {
+    console.log("aa", IdGenerator._id);
+    return IdGenerator._id++;
   }
 }

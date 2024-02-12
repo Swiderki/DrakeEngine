@@ -1,18 +1,22 @@
 import { Overlap } from "./behavior/Overlap";
 import Camera from "./entities/Camera";
+import GameObject from "./entities/game-objects/GameObject";
+import PhysicalObject from "./entities/game-objects/PhysicalObject";
+import Cube from "./entities/game-objects/built-in/Cube";
 import GUI from "./gui/Gui";
 import IdGenerator from "./util/idGenerator";
 import { Matrix } from "./util/math";
 
 export default class Scene {
-  private idGenerator = new IdGenerator();
   private _gameObjects: Map<number, GameObject> = new Map();
   protected _mainCamera: Camera | null = null;
   private _projMatrix: Mat4x4 = Matrix.zeros();
   private _GUIs: Map<number, GUI> = new Map();
   private _currentGUI: GUI | null = null;
+
   private overlapIdGenerator = new IdGenerator();
   private _overlaps: Map<number, Overlap> = new Map();
+
 
   // prettier-ignore
   get overlaps() { return this._overlaps };
@@ -71,7 +75,7 @@ export default class Scene {
     if ([...this.overlaps.values()].includes(overlap))
       throw new Error("The given overlap is already added to the scene's overlaps.");
 
-    const id = this.overlapIdGenerator.id;
+    const id = IdGenerator.new();
 
     this.overlaps.set(id, overlap);
     return id;
@@ -109,7 +113,7 @@ export default class Scene {
   addGUI(gui: GUI): number {
     if ([...this._GUIs.values()].includes(gui))
       throw new Error("The given gui is already added to the scene's GUIs");
-    const guiId = this.idGenerator.id;
+    const guiId = IdGenerator.new();
     this._GUIs.set(guiId, gui);
     return guiId;
   }
@@ -129,9 +133,59 @@ export default class Scene {
   }
 
   addSceneMesh(mesh: GameObject): number {
-    const meshId = this.idGenerator.id;
-    this.gameObjects.set(meshId, mesh);
-    // mesh.loadMesh();
-    return meshId;
+
+    this.gameObjects.set(mesh.id, mesh);
+    mesh.loadMesh();
+    return mesh.id;
+  }
+
+  killObject(gameObjectId: number): void;
+  killObject(gameObject: GameObject): void;
+  killObject(objOrId: GameObject | number): void {
+    if (typeof objOrId === "number") {
+      this.gameObjects.delete(objOrId);
+    } else {
+      this.gameObjects.delete(objOrId?.id);
+    }
+  }
+
+  animatedObjectDestruction(gameObject: GameObject) {
+    const positionTuple: Vec3DTuple = [gameObject.position.x, gameObject.position.y, gameObject.position.z];
+
+    const velocities = [
+      { x: -4, y: 10, z: 0 },
+      { x: -2, y: 9, z: 2 },
+      { x: 0, y: 8, z: 4 },
+      { x: 2, y: 8, z: -4 },
+      { x: 4, y: 10, z: -2 },
+    ];
+
+    const cubes = [...Array(5)].map((_, i) => {
+      // between 0.2 and 0.6
+      const randomScale = [...Array(3)].map(() => Math.random() * 0.4 + 0.2) as Vec3DTuple;
+      // between 0 and 1.5
+      const randomRotation = [...Array(3)].map(() => Math.random() * 1.5) as Vec3DTuple;
+
+      const cube = new PhysicalObject("objects/cube_wire.obj", {
+        position: positionTuple,
+        size: randomScale,
+        velocity: velocities[i],
+      });
+      cube.Update = (deltaTime) => {
+        console.log("particles alive");
+        cube.velocity.x -= cube.velocity.x * 0.9 * deltaTime;
+        cube.velocity.y -= 5 * deltaTime;
+        cube.velocity.z -= cube.velocity.z * 0.9 * deltaTime;
+        cube.rotate(
+          randomRotation[0] * deltaTime,
+          randomRotation[1] * deltaTime,
+          randomRotation[2] * deltaTime
+        );
+      };
+      return this.addSceneMesh(cube);
+    });
+
+    this.killObject(gameObject);
+    setTimeout(() => cubes.forEach((cubeId) => this.killObject(cubeId)), 4500);
   }
 }

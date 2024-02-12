@@ -6,6 +6,7 @@ import GameObject from "./entities/game-objects/GameObject";
 
 import { isClickable } from "./util/fs";
 import PhysicalObject from "./entities/game-objects/PhysicalObject";
+import Piramide from "./entities/game-objects/built-in/Piramide";
 
 export default class Engine {
   private penultimateFrameEndTime: number = 0;
@@ -14,7 +15,6 @@ export default class Engine {
   private _frameNumber: number = 0;
   private _currentScene: Scene | null = null;
   private _scenes: Map<number, Scene> = new Map();
-  private _idGenerator = new IdGenerator();
 
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
@@ -34,9 +34,6 @@ export default class Engine {
   }
   get scenes(): Map<number, Scene> {
     return this._scenes;
-  }
-  get idGenerator(): IdGenerator {
-    return this._idGenerator;
   }
   get currentScene() {
     if (this._currentScene == null)
@@ -64,7 +61,7 @@ export default class Engine {
 
   // Main methods - used to interact with engine's workflow directly
   addScene(scene: Scene): number {
-    const sceneId = this.idGenerator.id;
+    const sceneId = IdGenerator.new();
     this._scenes.set(sceneId, scene);
     return sceneId;
   }
@@ -142,6 +139,7 @@ export default class Engine {
   /** Gets called once the program starts */
   Start(): void {}
 
+
   private async _AfterStart(): Promise<void> {
     const objectsLoading = [...this.currentScene.gameObjects.values()].map((obj) => obj.loadMesh());
 
@@ -175,6 +173,7 @@ export default class Engine {
     }
 
     this.Update();
+    this.currentScene.gameObjects.forEach((gameObject) => gameObject.Update(this.deltaTime));
 
     requestAnimationFrame((renderTime) => {
       if (this.fpsDisplay && frameNumber % 10 === 0)
@@ -191,7 +190,11 @@ export default class Engine {
   async run(): Promise<void> {
     await this._BeforeStart();
     this.Start();
+
+    this.currentScene.gameObjects.forEach((gameObject) => gameObject.Start());
+
     await this._AfterStart();
+
     this._BeforeUpdate(0);
   }
 
@@ -213,7 +216,7 @@ export default class Engine {
   }
 
   addSceneMesh(mesh: Scene): number {
-    const meshId = this.idGenerator.id;
+    const meshId = IdGenerator.new();
     this._scenes.set(meshId, mesh);
     return meshId;
   }

@@ -1,3 +1,5 @@
+import { QuaternionUtils } from "../util/quaternions";
+
 export default class Camera {
   position: Vec3D;
   lookDir: Vec3D;
@@ -6,6 +8,7 @@ export default class Camera {
   near: number;
   /** The furthest point from the Camare that drawing occurs */
   far: number;
+  rotationQuaternion: QuaternionUtils.Quaternion = { x: 0, y: 0, z: 0, w: 0 };;
 
   constructor(
     fov: number,
@@ -25,5 +28,16 @@ export default class Camera {
   move(x: number, y: number, z: number): void {
     const { x: oldX, y: oldY, z: oldZ } = this.position;
     this.position = { x: oldX + x, y: oldY + y, z: oldZ + z };
+  }
+
+  rotate(axis: {x: number, y: number, z: number}, amount: number): void{
+    QuaternionUtils.setFromAxisAngle(
+      this.rotationQuaternion,
+      axis,
+      amount
+    );
+    
+    QuaternionUtils.normalize(this.rotationQuaternion);
+    QuaternionUtils.rotateVector(this.rotationQuaternion, {...this.lookDir}, this.lookDir);
   }
 }

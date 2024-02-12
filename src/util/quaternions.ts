@@ -1,3 +1,5 @@
+import { Vector } from "./math";
+
 export namespace QuaternionUtils {
     export type Quaternion = {
         x: number;

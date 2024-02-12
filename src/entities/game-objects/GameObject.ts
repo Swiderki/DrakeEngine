@@ -1,3 +1,4 @@
+import IdGenerator from "@/src/util/idGenerator";
 import { Vector } from "@/src/util/math";
 import { readObjFile } from "../../../src/util/fs";
 import { QuaternionUtils } from "../../../src/util/quaternions";
@@ -12,9 +13,10 @@ export default class GameObject {
   private _rotation: Rotation = { xAxis: 0, yAxis: 0, zAxis: 0 };
 
   private _boxCollider: [Vec3D, Vec3D] | null = null;
+  
+  readonly id: number = IdGenerator.new();
 
   public showBoxcollider: Boolean = false;
-
 
   readonly meshPath: string;
   readonly allowUsingCachedMesh: boolean = true;
@@ -121,6 +123,11 @@ export default class GameObject {
       this.scale(x, y, z);
       this._size = { x, y, z };
     }
+    if (Object.values(this._size).some((size) => size !== 1)) {
+      const { x, y, z } = this._size;
+      this.scale(x, y, z);
+      this._size = { x, y, z };
+    }
     /**
      * @todo scale and rotation are not being applyed
      */
@@ -132,6 +139,10 @@ export default class GameObject {
       "ms"
     );
   }
+
+  Start() {}
+
+  Update(deltaTime: number) {}
 
   /** Moves the cube relatively, if you need to move it absolutely use the `setPosition` method */
   move(x: number, y: number, z: number): void {
@@ -236,7 +247,4 @@ export default class GameObject {
 
     this.move(originalPosition.x, originalPosition.y, originalPosition.z);
   }
-
-  
-  
 }
