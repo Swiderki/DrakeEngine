@@ -14,7 +14,7 @@ export default class GameObject {
   private _boxCollider: [Vec3D, Vec3D] | null = null;
 
   public showBoxcollider: Boolean = false;
-
+  public killed: Boolean = false;
 
   readonly meshPath: string;
   readonly allowUsingCachedMesh: boolean = true;
@@ -237,6 +237,10 @@ export default class GameObject {
     }
 
     this.move(originalPosition.x, originalPosition.y, originalPosition.z);
+  }
+
+  kill(){
+    this.killed = true;
   }
 
 }

@@ -33,6 +33,7 @@ interface GameObject {
   mesh: Line[];
   loadMesh(): Promise<void>;
   showBoxcollider: Boolean;
+  killed: Boolean;
   boxColliderMesh: Line[] | null;
 }
 

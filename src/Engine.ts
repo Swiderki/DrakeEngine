@@ -1,7 +1,7 @@
 import Scene from "./Scene";
 import IdGenerator from "./util/idGenerator";
 import { Matrix, Vector } from "./util/math";
-
+import { Overlap } from "./behavior/Overlap";
 import GameObject from "./entities/game-objects/GameObject";
 
 import { isClickable } from "./util/fs";
@@ -184,7 +184,21 @@ export default class Engine {
   }
 
   /** Gets called every frame */
-  Update(): void {}
+  Update(): void {
+    for (const [id, obj] of this._currentScene!.gameObjects.entries()) {
+      if (obj.killed) {
+        const gm = this._currentScene!.gameObjects.get(id);
+        for (let [key, value] of this._currentScene!.overlaps) {
+          if ((value as Overlap).obj1 == gm || (value as Overlap).obj2 == gm) {
+            this._currentScene!.overlaps.delete(key);
+          }
+        }
+        this._currentScene!.gameObjects.delete(id);
+
+      }
+    }
+    
+  }
 
   // Utility methods
 

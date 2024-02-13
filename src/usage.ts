@@ -449,6 +449,7 @@ class MyGame extends Drake.Engine {
     });
   }
   override Update(): void {
+    super.Update();
     if (this.currentScene != null) {
       const currentTime = Date.now();
 
@@ -460,7 +461,9 @@ class MyGame extends Drake.Engine {
       // console.log([...this.currentScene.gameObjects.values()][0])
       // console.log([...this.currentScene.gameObjects.values()][1])
     }
+    
   }
+
 }
 
 const game = new MyGame(canvas);
