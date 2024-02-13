@@ -51,6 +51,18 @@ class BulletAsteroidOverlap extends Overlap {
 
   override onOverlap() {
     console.log("XDDD");
+    if (this.asteroid.metricalSize == "l") {
+      this.game.createRandomAsteroidAtPosition("m", [this.asteroid.position.x, this.asteroid.position.y, this.asteroid.position.z]);
+      this.game.createRandomAsteroidAtPosition("m", [this.asteroid.position.x, this.asteroid.position.y, this.asteroid.position.z]);
+      this.game.createRandomAsteroidAtPosition("m", [this.asteroid.position.x, this.asteroid.position.y, this.asteroid.position.z]);
+    }
+
+    if (this.asteroid.metricalSize == "m") {
+      this.game.createRandomAsteroidAtPosition("s", [this.asteroid.position.x, this.asteroid.position.y, this.asteroid.position.z]);
+      this.game.createRandomAsteroidAtPosition("s", [this.asteroid.position.x, this.asteroid.position.y, this.asteroid.position.z]);
+      this.game.createRandomAsteroidAtPosition("s", [this.asteroid.position.x, this.asteroid.position.y, this.asteroid.position.z]);
+    }
+
     this.game.currentScene!.killObject(this.bulletID);
     this.game.currentScene!.killObject(this.astID);
     this.game.asteroids.delete(this.astID);
@@ -111,7 +123,7 @@ class MyGame extends Drake.Engine {
     };
     this.spaceship.obj.boxCollider = [
       { x: -0.2, y: 0.3, z: 0 },
-      { x: 0.3, y: -0.3, z: -5 },
+      { x: 0.3, y: -0.3, z: -1 },
     ];
 
     this.spaceship.obj.showBoxcollider = true;
@@ -120,6 +132,42 @@ class MyGame extends Drake.Engine {
   changeScene() {
     this.setCurrentScene(this.gameScene!);
   }
+
+  createRandomAsteroidAtPosition(asteroidType: 'l' | 'm' | 's', position: [number, number, number]) {
+    if (this.currentScene == null) {
+        throw new Error("Main scene must be set first.");
+    }
+
+    // Losowanie punktu docelowego, który nie jest środkiem, aby uniknąć przypadku, gdy asteroida nie poruszałaby się
+    let targetPosition;
+    do {
+        targetPosition = [Math.random() * 26 - 13, Math.random() * 10 - 5, 0];
+    } while (targetPosition[0] === position[0] && targetPosition[1] === position[1]);
+
+    // Losowanie i obliczanie wektora prędkości
+    const velocityMagnitude = Math.random() * (4 - 2) + 2; // Losowanie prędkości z zakresu [2, 4]
+    const velocityDirection = [
+        targetPosition[0] - position[0],
+        targetPosition[1] - position[1],
+        0
+    ];
+    const normalizedVelocity = velocityDirection.map(
+        v => v / Math.sqrt(velocityDirection[0] ** 2 + velocityDirection[1] ** 2)
+    );
+    const velocity = normalizedVelocity.map(v => v * velocityMagnitude);
+
+    // Tworzenie asteroidy z podanym typem i pozycją
+    const ast = new Asteroid(Math.floor(Math.random() * 15) + 1, asteroidType, position, [0.1, 0.1, 0.1]);
+    ast.velocity = { x: velocity[0], y: velocity[1], z: 0 };
+    const astId = this.currentScene.addSceneMesh(ast);
+
+    this.asteroids.set(astId, ast);
+
+    this.currentScene.addOverlap(
+        new AsteroidPlayerOverlap(this.spaceship.obj, ast, this)
+    );
+}
+
 
   createRandomAsteroid() {
     if (this.currentScene == null) {
@@ -130,7 +178,7 @@ class MyGame extends Drake.Engine {
     const size = Math.floor(Math.random() * 15) + 1;
 
     // Losowanie typu ('l', 'm', 's')
-    const type = ["l", "m", "s"][Math.floor(Math.random() * 3)];
+    const type = ["l", "m", "s"][Math.floor(Math.random() * 3)] as "l" | "m" | "s";
 
     // Losowanie pozycji
     const edge = ["left", "right", "top", "bottom"][
@@ -268,7 +316,7 @@ class MyGame extends Drake.Engine {
       );
       bullet.boxCollider = [
         { x: -0.1, y: -0.1, z: 0 },
-        { x: 0.1, y: 0.1, z: -5 },
+        { x: 0.1, y: 0.1, z: -1 },
       ];
       bullet.showBoxcollider = true;
       const bulletID = this.currentScene.addSceneMesh(bullet);
