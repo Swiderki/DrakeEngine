@@ -13,11 +13,14 @@ import { GUIText } from "./gui/GUIElements/GUIText";
 import { Icon } from "./gui/GUIElements/Icon";
 import { Button } from "./gui/GUIElements/Button";
 if (!canvas) throw new Error("unable to find canvas");
+import { Vector } from "./util/math";
 
 // Without destroing elements whene they quit screen
 
 class AsteroidPlayerOverlap extends Overlap {
   private game: MyGame;
+  private collised: boolean = false;
+
   constructor(obj1: Spaceship, obj2: Asteroid, game: MyGame) {
     super(obj1, obj2);
     this.game = game;
@@ -25,6 +28,10 @@ class AsteroidPlayerOverlap extends Overlap {
 
   override onOverlap(): void {
     if (!game.currentScene) return;
+    if (this.collised) return;
+    this.collised = true;
+    game.lifes--;
+    game.changeLifeIcons(game.lifes);
   }
 }
 
@@ -54,13 +61,19 @@ class BulletAsteroidOverlap extends Overlap {
     if (this.asteroid.metricalSize == "l") {
       this.game.createRandomAsteroidAtPosition("m", [this.asteroid.position.x, this.asteroid.position.y, this.asteroid.position.z]);
       this.game.createRandomAsteroidAtPosition("m", [this.asteroid.position.x, this.asteroid.position.y, this.asteroid.position.z]);
-      this.game.createRandomAsteroidAtPosition("m", [this.asteroid.position.x, this.asteroid.position.y, this.asteroid.position.z]);
+      game.changeResultText("" + (parseInt(game.resultText.text) + 20));
     }
 
     if (this.asteroid.metricalSize == "m") {
       this.game.createRandomAsteroidAtPosition("s", [this.asteroid.position.x, this.asteroid.position.y, this.asteroid.position.z]);
       this.game.createRandomAsteroidAtPosition("s", [this.asteroid.position.x, this.asteroid.position.y, this.asteroid.position.z]);
-      this.game.createRandomAsteroidAtPosition("s", [this.asteroid.position.x, this.asteroid.position.y, this.asteroid.position.z]);
+      game.changeResultText("" + (parseInt(game.resultText.text) + 50));
+
+    }
+    
+    if (this.asteroid.metricalSize == "s") {
+      game.changeResultText("" + (parseInt(game.resultText.text) + 100));
+
     }
 
     this.game.currentScene!.killObject(this.bulletID);
@@ -109,6 +122,12 @@ class MyGame extends Drake.Engine {
   };
   flame;
 
+  gui: GUI;
+  resultText: GUIText;
+  bestResultText: GUIText;
+  icons: Icon[];
+  lifes: number = 3;
+
   constructor(canvas: HTMLCanvasElement) {
     super(canvas);
     this.flame = {
@@ -124,6 +143,17 @@ class MyGame extends Drake.Engine {
     this.spaceship.obj.boxCollider = [
       { x: -0.2, y: 0.3, z: 0 },
       { x: 0.3, y: -0.3, z: -1 },
+    ];
+    this.gui = new GUI(this.getCanvas, this.getCanvas.getContext("2d")!);
+    this.gui.hideCursor = true;
+
+    // Initialize GUI elements
+    this.resultText = new GUIText("00", 35, "Arial", "white", 100);
+    this.bestResultText = new GUIText("00", 35, "Arial", "white", 100);
+    this.icons = [
+      new Icon("m 10 0 l 10 40 l -3 -5 l -14 0 l -3 5 z", 770, 770, { x: 245, y: 60 }, "white"),
+      new Icon("m 10 0 l 10 40 l -3 -5 l -14 0 l -3 5 z", 770, 770, { x: 265, y: 60 }, "white"),
+      new Icon("m 10 0 l 10 40 l -3 -5 l -14 0 l -3 5 z", 770, 770, { x: 285, y: 60 }, "white")
     ];
 
     this.spaceship.obj.showBoxcollider = true;
@@ -272,23 +302,6 @@ class MyGame extends Drake.Engine {
       this.spaceship.obj.applyQuaternion(this.rotationQuaternion);
       this.flame.obj.applyQuaternion(this.rotationQuaternion);
     }
-
-    if (this.keysPressed.has("w")) {
-      const forwardVector = { x: 0, y: 1, z: 0 };
-      const direction = { x: 0, y: 0, z: 0 };
-
-      QuaternionUtils.rotateVector(
-        this.spaceship.rotation,
-        forwardVector,
-        direction
-      );
-      const speed = 0.3;
-      direction.x *= speed;
-      direction.y *= speed;
-      direction.z *= speed;
-      this.flame.obj.applyForce(direction);
-      this.spaceship.obj.applyForce(direction);
-    }
     if (this.keysPressed.has("l")) {
       const x = Math.random() * 20 - 10;
       const y = Math.random() * 10 - 5;
@@ -335,13 +348,7 @@ class MyGame extends Drake.Engine {
 
   handleKeyDown(e: KeyboardEvent) {
     this.keysPressed.add(e.key);
-    if (e.key == "w") {
-      this.flame.obj.setPosition(
-        this.spaceship.obj.position.x,
-        this.spaceship.obj.position.y,
-        this.spaceship.obj.position.z
-      );
-    }
+
     this.handleSpaceshipMove();
   }
 
@@ -361,28 +368,22 @@ class MyGame extends Drake.Engine {
     const mainScene = new Drake.Scene(this.width, this.height);
     this.mainScene = mainScene;
 
-    const svgPath = "m 10 0 l 10 40 l -3 -5 l -14 0 l -3 5 z";
     const mainSceneGUI = new GUI(
       this.getCanvas,
       this.getCanvas.getContext("2d")!
     );
     mainSceneGUI.hideCursor = true;
-    const resultText = new GUIText("00", 35, "Arial", "white", 100);
-    const bestResultText = new GUIText("00", 35, "Arial", "white", 100);
-    const icon1 = new Icon(svgPath, 770, 770, { x: 245, y: 60 }, "white");
-    const icon2 = new Icon(svgPath, 770, 770, { x: 265, y: 60 }, "white");
-    const icon3 = new Icon(svgPath, 770, 770, { x: 285, y: 60 }, "white");
 
-    resultText.position = { x: 250, y: 30 };
-    bestResultText.position = { x: 600, y: 30 };
+
+    this.resultText.position = { x: 250, y: 30 };
+    this.bestResultText.position = { x: 600, y: 30 };
     const mainSceneGUIID = mainScene.addGUI(mainSceneGUI);
 
-    mainSceneGUI.addElement(resultText);
-    mainSceneGUI.addElement(bestResultText);
-    mainSceneGUI.addElement(icon1);
-    mainSceneGUI.addElement(icon2);
-    mainSceneGUI.addElement(icon3);
-    resultText.text = "10";
+    mainSceneGUI.addElement(this.resultText);
+    mainSceneGUI.addElement(this.bestResultText);
+    mainSceneGUI.addElement(this.icons[0]);
+    mainSceneGUI.addElement(this.icons[1]);
+    mainSceneGUI.addElement(this.icons[2]);
     mainScene.setCurrentGUI(mainSceneGUIID);
 
     this.spaceship.id = mainScene.addSceneMesh(this.spaceship.obj);
@@ -450,6 +451,34 @@ class MyGame extends Drake.Engine {
   }
   override Update(): void {
     super.Update();
+    if (this.keysPressed.has("w")) {
+      this.flame.obj.setPosition(
+        this.spaceship.obj.position.x,
+        this.spaceship.obj.position.y,
+        this.spaceship.obj.position.z
+      );
+      const forwardVector = { x: 0, y: 1, z: 0 };
+      let direction = { x: 0, y: 0, z: 0 };
+
+      QuaternionUtils.rotateVector(
+        this.spaceship.rotation,
+        forwardVector,
+        direction
+      );
+      const speed = 0.02
+      direction.x *= speed;
+      direction.y *= speed;
+      direction.z *= speed;
+      const deltaVelocity = Vector.divide(direction, this.spaceship.obj.mass);
+      direction = Vector.add(direction, deltaVelocity)
+
+      this.flame.obj.velocity.x += direction.x;
+      this.flame.obj.velocity.y += direction.y;
+      this.flame.obj.velocity.z += direction.z;
+      this.spaceship.obj.velocity.x += direction.x;
+      this.spaceship.obj.velocity.y += direction.y;
+      this.spaceship.obj.velocity.z += direction.z;
+    }
     if (this.currentScene != null) {
       const currentTime = Date.now();
 
@@ -463,7 +492,24 @@ class MyGame extends Drake.Engine {
     }
     
   }
+  changeResultText(text: string) {
+    this.resultText.text = text;
+  }
 
+  changeBestResultText(text: string) {
+    this.bestResultText.text = text;
+  }
+
+  changeLifeIcons(lives: number) {
+    for (let i = 0; i < 3; i++) {
+      if (i < lives) {
+        this.icons[i].strokeColor = "white";
+      } else {
+        this.icons[i].strokeColor = "black";
+      }
+    }
+  
+  }
 }
 
 const game = new MyGame(canvas);
