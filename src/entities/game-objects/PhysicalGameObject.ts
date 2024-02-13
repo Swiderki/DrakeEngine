@@ -29,7 +29,6 @@ export default class PhysicalGameObject extends GameObject {
 
   // Method to update the object's position based on velocity and acceleration
   updatePhysics(deltaTime: number): void {
-    console.log(new Date().getTime());
     const deltaVelocity = Vector.multiply(this.acceleration, deltaTime);
     this.move(
       this.velocity.x * deltaTime + 0.5 * deltaVelocity.x * deltaTime,

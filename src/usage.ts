@@ -9,9 +9,7 @@ const canvas = document.getElementById("app") as HTMLCanvasElement | null;
 if (!canvas) throw new Error("unable to find canvas");
 
 class MyOverlap extends Overlap {
-  override onOverlap(): void {
-    console.log("Dzieje się!");
-  }
+  override onOverlap(): void {}
 }
 
 class MyGame extends Drake.Engine {

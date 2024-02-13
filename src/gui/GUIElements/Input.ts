@@ -143,7 +143,6 @@ export default class Input extends GUIText implements GUIElement, Clickable {
 
   onClick(): void {
     this.isFocused = true;
-    console.log("clicked");
   }
   onClickOutside(): void {
     this.isFocused = false;

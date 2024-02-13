@@ -53,7 +53,6 @@ export async function readObjFile(path: string, allowUsingCachedMesh: boolean): 
   cachedObjects.set(
     path,
     (async () => {
-      // console.log(location.pathname + path)
       const res = await fetch(location.pathname + path);
       const text = await res.text();
       return parseObj(text);

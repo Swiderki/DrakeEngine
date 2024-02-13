@@ -106,7 +106,6 @@ export default class Scene {
   }
 
   removeGameObject(gameObjectID: number): void {
-    console.log("killed");
     this.gameObjects.delete(gameObjectID);
 
     for (const [key, value] of this._overlaps) {
@@ -141,7 +140,6 @@ export default class Scene {
         velocity: velocities[i],
       });
       cube.Update = (deltaTime) => {
-        console.log("particles alive");
         cube.velocity.x -= cube.velocity.x * 0.9 * deltaTime;
         cube.velocity.y -= 5 * deltaTime;
         cube.velocity.z -= cube.velocity.z * 0.9 * deltaTime;

@@ -24,7 +24,6 @@ export default class GameObject {
   showBoxcollider: boolean = false;
   public killed: Boolean = false;
 
-
   readonly id: number = IDGenerator.new();
 
   readonly meshPath: string;
@@ -76,7 +75,6 @@ export default class GameObject {
 
     const [localMin, localMax] = this.boxCollider;
     const [min, max] = [Vector.add(localMin, this.position), Vector.add(localMax, this.position)];
-    // console.log(localMin, min, this.position, this.size);
     // Vertices of the box with position offset
     const vertices = [
       { x: min.x, y: min.y, z: min.z }, // Vertex 0
@@ -107,9 +105,6 @@ export default class GameObject {
   }
 
   async loadMesh(): Promise<void> {
-    console.log("starting loading mesh...");
-    const loadingStartTime = Date.now();
-
     const { lineVerteciesIndexes, vertexPositions } = await readObjFile(
       this.meshPath,
       this.allowUsingCachedMesh
@@ -117,19 +112,11 @@ export default class GameObject {
     this._vertecies = vertexPositions;
     this._meshIndexed = lineVerteciesIndexes;
 
-    console.log("applying initial position, scale, and rotation...");
     this.applyInitialParams();
 
     /**
      * @todo  rotation is not being applyed
      */
-    console.log(
-      "finished loading mesh! loaded triangles:",
-      this._meshIndexed.length,
-      "time took:",
-      Date.now() - loadingStartTime,
-      "ms"
-    );
   }
 
   applyInitialParams() {
@@ -253,7 +240,7 @@ export default class GameObject {
 
     this.move(originalPosition.x, originalPosition.y, originalPosition.z);
   }
-  kill(){
+  kill() {
     this.killed = true;
   }
 }
