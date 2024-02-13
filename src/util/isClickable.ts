@@ -1,6 +1,6 @@
 import { Clickable } from "@/types/gui";
 
-export function isClickable(obj: any): obj is Clickable {
+export default function isClickable(obj: any): obj is Clickable {
   return (
     obj &&
     typeof obj.onClick === "function" &&
