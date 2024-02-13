@@ -2,6 +2,7 @@ import IDGenerator from "@/src/util/IDGenerator";
 import { Vector } from "@/src/util/math";
 import { readObjFile } from "@/src/util/fs";
 import { QuaternionUtils } from "@/src/util/quaternions";
+import { Line3D, LineVerteciesIndexes, Rotation3D, Rotation3DTuple, Vec3D, Vec3DTuple } from "@/types/math";
 
 export type GameObjectInitialConfig = {
   position?: Vec3DTuple;

@@ -1,3 +1,6 @@
+import { GUIElement } from "@/types/gui";
+import { Vec2D } from "@/types/math";
+
 export default class GUIText implements GUIElement {
   text: string;
   fontSize: number;

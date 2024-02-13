@@ -1,3 +1,4 @@
+import { GUIElement } from "@/types/gui";
 import IDGenerator from "../util/IDGenerator";
 
 export default class GUI {

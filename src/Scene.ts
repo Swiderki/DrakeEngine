@@ -1,4 +1,5 @@
-import { Overlap } from "./behavior/Overlap";
+import { Mat4x4, Vec3DTuple } from "@/types/math";
+import Overlap from "./behavior/Overlap";
 import Camera from "./entities/Camera";
 import GameObject from "./entities/game-objects/GameObject";
 import PhysicalGameObject from "./entities/game-objects/PhysicalGameObject";

@@ -1,6 +1,6 @@
 import GameObject from "../entities/game-objects/GameObject";
 
-export class Overlap {
+export default class Overlap {
   readonly obj1: GameObject;
   readonly obj2: GameObject;
   enabled: boolean = true;

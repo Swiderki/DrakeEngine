@@ -1,3 +1,5 @@
+import { Clickable } from "@/types/gui";
+
 export function isClickable(obj: any): obj is Clickable {
   return (
     obj &&

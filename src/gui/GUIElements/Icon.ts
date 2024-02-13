@@ -1,3 +1,6 @@
+import { GUIElement } from "@/types/gui";
+import { Vec2D } from "@/types/math";
+
 export default class Icon implements GUIElement {
   path: string;
   width: number;

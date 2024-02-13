@@ -1,5 +1,6 @@
 import { Vector } from "@/src/util/math";
 import GameObject from "../GameObject";
+import { Vec3DTuple } from "@/types/math";
 
 export default class Cube extends GameObject {
   constructor(position?: Vec3DTuple, size?: Vec3DTuple, rotation?: Vec3DTuple) {

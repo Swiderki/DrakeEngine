@@ -1,3 +1,5 @@
+import { Vec3D, LineVerteciesIndexes } from "@/types/math";
+
 export interface parsedObj {
   vertexPositions: Vec3D[];
   lineVerteciesIndexes: LineVerteciesIndexes[];

@@ -1,14 +1,20 @@
 {
   "name": "drake-engine",
-  "main": "src/index.ts",
-  "version": "0.0.1",
+  "description": "Engine built for Motorola Science Cup 2023",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "version": "1.0.0",
   "type": "module",
   "author": "Swirl Team",
   "url": "https://vawofohqnj.cfolks.pl/",
   "license": "CREATIVE COMMONS ATTRIBUTION 4.0 INTERNATIONAL LICENSE",
+  "repository": {
+    "url": "https://github.com/Swiderki/DrakeEngine"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "tsupBuild": "tsup",
     "preview": "vite preview",
     "test": "jest"
   },
@@ -20,6 +26,7 @@
     "jest-fetch-mock": "^3.0.3",
     "jsdom": "^23.2.0",
     "ts-jest": "^29.1.1",
+    "tsup": "^8.0.2",
     "typescript": "^5.3.3",
     "vite": "^5.0.0"
   },

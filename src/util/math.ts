@@ -1,3 +1,5 @@
+import { Vec3D, Vec3DTuple, Mat4x4, Vec4D } from "@/types/math";
+
 export namespace Vector {
   export function zero(): Vec3D {
     return { x: 0, y: 0, z: 0 };

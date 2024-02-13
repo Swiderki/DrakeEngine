@@ -1,3 +1,4 @@
+import { Vec3D, Vec3DTuple } from "@/types/math";
 import { QuaternionUtils } from "../util/quaternions";
 
 export default class Camera {

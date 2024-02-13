@@ -1,4 +1,4 @@
-import { Overlap } from "./behavior/Overlap";
+import Overlap from "./behavior/Overlap";
 import PhysicalGameObject from "./entities/game-objects/PhysicalGameObject";
 import Cube from "./entities/game-objects/built-in/Cube";
 import Drake from "./index";

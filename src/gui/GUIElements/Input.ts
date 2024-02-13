@@ -1,3 +1,4 @@
+import { GUIElement, Clickable, GUIDirectionalProperty } from "@/types/gui";
 import GUIText from "./GUIText";
 
 export default class Input extends GUIText implements GUIElement, Clickable {

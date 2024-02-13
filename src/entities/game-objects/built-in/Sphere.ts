@@ -1,3 +1,4 @@
+import { Vec3DTuple } from "@/types/math";
 import GameObject from "../GameObject";
 
 export default class Sphere extends GameObject {
