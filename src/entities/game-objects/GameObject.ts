@@ -22,6 +22,8 @@ export default class GameObject {
   // represents diagonal of the cube
   boxCollider: Line3D | null = null;
   showBoxcollider: boolean = false;
+  public killed: Boolean = false;
+
 
   readonly id: number = IDGenerator.new();
 
@@ -250,5 +252,8 @@ export default class GameObject {
     }
 
     this.move(originalPosition.x, originalPosition.y, originalPosition.z);
+  }
+  kill(){
+    this.killed = true;
   }
 }
