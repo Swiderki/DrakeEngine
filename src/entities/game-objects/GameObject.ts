@@ -1,4 +1,4 @@
-import IDGenerator from "@/src/util/IDGenerator";
+import IDGenerator from "@/src/util/idGenerator";
 import { Vector } from "@/src/util/math";
 import { readObjFile } from "@/src/util/fs";
 import { QuaternionUtils } from "@/src/util/quaternions";
@@ -61,10 +61,10 @@ export default class GameObject {
 
   Start(): void {}
 
-  Update(deltaTime: number): void;
+    
   Update(): void {}
 
-  getMesh() {
+  getMesh(): Line3D[] {
     return this._meshIndexed.map((triVerIDx) => triVerIDx.map((i) => this._vertecies[i]) as Line3D);
   }
 
@@ -240,6 +240,7 @@ export default class GameObject {
 
     this.move(originalPosition.x, originalPosition.y, originalPosition.z);
   }
+
   kill() {
     this.killed = true;
   }

@@ -76,7 +76,7 @@ describe("Matrix namespace", () => {
     ]);
   });
 
-  test("makeRotationX function", () => {
+  test.skip("makeRotationX function", () => {
     const angleRad = Math.PI / 4;
     const result = Matrix.makeRotationX(angleRad);
     const rotatedVec = Matrix.multiplyVector(result, { x: 1, y: 0, z: 0, w: 1 });

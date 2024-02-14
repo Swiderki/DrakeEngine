@@ -18,6 +18,9 @@ export namespace Vector {
   }
 
   export function divide(vec: Vec3D, num: number): Vec3D {
+    if(num === 0) {
+      throw Error("Division by zero!!!");
+    }
     return { x: vec.x / num, y: vec.y / num, z: vec.z / num };
   }
 
@@ -42,11 +45,11 @@ export namespace Vector {
     };
   }
 
-  export function resize(vec: Vec3D, magnitiude: number) {
+  export function resize(vec: Vec3D, magnitiude: number): Vec3D {
     return multiply(normalize(vec), magnitiude);
   }
 
-  export function fromArray(arr: Vec3DTuple) {
+  export function fromArray(arr: Vec3DTuple): Vec3D {
     return { x: arr[0], y: arr[1], z: arr[2] };
   }
 }
