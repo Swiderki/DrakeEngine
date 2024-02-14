@@ -1,5 +1,5 @@
 import { Vector, Matrix, transpose } from "@/src/util/math"; // Update with the correct file path and types
-
+//to nie ja robiłem te testy
 describe.skip("Vector namespace", () => {
   const vec1 = { x: 1, y: 2, z: 3 };
   const vec2 = { x: 4, y: 5, z: 6 };
