@@ -10,7 +10,7 @@ import Sphere from "./entities/game-objects/built-in/Sphere";
 import Piramide from "./entities/game-objects/built-in/Piramide";
 
 // src/gui
-import GUI from "./gui/GUI";
+import GUI from "./gui/Gui";
 import Button from "./gui/GUIElements/Button";
 import GUIText from "./gui/GUIElements/GUIText";
 import Icon from "./gui/GUIElements/Icon";
@@ -18,7 +18,7 @@ import Input from "./gui/GUIElements/Input";
 
 // src/util
 import { parseObj, readObjFile } from "./util/fs";
-import IDGenerator from "./util/IDGenerator";
+import IDGenerator from "./util/idGenerator";
 import isClickable from "./util/isClickable";
 import { Vector, Matrix, transpose } from "./util/math";
 import { QuaternionUtils } from "./util/quaternions";

@@ -35,7 +35,14 @@ export type Rotation3DTuple = [number, number, number];
 
 export type LineVerteciesIndexes = [number, number];
 
+/**
+ * When color is set to null, all the lines will be colored in GameObject.color value
+ */
+export type LineVerteciesIndexesColor = { indexes: LineVerteciesIndexes; color: string | null };
+
 export type Line3D = [Vec3D, Vec3D];
+
+export type Line3DColor = { line: Line3D; color: string };
 
 export type Line4D = [Vec4D, Vec4D];
 

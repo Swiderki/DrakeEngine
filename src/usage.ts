@@ -20,6 +20,7 @@ class MyGame extends Drake.Engine {
   cubes: Cube[] = [];
   physicalCube: PhysicalGameObject;
   rotationQuaternion = { x: 0, y: 0, z: 0, w: 1 };
+  plane;
 
   constructor(canvas: HTMLCanvasElement) {
     super(canvas);
@@ -38,6 +39,8 @@ class MyGame extends Drake.Engine {
       { x: 0, y: 0, z: 0 },
       { x: 1, y: 1, z: 1 },
     ];
+
+    this.plane = new Drake.Cube([0, 0, 0], [10, 0.1, 10], undefined, "#0f0");
 
     this.cubes.push(c1);
     this.cubes.push(c2);
@@ -58,7 +61,7 @@ class MyGame extends Drake.Engine {
   }
 
   override Start(): void {
-    const camera = new Drake.Camera(60, 0.1, 1000, [10, 3, -15], [0, 0, 1]);
+    const camera = new Drake.Camera(60, 0.1, 1000, [0, 3, -15], [0, 0, 1]);
 
     const mainScene = new Drake.Scene();
 
@@ -67,9 +70,10 @@ class MyGame extends Drake.Engine {
     const mainSceneID = this.addScene(mainScene);
     this.setCurrentScene(mainSceneID);
 
-    this.cubes.forEach((cube) => mainScene.addGameObject(cube));
+    // this.cubes.forEach((cube) => mainScene.addGameObject(cube));
     mainScene.addGameObject(this.physicalCube);
-    mainScene.addGameObject(this.axis);
+    // mainScene.addGameObject(this.axis);
+    mainScene.addGameObject(this.plane);
     // this.physicalCube.applyForce({x: 5, y: 0, z: 0});
     // this.physicalCube.velocity = Vector.fromArray([8, 0, 0]);
 
@@ -80,9 +84,14 @@ class MyGame extends Drake.Engine {
 
     this.setResolution(640, 480);
     document.addEventListener("keydown", this.handleCameraMove.bind(this));
+
+    // setTimeout(() => (this.plane.color = "#f00"), 200);
+    this.plane.setScale(1, 1, 1);
+    setTimeout(() => this.plane.setLineColor(1, "#00f"), 300);
   }
 
   override Update(): void {
+    // this.plane.scale(1.1 * this.deltaTime, 1, 1.1 * this.deltaTime);
     const rotationSpeed = Math.PI / 2; // Obrót o 360 stopni na sekundę
 
     // Aktualizacja kwaternionu rotacji

@@ -2,22 +2,32 @@ import IDGenerator from "@/src/util/idGenerator";
 import { Vector } from "@/src/util/math";
 import { readObjFile } from "@/src/util/fs";
 import { QuaternionUtils } from "@/src/util/quaternions";
-import { Line3D, LineVerteciesIndexes, Rotation3D, Rotation3DTuple, Vec3D, Vec3DTuple } from "@/types/math";
+import {
+  Line3D,
+  Line3DColor,
+  LineVerteciesIndexesColor,
+  Rotation3D,
+  Rotation3DTuple,
+  Vec3D,
+  Vec3DTuple,
+} from "@/types/math";
 
 export type GameObjectInitialConfig = {
   position?: Vec3DTuple;
   size?: Vec3DTuple;
   rotation?: Rotation3DTuple;
   allowUsingCachedMesh?: boolean;
+  color?: string;
 };
 
 export default class GameObject {
-  private _meshIndexed: LineVerteciesIndexes[] = [];
+  private _meshIndexed: LineVerteciesIndexesColor[] = [];
   private _vertecies: Vec3D[] = [];
 
   private _position: Vec3D = { x: 0, y: 0, z: 0 };
   private _size: Vec3D = { x: 1, y: 1, z: 1 };
   private _rotation: Rotation3D = { xAxis: 0, yAxis: 0, zAxis: 0 };
+  color: string = "#fff";
 
   // represents diagonal of the cube
   boxCollider: Line3D | null = null;
@@ -57,15 +67,28 @@ export default class GameObject {
         zAxis: initialConfig.rotation[2],
       };
     }
+    if (initialConfig.color) {
+      this.color = initialConfig.color;
+    }
   }
 
   Start(): void {}
 
-    
+  Update(deltaTime: number): void;
   Update(): void {}
 
-  getMesh(): Line3D[] {
-    return this._meshIndexed.map((triVerIDx) => triVerIDx.map((i) => this._vertecies[i]) as Line3D);
+  getMesh(): Line3DColor[] {
+    return this._meshIndexed.map((lineVerteciesIndexes) => ({
+      line: lineVerteciesIndexes.indexes.map((i) => this._vertecies[i]) as Line3D,
+      color: lineVerteciesIndexes.color ?? this.color,
+    }));
+  }
+
+  setLineColor(lineIndex: number, color: string): void {
+    if (!this._meshIndexed[lineIndex]) {
+      throw new Error("Line index out of range: " + lineIndex);
+    }
+    this._meshIndexed[lineIndex].color = color;
   }
 
   getBoxColliderMesh(): Line3D[] | null {
@@ -110,7 +133,10 @@ export default class GameObject {
       this.allowUsingCachedMesh
     );
     this._vertecies = vertexPositions;
-    this._meshIndexed = lineVerteciesIndexes;
+    this._meshIndexed = lineVerteciesIndexes.map((lineIndexes) => ({
+      indexes: lineIndexes,
+      color: null, // color will be taken from this.color property
+    }));
 
     this.applyInitialParams();
 
@@ -175,6 +201,25 @@ export default class GameObject {
       vertex.x *= x;
       vertex.y *= y;
       vertex.z *= z;
+    }
+    this._size = { x, y, z };
+
+    this.move(originalPosition.x, originalPosition.y, originalPosition.z);
+  }
+
+  setScale(x: number, y: number, z: number) {
+    const originalPosition = {
+      x: this._position.x,
+      y: this._position.y,
+      z: this._position.z,
+    };
+
+    this.move(-this._position.x, -this._position.y, -this._position.z);
+
+    for (const vertex of this._vertecies) {
+      vertex.x *= (1 / this.size.x) * x;
+      vertex.y *= (1 / this.size.y) * y;
+      vertex.z *= (1 / this.size.z) * z;
     }
     this._size = { x, y, z };
 

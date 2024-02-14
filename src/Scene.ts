@@ -3,8 +3,8 @@ import Overlap from "./behavior/Overlap";
 import Camera from "./entities/Camera";
 import GameObject from "./entities/game-objects/GameObject";
 import PhysicalGameObject from "./entities/game-objects/PhysicalGameObject";
-import GUI from "./gui/GUI";
-import IDGenerator from "./util/IDGenerator";
+import GUI from "./gui/Gui";
+import IDGenerator from "./util/idGenerator";
 import { Matrix } from "./util/math";
 
 export default class Scene {

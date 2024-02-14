@@ -207,7 +207,7 @@ export default class Engine {
     this._currentScene = null;
   }
 
-  private drawLine(line: Line3D, color = "#fff"): void {
+  private drawLine(line: Line3D, color: string): void {
     this.ctx.beginPath();
     this.ctx.moveTo(line[0].x, line[0].y);
     this.ctx.lineTo(line[1].x, line[1].y);
@@ -266,7 +266,7 @@ export default class Engine {
           this.drawLine(finalProjection, "#0f0");
         }
       }
-      for (const line of obj.getMesh()) {
+      for (const { line, color } of obj.getMesh()) {
         const finalProjection: Line3D = Array(2) as Line3D;
         for (let i = 0; i < 3; i++) {
           const vertexTransformed = Matrix.multiplyVector(matWorld, {
@@ -292,7 +292,7 @@ export default class Engine {
           finalProjection[i] = vertexScaled;
         }
 
-        this.drawLine(finalProjection);
+        this.drawLine(finalProjection, color);
       }
     }
 

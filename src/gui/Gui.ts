@@ -1,5 +1,5 @@
 import { GUIElement } from "@/types/gui";
-import IDGenerator from "../util/IDGenerator";
+import IDGenerator from "../util/idGenerator";
 
 export default class GUI {
   private _elements: Map<number, GUIElement> = new Map();
