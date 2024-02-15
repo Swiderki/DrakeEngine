@@ -10,6 +10,9 @@ export default class Camera {
   /** The furthest point from the Camare that drawing occurs */
   far: number;
   rotationQuaternion: QuaternionUtils.Quaternion = { x: 0, y: 0, z: 0, w: 0 };
+  private _rotation = { x: 0, y: 0, z: 0 };
+
+  get rotation() { return this._rotation; } // prettier-ignore
 
   constructor(fov: number, near: number, far: number, position?: Vec3DTuple, lookDir?: Vec3DTuple) {
     this.fov = fov;
@@ -34,5 +37,9 @@ export default class Camera {
 
     QuaternionUtils.normalize(this.rotationQuaternion);
     QuaternionUtils.rotateVector(this.rotationQuaternion, { ...this.lookDir }, this.lookDir);
+
+    this._rotation.x += this.rotationQuaternion.x;
+    this._rotation.y += this.rotationQuaternion.y;
+    this._rotation.z += this.rotationQuaternion.z;
   }
 }

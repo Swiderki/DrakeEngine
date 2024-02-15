@@ -63,7 +63,15 @@ class MyGame extends Drake.Engine {
   override Start(): void {
     const camera = new Drake.Camera(60, 0.1, 1000, [0, 3, -15], [0, 0, 1]);
 
-    const mainScene = new Drake.Scene();
+    const mainScene = new Drake.Scene({
+      type: "animated",
+      src: "anim.png",
+      position: { x: 100, y: 100 },
+      repeat: false,
+      rotationLikeCameraSpeed: 1,
+      frameWidth: 148,
+      speed: 1,
+    });
 
     mainScene.setMainCamera(camera, this.width, this.height);
 

@@ -103,7 +103,7 @@ export default class Engine {
   private _BeforeUpdate(lastFrameEnd: number, frameNumber: number = 0): void {
     // generate last rendered frame
     this.clearScreen();
-    this.render();
+    this.render(frameNumber);
 
     // prepare for next frame render
     this._penultimateFrameEndTime = this._prevFrameEndTime;
@@ -218,8 +218,69 @@ export default class Engine {
     this.ctx.stroke();
   }
 
-  private render(): void {
-    if (this._currentScene == null || this._currentScene.mainCamera == null) return;
+  private drawSceneBackground(frameNumber: number) {
+    if (!this._currentScene?.mainCamera || !this.mainCamera || !this.currentScene.background) return;
+
+    const frameWidth =
+      this.currentScene.background.config.type === "animated"
+        ? this.currentScene.background.config.frameWidth
+        : this.currentScene.background.image.width;
+    const imageHeight = this.currentScene.background.image.height;
+
+    const FRAME_FREQ_NORMALIZE = 0.1;
+    // sx represents X shift in source image, so here it's basically [current frame] * [single frame width]
+    const sx =
+      this.currentScene.background.config.type === "animated"
+        ? (Math.floor(frameNumber * this.currentScene.background.config.speed * FRAME_FREQ_NORMALIZE) *
+            frameWidth) %
+          this.currentScene.background.image.width
+        : 0;
+
+    const BG_ROTATION_EFFECT_NORMALIZE = 100;
+    const backgroundShiftAlongCamera =
+      this.mainCamera.rotation.y *
+      this.currentScene.background.config.rotationLikeCameraSpeed *
+      BG_ROTATION_EFFECT_NORMALIZE;
+
+    if (!this.currentScene.background.config.repeat) {
+      return this.ctx.drawImage(
+        this.currentScene.background.image,
+        sx,
+        0,
+        frameWidth,
+        imageHeight,
+        this.currentScene.background.config.position.x - backgroundShiftAlongCamera,
+        this.currentScene.background.config.position.y,
+        frameWidth,
+        imageHeight
+      );
+    }
+
+    for (
+      let w =
+        Math.floor(backgroundShiftAlongCamera / frameWidth - this.currentScene.background.config.position.x) *
+        frameWidth;
+      w < this.canvas.width + backgroundShiftAlongCamera;
+      w += frameWidth
+    ) {
+      this.ctx.drawImage(
+        this.currentScene.background.image,
+        sx,
+        0,
+        frameWidth,
+        imageHeight,
+        w + this.currentScene.background.config.position.x - backgroundShiftAlongCamera,
+        this.currentScene.background.config.position.y,
+        frameWidth,
+        imageHeight
+      );
+    }
+  }
+
+  private render(frameNumber: number): void {
+    if (!this._currentScene?.mainCamera || !this.mainCamera) return;
+
+    this.drawSceneBackground(frameNumber);
 
     const matWorld = Matrix.makeTranslation(0, 0, 0);
 
