@@ -6,7 +6,7 @@ import PhysicalGameObject from "./entities/game-objects/PhysicalGameObject";
 import GUI from "./gui/Gui";
 import IDGenerator from "./util/idGenerator";
 import { Matrix } from "./util/math";
-import { AnimatedImageConfig, BackgroundImageConfig } from "@/types/scene";
+import { BackgroundImageConfig } from "@/types/scene";
 
 export default class Scene {
   private _gameObjects: Map<number, GameObject> = new Map();
@@ -15,6 +15,8 @@ export default class Scene {
   private _GUIs: Map<number, GUI> = new Map();
   private _currentGUI: GUI | null = null;
   private _overlaps: Map<number, Overlap> = new Map();
+
+  started: boolean = false;
 
   readonly id: number = IDGenerator.new();
   readonly background?: {
@@ -116,7 +118,11 @@ export default class Scene {
 
   addGameObject(gameObject: GameObject): number {
     this.gameObjects.set(gameObject.id, gameObject);
-    gameObject.loadMesh();
+    if (this.started) {
+      gameObject.loadMesh().then(() => {
+        gameObject.Start();
+      });
+    }
     return gameObject.id;
   }
 

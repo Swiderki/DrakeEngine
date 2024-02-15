@@ -82,6 +82,7 @@ class MyGame extends Drake.Engine {
     mainScene.addGameObject(this.physicalCube);
     // mainScene.addGameObject(this.axis);
     mainScene.addGameObject(this.plane);
+    this.plane.Start = () => this.plane.setLineColor(14, "#f00");
     // this.physicalCube.applyForce({x: 5, y: 0, z: 0});
     // this.physicalCube.velocity = Vector.fromArray([8, 0, 0]);
 

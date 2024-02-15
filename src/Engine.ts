@@ -98,6 +98,8 @@ export default class Engine {
 
     // wait until all objects' meshes are loaded
     await Promise.all(objectsLoading);
+
+    this.currentScene.gameObjects.forEach((gameObject) => gameObject.Start());
   }
 
   private _BeforeUpdate(lastFrameEnd: number, frameNumber: number = 0): void {
@@ -155,8 +157,6 @@ export default class Engine {
   async run(): Promise<void> {
     await this._BeforeStart();
     this.Start();
-
-    this.currentScene.gameObjects.forEach((gameObject) => gameObject.Start());
 
     await this._AfterStart();
 
