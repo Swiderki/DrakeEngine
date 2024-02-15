@@ -2,7 +2,6 @@ import Scene from "./Scene";
 import { Matrix, Vector } from "./util/math";
 import isClickable from "./util/isClickable";
 import PhysicalGameObject from "./entities/game-objects/PhysicalGameObject";
-import { Overlap } from ".";
 import { Line3D } from "@/types/math";
 
 export default class Engine {
@@ -138,19 +137,7 @@ export default class Engine {
   }
 
   /** Gets called every frame */
-  Update(): void {
-    for (const [id, obj] of this._currentScene!.gameObjects.entries()) {
-      if (obj.killed) {
-        const gm = this._currentScene!.gameObjects.get(id);
-        for (let [key, value] of this._currentScene!.overlaps) {
-          if ((value as Overlap).obj1 == gm || (value as Overlap).obj2 == gm) {
-            this._currentScene!.overlaps.delete(key);
-          }
-        }
-        this._currentScene!.gameObjects.delete(id);
-      }
-    }
-  }
+  Update(): void {}
 
   // Utility methods
 
