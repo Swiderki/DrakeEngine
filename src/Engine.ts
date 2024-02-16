@@ -154,7 +154,7 @@ export default class Engine {
 
   async run(): Promise<void> {
     await this._BeforeStart();
-    this.Start();
+    await this.Start();
 
     this.currentScene.gameObjects.forEach((gameObject) => gameObject.Start());
 
