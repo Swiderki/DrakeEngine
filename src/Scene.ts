@@ -6,6 +6,7 @@ import PhysicalGameObject from "./entities/game-objects/PhysicalGameObject";
 import GUI from "./gui/Gui";
 import IDGenerator from "./util/idGenerator";
 import { Matrix } from "./util/math";
+import { BackgroundImageConfig } from "@/types/scene";
 
 export default class Scene {
   private _gameObjects: Map<number, GameObject> = new Map();
@@ -15,7 +16,13 @@ export default class Scene {
   private _currentGUI: GUI | null = null;
   private _overlaps: Map<number, Overlap> = new Map();
 
+  started: boolean = false;
+
   readonly id: number = IDGenerator.new();
+  readonly background?: {
+    readonly image: HTMLImageElement;
+    readonly config: BackgroundImageConfig;
+  };
 
   get overlaps() { return this._overlaps; } // prettier-ignore
   get GUIs() { return this._GUIs; } // prettier-ignore
@@ -23,6 +30,16 @@ export default class Scene {
   get mainCamera() { return this._mainCamera; } // prettier-ignore
   get gameObjects() { return this._gameObjects; } // prettier-ignore
   get projMatrix() { return this._projMatrix; } // prettier-ignore
+
+  constructor(backgroundConfig?: BackgroundImageConfig) {
+    if (!backgroundConfig) return;
+
+    this.background = {
+      image: new Image(),
+      config: backgroundConfig,
+    };
+    this.background.image.src = backgroundConfig.src;
+  }
 
   getOverlap(overlapID: number): Overlap {
     if (!this.overlaps.has(overlapID)) {
@@ -101,7 +118,11 @@ export default class Scene {
 
   addGameObject(gameObject: GameObject): number {
     this.gameObjects.set(gameObject.id, gameObject);
-    gameObject.loadMesh();
+    if (this.started) {
+      gameObject.loadMesh().then(() => {
+        gameObject.Start();
+      });
+    }
     return gameObject.id;
   }
 
