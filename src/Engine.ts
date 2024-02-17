@@ -13,7 +13,7 @@ export default class Engine {
   private _scenes: Map<number, Scene> = new Map();
 
   private canvas: HTMLCanvasElement;
-  private ctx: CanvasRenderingContext2D;
+  private _ctx: CanvasRenderingContext2D;
   private fpsDisplay: HTMLElement | null = null;
 
   get width() { return this.canvas.width; } // prettier-ignore
@@ -30,6 +30,7 @@ export default class Engine {
   /** The interval from the last frame to the current one. Measured in seconds. */
   get deltaTime() { return this._deltaTime; } // prettier-ignore
   get frameNumber() { return this._frameNumber; } // prettier-ignore
+  get ctx() { return this._ctx; } // prettier-ignore
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
@@ -39,7 +40,7 @@ export default class Engine {
         "ctx identifier is not supported, or the canvas has already been set to a different ctx mode"
       );
     }
-    this.ctx = ctx;
+    this._ctx = ctx;
   }
 
   private async _BeforeStart(): Promise<void> {
