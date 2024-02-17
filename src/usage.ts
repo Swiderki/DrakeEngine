@@ -27,6 +27,12 @@ class MyGame extends Drake.Engine {
 
     this.cube = new Drake.Cube([10, 10, -14]);
     this.axis = new Drake.Piramide();
+    this.axis.showBoxcollider = true;
+    this.axis.autoupdateBoxCollider = true;
+    this.axis.Start = () => this.axis.generateBoxCollider();
+    this.axis.Update = () => {
+      this.axis.rotate(0, 0, this.deltaTime);
+    };
 
     const c1 = new Cube([0, 0, 0], [1, 1, 1]);
     const c2 = new Cube([5, 0, 0], [1, 1, 1]);
@@ -80,8 +86,8 @@ class MyGame extends Drake.Engine {
 
     // this.cubes.forEach((cube) => mainScene.addGameObject(cube));
     mainScene.addGameObject(this.physicalCube);
-    // mainScene.addGameObject(this.axis);
-    mainScene.addGameObject(this.plane);
+    mainScene.addGameObject(this.axis);
+    // mainScene.addGameObject(this.plane);
     this.plane.Start = () => this.plane.setLineColor(14, "#f00");
     // this.physicalCube.applyForce({x: 5, y: 0, z: 0});
     // this.physicalCube.velocity = Vector.fromArray([8, 0, 0]);

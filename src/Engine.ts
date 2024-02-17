@@ -143,7 +143,7 @@ export default class Engine {
 
   async run(): Promise<void> {
     await this._BeforeStart();
-    this.Start();
+    await this.Start();
 
     await this._AfterStart();
 

@@ -29,9 +29,11 @@ export default class GameObject {
   private _rotation: Rotation3D = { xAxis: 0, yAxis: 0, zAxis: 0 };
   color: string = "#fff";
 
-  // represents diagonal of the cube
+  /** Represents diagonal of the cube */
   boxCollider: Line3D | null = null;
   showBoxcollider: boolean = false;
+  /** If true, box collider will be updated every time this object rotates, moves etc. */
+  autoupdateBoxCollider: boolean = false;
 
   readonly id: number = IDGenerator.new();
 
@@ -83,6 +85,41 @@ export default class GameObject {
     }));
   }
 
+  async loadMesh(): Promise<void> {
+    const { lineVerteciesIndexes, vertexPositions } = await readObjFile(
+      this.meshPath,
+      this.allowUsingCachedMesh
+    );
+    this._vertecies = vertexPositions;
+    this._meshIndexed = lineVerteciesIndexes.map((lineIndexes) => ({
+      indexes: lineIndexes,
+      color: null, // color will be taken from this.color property
+    }));
+
+    this.applyInitialParams();
+
+    /**
+     * @todo  rotation is not being applyed
+     */
+  }
+
+  applyInitialParams() {
+    // Apply custom start position
+    if (Object.values(this._position).some((pos) => pos !== 0)) {
+      for (const vertex of this._vertecies) {
+        vertex.x += this.position.x;
+        vertex.y += this.position.y;
+        vertex.z += this.position.z;
+      }
+    }
+
+    if (Object.values(this._size).some((size) => size !== 1)) {
+      const { x, y, z } = this._size;
+      this.scale(x, y, z);
+      this._size = { x, y, z };
+    }
+  }
+
   setLineColor(lineIndex: number, color: string): void {
     if (!this._meshIndexed[lineIndex]) {
       throw new Error("Line index out of range: " + lineIndex);
@@ -126,39 +163,23 @@ export default class GameObject {
     ];
   }
 
-  async loadMesh(): Promise<void> {
-    const { lineVerteciesIndexes, vertexPositions } = await readObjFile(
-      this.meshPath,
-      this.allowUsingCachedMesh
-    );
-    this._vertecies = vertexPositions;
-    this._meshIndexed = lineVerteciesIndexes.map((lineIndexes) => ({
-      indexes: lineIndexes,
-      color: null, // color will be taken from this.color property
-    }));
+  generateBoxCollider(): void {
+    const sizes = {
+      min: { x: this.vertecies[0].x, y: this.vertecies[0].y, z: this.vertecies[0].z },
+      max: { x: this.vertecies[0].x, y: this.vertecies[0].y, z: this.vertecies[0].z },
+    };
 
-    this.applyInitialParams();
+    for (const vert of this.vertecies) {
+      sizes.min.x = Math.min(sizes.min.x, vert.x);
+      sizes.min.y = Math.min(sizes.min.y, vert.y);
+      sizes.min.z = Math.min(sizes.min.z, vert.z);
 
-    /**
-     * @todo  rotation is not being applyed
-     */
-  }
-
-  applyInitialParams() {
-    // Apply custom start position
-    if (Object.values(this._position).some((pos) => pos !== 0)) {
-      for (const vertex of this._vertecies) {
-        vertex.x += this.position.x;
-        vertex.y += this.position.y;
-        vertex.z += this.position.z;
-      }
+      sizes.max.x = Math.max(sizes.max.x, vert.x);
+      sizes.max.y = Math.max(sizes.max.y, vert.y);
+      sizes.max.z = Math.max(sizes.max.z, vert.z);
     }
 
-    if (Object.values(this._size).some((size) => size !== 1)) {
-      const { x, y, z } = this._size;
-      this.scale(x, y, z);
-      this._size = { x, y, z };
-    }
+    this.boxCollider = [sizes.min, sizes.max];
   }
 
   /** Moves the GameObject relatively, if you need to move it absolutely use the `setPosition` method instead */
@@ -174,6 +195,10 @@ export default class GameObject {
       y: this._position.y + y,
       z: this._position.z + z,
     };
+
+    if (this.autoupdateBoxCollider) {
+      this.generateBoxCollider();
+    }
   }
 
   setPosition(x: number, y: number, z: number): void {
@@ -184,6 +209,10 @@ export default class GameObject {
     }
 
     this._position = { x, y, z };
+
+    if (this.autoupdateBoxCollider) {
+      this.generateBoxCollider();
+    }
   }
 
   /** Scales the GameObject relatively, if you need to set its absolute scale use the `setScale` method instead */
@@ -204,6 +233,10 @@ export default class GameObject {
     this._size = { x, y, z };
 
     this.move(originalPosition.x, originalPosition.y, originalPosition.z);
+
+    if (this.autoupdateBoxCollider) {
+      this.generateBoxCollider();
+    }
   }
 
   setScale(x: number, y: number, z: number) {
@@ -223,6 +256,10 @@ export default class GameObject {
     this._size = { x, y, z };
 
     this.move(originalPosition.x, originalPosition.y, originalPosition.z);
+
+    if (this.autoupdateBoxCollider) {
+      this.generateBoxCollider();
+    }
   }
 
   /** Rotates the GameObject relatively, if you need to set its absolute rotation use the `setRotation` method instead */
@@ -266,6 +303,10 @@ export default class GameObject {
     }
 
     this.move(originalPosition.x, originalPosition.y, originalPosition.z);
+
+    if (this.autoupdateBoxCollider) {
+      this.generateBoxCollider();
+    }
   }
 
   applyQuaternion(quaternion: QuaternionUtils.Quaternion): void {
@@ -283,5 +324,9 @@ export default class GameObject {
     }
 
     this.move(originalPosition.x, originalPosition.y, originalPosition.z);
+
+    if (this.autoupdateBoxCollider) {
+      this.generateBoxCollider();
+    }
   }
 }
