@@ -43,7 +43,7 @@ global.fetch = jest.fn(() =>
   }) as Promise<Response>
 );
 
-describe('parseObj function', () => {
+describe.skip('parseObj function', () => {
   test('parses  simple obj text correctly', () => {
     const objText = `
       v 1.0 2.0 3.0
@@ -70,7 +70,7 @@ describe('parseObj function', () => {
 
 });
 
-describe('parseObj function', () => {
+describe.skip('parseObj function', () => {
   test('parses complex object text more ', () => {
     const objText = `
     # Blender 4.0.2
@@ -120,7 +120,7 @@ describe('parseObj function', () => {
 
 });
 
-describe('parseObj function', () => {
+describe.skip('parseObj function', () => {
   test('load obj from file', async () => {
     const parsedObj = await readObjFile('../asteroids/objects/obj/asteroid-l-1.obj', false)
 

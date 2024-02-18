@@ -121,6 +121,7 @@ export default class GameObject {
   }
 
   setLineColor(lineIndex: number, color: string): void {
+    console.log(this._meshIndexed, this)
     if (!this._meshIndexed[lineIndex]) {
       throw new Error("Line index out of range: " + lineIndex);
     }

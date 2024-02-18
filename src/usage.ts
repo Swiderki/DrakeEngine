@@ -58,10 +58,12 @@ class MyGame extends Drake.Engine {
 
   handleCameraMove(e: KeyboardEvent) {
     if (!this.mainCamera) return;
-    if (e.key === "w") this.mainCamera.move(0, 1, 0);
-    if (e.key === "s") this.mainCamera.move(0, -1, 0);
+    if (e.key === "w") this.mainCamera.move(0, 0, 1);
+    if (e.key === "s") this.mainCamera.move(0, 0, -1);
     if (e.key === "a") this.mainCamera.move(-1, 0, 0);
     if (e.key === "d") this.mainCamera.move(1, 0, 0);
+    if (e.key === "z") this.mainCamera.move(0, 0, 1);
+    if (e.key === "x") this.mainCamera.move(0, 0, -1);
     if (e.key === "q") this.mainCamera.rotate({ x: 0, y: 1, z: 0 }, (Math.PI / 180) * -5);
     if (e.key === "e") this.mainCamera.rotate({ x: 0, y: 1, z: 0 }, (Math.PI / 180) * 5);
   }

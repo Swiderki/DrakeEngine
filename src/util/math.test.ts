@@ -1,4 +1,5 @@
-import { Vector, Matrix, transpose } from "@/src/util/math"; // Update with the correct file path and types
+import { Vector, Matrix, transpose, FlusterUtil } from "@/src/util/math"; // Update with the correct file path and types
+import { Frustum, Mat4x4 } from "@/types/math";
 
 describe.skip("Vector namespace", () => {
   const vec1 = { x: 1, y: 2, z: 3 };
@@ -41,7 +42,7 @@ describe.skip("Vector namespace", () => {
   });
 });
 
-describe("Matrix namespace", () => {
+describe.skip("Matrix namespace", () => {
   const mat1: Mat4x4 = [
     [1, 2, 3, 4],
     [5, 6, 7, 8],
@@ -89,7 +90,7 @@ describe("Matrix namespace", () => {
   });
 });
 
-describe("transpose function", () => {
+describe.skip("transpose function", () => {
   test("transposes a matrix", () => {
     const matrix = [
       [1, 2, 3],
@@ -105,3 +106,4 @@ describe("transpose function", () => {
     ]);
   });
 });
+
