@@ -41,6 +41,9 @@ import type {
   Vec3DTuple,
   Vec4D,
 } from "@/types/math";
+import { GameObjectInitialConfig } from "./entities/game-objects/GameObject";
+import { PhysicalObjectInitialConfig } from "./entities/game-objects/PhysicalGameObject";
+import { parsedObj } from "./util/fs";
 
 export default {
   Engine,
@@ -106,4 +109,7 @@ export type {
   Vec3D,
   Vec3DTuple,
   Vec4D,
+  GameObjectInitialConfig,
+  PhysicalObjectInitialConfig,
+  parsedObj,
 };

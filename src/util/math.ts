@@ -1,4 +1,4 @@
-import { Vec3D, Vec3DTuple, Mat4x4, Vec4D, Rotation3DTuple, Frustum, Plane } from "@/types/math";
+import { Vec3D, Vec3DTuple, Mat4x4, Vec4D, Rotation3DTuple } from "@/types/math";
 import { QuaternionUtils } from "./quaternions";
 
 export namespace Vector {
@@ -15,7 +15,7 @@ export namespace Vector {
   export function left(): Vec3D {
     return { x: -1, y: 0, z: 0 };
   }
-  
+
   export function right(): Vec3D {
     return { x: 1, y: 0, z: 0 };
   }
@@ -23,7 +23,7 @@ export namespace Vector {
   export function top(): Vec3D {
     return { x: 0, y: 1, z: 0 };
   }
-  
+
   export function bottom(): Vec3D {
     return { x: 0, y: -1, z: 0 };
   }
@@ -41,7 +41,7 @@ export namespace Vector {
   }
 
   export function divide(vec: Vec3D, num: number): Vec3D {
-    if(num === 0) {
+    if (num === 0) {
       throw Error("Division by zero!!!");
     }
     return { x: vec.x / num, y: vec.y / num, z: vec.z / num };
@@ -76,20 +76,18 @@ export namespace Vector {
     return { x: arr[0], y: arr[1], z: arr[2] };
   }
 
-  
   export function rotateVector(direction: Rotation3DTuple, vec: Vec3D) {
-    if(length({x: direction[0], y: direction[1], z: direction[2]}) === 0) return vec;
+    if (length({ x: direction[0], y: direction[1], z: direction[2] }) === 0) return vec;
     const resultVector = zero();
-    const q = { x: 0, y: 0, z: 0, w: 0 }
+    const q = { x: 0, y: 0, z: 0, w: 0 };
     QuaternionUtils.setFromAxisAngle(
       q,
-      normalize({x: direction[0], y: direction[1], z: direction[2]}),
-      length({x: direction[0], y: direction[1], z: direction[2]})
+      normalize({ x: direction[0], y: direction[1], z: direction[2] }),
+      length({ x: direction[0], y: direction[1], z: direction[2] })
     );
     QuaternionUtils.rotateVector(q, vec, resultVector);
     return resultVector;
   }
-
 }
 
 export namespace Matrix {
@@ -228,22 +226,25 @@ export function transpose<T>(m: T[][]): T[][] {
 export namespace FrustumUtil {
   export function distanceToPoint(normal: Vec4D, point: Vec4D): number {
     // Compute the signed distance from the point to the plane
-    return (
-        normal.x * point.x +
-        normal.y * point.y +
-        normal.z * point.z +
-        normal.w
-    );
+    return normal.x * point.x + normal.y * point.y + normal.z * point.z + normal.w;
   }
 
   export function isPointInFrustum(point: Vec3D, viewMatrix: Mat4x4, projectionMatrix: Mat4x4): boolean {
     // Transform the point to clip space
-    const projectedPoint = Matrix.multiplyVector(projectionMatrix, Matrix.multiplyVector(viewMatrix, { ...point, w: 1 }));
+    const projectedPoint = Matrix.multiplyVector(
+      projectionMatrix,
+      Matrix.multiplyVector(viewMatrix, { ...point, w: 1 })
+    );
     const clipSpacePoint = Vector.divide(projectedPoint, projectedPoint.w); //! high cost
 
     // Check if the point lies within the canonical view volume
-    return clipSpacePoint.x >= -1 && clipSpacePoint.x <= 1 &&
-           clipSpacePoint.y >= -1 && clipSpacePoint.y <= 1 &&
-           clipSpacePoint.z >= -1 && clipSpacePoint.z <= 1;
+    return (
+      clipSpacePoint.x >= -1 &&
+      clipSpacePoint.x <= 1 &&
+      clipSpacePoint.y >= -1 &&
+      clipSpacePoint.y <= 1 &&
+      clipSpacePoint.z >= -1 &&
+      clipSpacePoint.z <= 1
+    );
   }
 }

@@ -2,7 +2,7 @@ import { Vec3D } from "@/types/math";
 import GameObject, { GameObjectInitialConfig } from "./GameObject";
 import { Vector } from "@/src/util/math";
 
-type PhysicalObjectInitialConfig = GameObjectInitialConfig & {
+export type PhysicalObjectInitialConfig = GameObjectInitialConfig & {
   velocity?: Vec3D;
   acceleration?: Vec3D;
   mass?: number;
