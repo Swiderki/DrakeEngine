@@ -298,10 +298,6 @@ export default class Engine {
     for (const obj of this._currentScene.gameObjects.values()) {
         if (obj.showBoxcollider) {
             for (const line of obj.getBoxColliderMesh()!) {
-                //Perform view frustum culling
-                if (!Engine.isLineVisible(line, matView, this._currentScene.projMatrix)) {
-                    continue; // Skip rendering this line
-                }
 
                 // Project and render the line
                 this.renderLine(line, matWorld, matView, 'green');
@@ -309,10 +305,6 @@ export default class Engine {
         }
 
         for (const { line, color } of obj.getMesh()) {
-            // Perform view frustum culling
-            if (!Engine.isLineVisible(line, matView, this._currentScene.projMatrix)) {
-                continue; // Skip rendering this line
-            }
 
             // Project and render the line
             this.renderLine(line, matWorld, matView, color)
@@ -341,7 +333,7 @@ export default class Engine {
 
         const vertexProjected = Matrix.multiplyVector(this._currentScene.projMatrix, vertexViewed);
 
-        const vertexNormalized = Vector.divide(vertexProjected, vertexProjected.w);
+        const vertexNormalized = vertexProjected.w !== 0 ? Vector.divide(vertexProjected, vertexProjected.w) : vertexProjected;
 
         const vertexScaled = Vector.add(vertexNormalized, {
           x: 1,
@@ -354,7 +346,14 @@ export default class Engine {
 
         finalProjection[i] = vertexScaled;
       }
-
+      // check line visibility
+      if(!Engine.isLineVisible(line, matView, this._currentScene.projMatrix)) return;
+      // clip line against the plain
+      let clippedProjection = FrustumUtil.clipLineAgainstPlain(finalProjection, {point: {x: 0, y: 0, z: 0}, normal: {x: 0, y: 1, z: 0}})!;
+      clippedProjection = FrustumUtil.clipLineAgainstPlain(clippedProjection, {point: {x: 0, y: this.height - 1, z: 0}, normal: {x: 0, y: -1, z: 0}})!;
+      clippedProjection = FrustumUtil.clipLineAgainstPlain(clippedProjection, {point: {x: 0, y: 0, z: 0}, normal: {x: 1, y: 0, z: 0}})!;
+      clippedProjection = FrustumUtil.clipLineAgainstPlain(clippedProjection, {point: {x: this.height - 1, y: 0, z: 0}, normal: {x: -1, y: 0, z: 0}})!;
+      if(clippedProjection === null) return;
       this.drawLine(finalProjection, color);
     }
 }

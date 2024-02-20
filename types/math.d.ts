@@ -55,7 +55,7 @@ export type Mat4x4 = [
 
 export type Plane = {
   normal: Vec3D,
-  distance: number
+  point: Vec3D
 }
 
 export type Frustum = Plane[];

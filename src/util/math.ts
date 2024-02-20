@@ -1,4 +1,4 @@
-import { Vec3D, Vec3DTuple, Mat4x4, Vec4D, Rotation3DTuple } from "@/types/math";
+import { Vec3D, Vec3DTuple, Mat4x4, Vec4D, Rotation3DTuple, Line3D, Plane } from "@/types/math";
 import { QuaternionUtils } from "./quaternions";
 
 export namespace Vector {
@@ -234,7 +234,8 @@ export namespace FrustumUtil {
     const projectedPoint = Matrix.multiplyVector(
       projectionMatrix,
       Matrix.multiplyVector(viewMatrix, { ...point, w: 1 })
-    );
+      );
+    if(projectedPoint.w == 0) return false
     const clipSpacePoint = Vector.divide(projectedPoint, projectedPoint.w); //! high cost
 
     // Check if the point lies within the canonical view volume
@@ -246,5 +247,44 @@ export namespace FrustumUtil {
       clipSpacePoint.z >= -1 &&
       clipSpacePoint.z <= 1
     );
+  }
+
+  export function clipPointAgainstPlain(line: Line3D, plain: Plane): Vec3D {
+    //!  make sure that that plain normal is indeed normal
+    plain.normal = Vector.normalize(plain.normal);
+    //* Math sfhshfshfh
+    const plainD = -Vector.dotP(plain.normal, plain.point);
+    const aD = Vector.dotP(line[0], plain.normal); //* line start
+    const bD = Vector.dotP(line[1], plain.normal); //* line end
+    const t = (-plainD - aD) / (bD - aD);
+    //* intersect line with a plain
+    const lineStartToEnd = Vector.subtract(line[1], line[0]);
+    const lineToIntersect = Vector.multiply(lineStartToEnd, t);
+    return Vector.add(line[0], lineToIntersect);
+  }
+
+
+  export function clipLineAgainstPlain(line: Line3D, plain: Plane): Line3D | null {
+    //!  make sure that that plain normal is indeed normal
+    plain.normal = Vector.normalize(plain.normal);
+    const dist = (point: Vec3D) => (plain.normal.x * point.x + plain.normal.y * point.y + plain.normal.z * point.z - Vector.dotP(plain.normal, plain.point));
+
+    const d0 = dist(line[0]);
+    const d1 = dist(line[1]);
+
+    //* line outside of the camera view
+    if(d0 < 0 && d1 < 0) return line;
+    //* line inside of the camera view
+    if(d0 >= 0 && d1 >= 0) return line;;
+    //* otherwise line must be partially visible
+    //* so we clip it against the plain
+    console.log(123, line)
+    //* if first point is outside we clip it
+    if(d0 < 0) {
+      return [clipPointAgainstPlain([line[1], line[0]], plain), line[1]];
+    }
+
+    //* otherwise we clip 2nd one
+    return [line[0], clipPointAgainstPlain([line[0], line[1]], plain)];
   }
 }

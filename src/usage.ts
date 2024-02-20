@@ -1,6 +1,7 @@
 import Overlap from "./behavior/Overlap";
 import PhysicalGameObject from "./entities/game-objects/PhysicalGameObject";
 import Cube from "./entities/game-objects/built-in/Cube";
+import TestTank from "./entities/game-objects/built-in/TestTank";
 import Drake from "./index";
 
 import { QuaternionUtils } from "@/src/util/quaternions";
@@ -26,7 +27,7 @@ class MyGame extends Drake.Engine {
     super(canvas);
 
     this.cube = new Drake.Cube([10, 10, -14]);
-    this.axis = new Drake.Piramide();
+    this.axis = new Drake.Piramide([0, 0, 60], [30, 30, 30]);
     this.axis.showBoxcollider = true;
     this.axis.autoupdateBoxCollider = true;
     this.axis.Start = () => this.axis.generateBoxCollider();
@@ -71,15 +72,16 @@ class MyGame extends Drake.Engine {
   override Start(): void {
     const camera = new Drake.Camera(60, 0.1, 1000, [0, 3, -15], [0, 0, 1]);
 
-    const mainScene = new Drake.Scene({
-      type: "animated",
-      src: "anim.png",
-      position: { x: 100, y: 100 },
-      repeat: false,
-      rotationLikeCameraSpeed: 1,
-      frameWidth: 148,
-      speed: 1,
-    });
+    const mainScene = new Drake.Scene();
+    // const mainScene = new Drake.Scene({
+    //   type: "animated",
+    //   src: "anim.png",
+    //   position: { x: 100, y: 100 },
+    //   repeat: false,
+    //   rotationLikeCameraSpeed: 1,
+    //   frameWidth: 148,
+    //   speed: 1,
+    // });
 
     mainScene.setMainCamera(camera, this.width, this.height);
 
@@ -88,7 +90,10 @@ class MyGame extends Drake.Engine {
 
     // this.cubes.forEach((cube) => mainScene.addGameObject(cube));
     mainScene.addGameObject(this.physicalCube);
-    mainScene.addGameObject(this.axis);
+    // mainScene.addGameObject(this.axis);
+    mainScene.addGameObject(
+      new TestTank([0, 0, 10], [.07, .07, .07])
+    );
     // mainScene.addGameObject(this.plane);
     this.plane.Start = () => this.plane.setLineColor(14, "#f00");
     // this.physicalCube.applyForce({x: 5, y: 0, z: 0});
