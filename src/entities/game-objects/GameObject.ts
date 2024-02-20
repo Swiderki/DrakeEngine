@@ -133,8 +133,8 @@ export default class GameObject {
       return null;
     }
 
-    const [localMin, localMax] = this.boxCollider;
-    const [min, max] = [Vector.add(localMin, this.position), Vector.add(localMax, this.position)];
+    const [min, max] = this.boxCollider;
+
     // Vertices of the box with position offset
     const vertices = [
       { x: min.x, y: min.y, z: min.z }, // Vertex 0
