@@ -1,8 +1,7 @@
 import Overlap from "./behavior/Overlap";
 import PhysicalGameObject from "./entities/game-objects/PhysicalGameObject";
 import Cube from "./entities/game-objects/built-in/Cube";
-import TestTank from "./entities/game-objects/built-in/TestTank";
-import Drake from "./index";
+import Drake, { Sphere } from "./index";
 
 import { QuaternionUtils } from "@/src/util/quaternions";
 
@@ -89,12 +88,9 @@ class MyGame extends Drake.Engine {
     this.setCurrentScene(mainSceneID);
 
     // this.cubes.forEach((cube) => mainScene.addGameObject(cube));
-    mainScene.addGameObject(this.physicalCube);
+    // mainScene.addGameObject(this.physicalCube);
     // mainScene.addGameObject(this.axis);
-    mainScene.addGameObject(
-      new TestTank([0, 0, 10], [.07, .07, .07])
-    );
-    // mainScene.addGameObject(this.plane);
+    mainScene.addGameObject(this.plane);
     this.plane.Start = () => this.plane.setLineColor(14, "#f00");
     // this.physicalCube.applyForce({x: 5, y: 0, z: 0});
     // this.physicalCube.velocity = Vector.fromArray([8, 0, 0]);
@@ -102,14 +98,19 @@ class MyGame extends Drake.Engine {
     const ov = new MyOverlap(this.cubes[0], this.cubes[1]);
     mainScene.addOverlap(ov);
 
-    this.currentScene.animatedObjectDestruction(this.physicalCube.id);
+    // this.currentScene.animatedObjectDestruction(this.physicalCube.id);
 
     this.setResolution(640, 480);
     document.addEventListener("keydown", this.handleCameraMove.bind(this));
 
     // setTimeout(() => (this.plane.color = "#f00"), 200);
     this.plane.setScale(1, 1, 1);
-    setTimeout(() => this.plane.setLineColor(1, "#00f"), 300);
+    setTimeout(() => {
+      const g = PhysicalGameObject.createFromGameObject(new Sphere([0, 1, 0]));
+      g.Start = () => console.log("start");
+      g.Update = () => console.log("update");
+      this.currentScene.addGameObject(g);
+    }, 1000);
   }
 
   override Update(): void {
@@ -126,7 +127,7 @@ class MyGame extends Drake.Engine {
     // Normalizacja kwaternionu
     QuaternionUtils.normalize(this.rotationQuaternion);
 
-    this.physicalCube?.updatePhysics(this.deltaTime);
+    // this.physicalCube?.updatePhysics(this.deltaTime);
 
     // Zastosowanie kwaternionu do obrotu kostek, piramidy i osi
     // this.cubes.forEach((cube) => cube.applyQuaternion(this.rotationQuaternion));

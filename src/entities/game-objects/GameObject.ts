@@ -1,5 +1,4 @@
 import IDGenerator from "@/src/util/idGenerator";
-import { Vector } from "@/src/util/math";
 import { readObjFile } from "@/src/util/fs";
 import { QuaternionUtils } from "@/src/util/quaternions";
 import {
@@ -121,7 +120,7 @@ export default class GameObject {
   }
 
   setLineColor(lineIndex: number, color: string): void {
-    console.log(this._meshIndexed, this)
+    console.log(this._meshIndexed, this);
     if (!this._meshIndexed[lineIndex]) {
       throw new Error("Line index out of range: " + lineIndex);
     }

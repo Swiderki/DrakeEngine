@@ -16,7 +16,7 @@ export default class Scene {
   private _currentGUI: GUI | null = null;
   private _overlaps: Map<number, Overlap> = new Map();
 
-  started: boolean = false;
+  _started: boolean = false;
 
   readonly id: number = IDGenerator.new();
   readonly background?: {
@@ -118,7 +118,7 @@ export default class Scene {
 
   addGameObject(gameObject: GameObject): number {
     this.gameObjects.set(gameObject.id, gameObject);
-    if (this.started) {
+    if (this._started) {
       gameObject.loadMesh().then(() => {
         gameObject.Start();
       });

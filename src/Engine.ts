@@ -100,6 +100,7 @@ export default class Engine {
     await Promise.all(objectsLoading);
 
     this.currentScene.gameObjects.forEach((gameObject) => gameObject.Start());
+    this.currentScene._started = true;
   }
 
   private _BeforeUpdate(lastFrameEnd: number, frameNumber: number = 0): void {
@@ -116,7 +117,7 @@ export default class Engine {
     this._frameNumber = frameNumber;
     if (this._currentScene != null) {
       this.currentScene.gameObjects.forEach((object) => {
-        if (object instanceof PhysicalGameObject) {
+        if (object instanceof PhysicalGameObject && object.getMesh().length) {
           object.updatePhysics(this._deltaTime);
         }
       });
@@ -128,7 +129,11 @@ export default class Engine {
     }
 
     this.Update();
-    this.currentScene.gameObjects.forEach((gameObject) => gameObject.Update(this.deltaTime));
+    this.currentScene.gameObjects.forEach((gameObject) => {
+      if (gameObject.getMesh().length) {
+        gameObject.Update(this.deltaTime);
+      }
+    });
 
     requestAnimationFrame((renderTime) => {
       if (this.fpsDisplay && frameNumber % 10 === 0)
@@ -144,7 +149,7 @@ export default class Engine {
 
   async run(): Promise<void> {
     await this._BeforeStart();
-    await this.Start();
+    this.Start();
 
     await this._AfterStart();
 
@@ -271,90 +276,96 @@ export default class Engine {
     this.drawSceneBackground(frameNumber);
 
     const matWorld = Matrix.makeTranslation(0, 0, 0);
-    
+
     const targetDir = Vector.add(
-        this._currentScene.mainCamera.position,
-        this._currentScene.mainCamera.lookDir
+      this._currentScene.mainCamera.position,
+      this._currentScene.mainCamera.lookDir
     );
-    
 
     const matCamera = Matrix.lookAt(this._currentScene.mainCamera.position, targetDir, {
-        x: 0,
-        y: 1,
-        z: 0,
+      x: 0,
+      y: 1,
+      z: 0,
     });
 
     const matView = Matrix.quickInverse(matCamera);
 
     const projectionMatrix = Matrix.zeros();
-    Matrix.makeProjection(
-        projectionMatrix,
-        90,
-        720 / 1280,
-        .1,
-        1000
-    );
+    Matrix.makeProjection(projectionMatrix, 90, 720 / 1280, 0.1, 1000);
 
     for (const obj of this._currentScene.gameObjects.values()) {
-        if (obj.showBoxcollider) {
-            for (const line of obj.getBoxColliderMesh()!) {
-
-                // Project and render the line
-                this.renderLine(line, matWorld, matView, 'green');
-            }
+      if (obj.showBoxcollider) {
+        for (const line of obj.getBoxColliderMesh()!) {
+          // Project and render the line
+          this.renderLine(line, matWorld, matView, "green");
         }
+      }
 
-        for (const { line, color } of obj.getMesh()) {
-
-            // Project and render the line
-            this.renderLine(line, matWorld, matView, color)
-        }
+      for (const { line, color } of obj.getMesh()) {
+        // Project and render the line
+        this.renderLine(line, matWorld, matView, color);
+      }
     }
 
     if (this.currentScene.currentGUI) this.currentScene.currentGUI.render();
   }
 
   static isLineVisible(line: Line3D, matView: Mat4x4, projectionMatrix: Mat4x4): boolean {
-    if(!FrustumUtil.isPointInFrustum(line[0], matView, projectionMatrix) && !FrustumUtil.isPointInFrustum(line[1], matView, projectionMatrix))
+    if (
+      !FrustumUtil.isPointInFrustum(line[0], matView, projectionMatrix) &&
+      !FrustumUtil.isPointInFrustum(line[1], matView, projectionMatrix)
+    )
       return false;
     return true;
   }
 
   private renderLine(line: Line3D, matWorld: Mat4x4, matView: Mat4x4, color: string = "#fff"): void {
-      if(this._currentScene == null) return;
-      const finalProjection: Line3D = Array(2) as Line3D;
-      for (let i = 0; i < 3; i++) {
-        const vertexTransformed = Matrix.multiplyVector(matWorld, {
-          ...line[i],
-          w: 1,
-        });
+    if (this._currentScene == null) return;
+    const finalProjection: Line3D = Array(2) as Line3D;
+    for (let i = 0; i < 3; i++) {
+      const vertexTransformed = Matrix.multiplyVector(matWorld, {
+        ...line[i],
+        w: 1,
+      });
 
-        const vertexViewed = Matrix.multiplyVector(matView, vertexTransformed);
+      const vertexViewed = Matrix.multiplyVector(matView, vertexTransformed);
 
-        const vertexProjected = Matrix.multiplyVector(this._currentScene.projMatrix, vertexViewed);
+      const vertexProjected = Matrix.multiplyVector(this._currentScene.projMatrix, vertexViewed);
 
-        const vertexNormalized = vertexProjected.w !== 0 ? Vector.divide(vertexProjected, vertexProjected.w) : vertexProjected;
+      const vertexNormalized =
+        vertexProjected.w !== 0 ? Vector.divide(vertexProjected, vertexProjected.w) : vertexProjected;
 
-        const vertexScaled = Vector.add(vertexNormalized, {
-          x: 1,
-          y: 1,
-          z: 0,
-        });
+      const vertexScaled = Vector.add(vertexNormalized, {
+        x: 1,
+        y: 1,
+        z: 0,
+      });
 
-        vertexScaled.x *= 0.5 * this.canvas.width;
-        vertexScaled.y *= 0.5 * this.canvas.height;
+      vertexScaled.x *= 0.5 * this.canvas.width;
+      vertexScaled.y *= 0.5 * this.canvas.height;
 
-        finalProjection[i] = vertexScaled;
-      }
-      // check line visibility
-      if(!Engine.isLineVisible(line, matView, this._currentScene.projMatrix)) return;
-      // clip line against the plain
-      let clippedProjection = FrustumUtil.clipLineAgainstPlain(finalProjection, {point: {x: 0, y: 0, z: 0}, normal: {x: 0, y: 1, z: 0}})!;
-      clippedProjection = FrustumUtil.clipLineAgainstPlain(clippedProjection, {point: {x: 0, y: this.height - 1, z: 0}, normal: {x: 0, y: -1, z: 0}})!;
-      clippedProjection = FrustumUtil.clipLineAgainstPlain(clippedProjection, {point: {x: 0, y: 0, z: 0}, normal: {x: 1, y: 0, z: 0}})!;
-      clippedProjection = FrustumUtil.clipLineAgainstPlain(clippedProjection, {point: {x: this.height - 1, y: 0, z: 0}, normal: {x: -1, y: 0, z: 0}})!;
-      if(clippedProjection === null) return;
-      this.drawLine(finalProjection, color);
+      finalProjection[i] = vertexScaled;
     }
+    // check line visibility
+    if (!Engine.isLineVisible(line, matView, this._currentScene.projMatrix)) return;
+    // clip line against the plain
+    let clippedProjection = FrustumUtil.clipLineAgainstPlain(finalProjection, {
+      point: { x: 0, y: 0, z: 0 },
+      normal: { x: 0, y: 1, z: 0 },
+    })!;
+    clippedProjection = FrustumUtil.clipLineAgainstPlain(clippedProjection, {
+      point: { x: 0, y: this.height - 1, z: 0 },
+      normal: { x: 0, y: -1, z: 0 },
+    })!;
+    clippedProjection = FrustumUtil.clipLineAgainstPlain(clippedProjection, {
+      point: { x: 0, y: 0, z: 0 },
+      normal: { x: 1, y: 0, z: 0 },
+    })!;
+    clippedProjection = FrustumUtil.clipLineAgainstPlain(clippedProjection, {
+      point: { x: this.height - 1, y: 0, z: 0 },
+      normal: { x: -1, y: 0, z: 0 },
+    })!;
+    if (clippedProjection === null) return;
+    this.drawLine(finalProjection, color);
+  }
 }
-
