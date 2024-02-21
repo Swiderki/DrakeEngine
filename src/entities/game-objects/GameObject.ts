@@ -117,6 +117,10 @@ export default class GameObject {
       this.scale(x, y, z);
       this._size = { x, y, z };
     }
+
+    if (this.autoupdateBoxCollider) {
+      this.generateBoxCollider();
+    }
   }
 
   setLineColor(lineIndex: number, color: string): void {
