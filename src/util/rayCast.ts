@@ -55,6 +55,11 @@ export function rayCast(origin: Vec3D, direction: Vec3D, boxCollider: Line3D): b
     if (tzmax < tmax) {
         tmax = tzmax;
     }
+    
+    if(checkVectorSimilarity(boxCollider[0], direction) < 0) {
+        return false;
+    }
+    
 
     return true;
 }

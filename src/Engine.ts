@@ -130,7 +130,7 @@ export default class Engine {
 
     this.Update();
     this.currentScene.gameObjects.forEach((gameObject) => {
-      if (gameObject.getMesh().length) {
+      if (gameObject.getMesh().length || gameObject.isHollow) {
         gameObject.Update(this.deltaTime);
       }
     });

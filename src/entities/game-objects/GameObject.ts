@@ -17,6 +17,7 @@ export type GameObjectInitialConfig = {
   rotation?: Rotation3DTuple;
   allowUsingCachedMesh?: boolean;
   color?: string;
+  isHollow?: boolean
 };
 
 export default class GameObject {
@@ -26,6 +27,7 @@ export default class GameObject {
   private _position: Vec3D = { x: 0, y: 0, z: 0 };
   private _size: Vec3D = { x: 1, y: 1, z: 1 };
   private _rotation: Rotation3D = { xAxis: 0, yAxis: 0, zAxis: 0 };
+  isHollow: boolean = false;
   color: string = "#fff";
 
   /** Represents diagonal of the cube */
@@ -69,6 +71,9 @@ export default class GameObject {
     }
     if (initialConfig.color) {
       this.color = initialConfig.color;
+    }
+    if(initialConfig.isHollow) {
+      this.isHollow = initialConfig.isHollow;
     }
   }
 
