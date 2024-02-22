@@ -1,7 +1,7 @@
 import Overlap from "./behavior/Overlap";
 import PhysicalGameObject from "./entities/game-objects/PhysicalGameObject";
 import Cube from "./entities/game-objects/built-in/Cube";
-import Drake, { Sphere } from "./index";
+import Drake, { GameObject, Sphere } from "./index";
 
 import { QuaternionUtils } from "@/src/util/quaternions";
 
@@ -69,18 +69,20 @@ class MyGame extends Drake.Engine {
   }
 
   override Start(): void {
+    this.setResolution(640, 480);
+
     const camera = new Drake.Camera(60, 0.1, 1000, [0, 3, -15], [0, 0, 1]);
 
-    const mainScene = new Drake.Scene();
-    // const mainScene = new Drake.Scene({
-    //   type: "animated",
-    //   src: "anim.png",
-    //   position: { x: 100, y: 100 },
-    //   repeat: false,
-    //   rotationLikeCameraSpeed: 1,
-    //   frameWidth: 148,
-    //   speed: 1,
-    // });
+    const bg = new GameObject("objects/background.obj");
+    bg.Update = () => {
+      bg.rotate(this.deltaTime * 0.1, 0, 0);
+    };
+    const mainScene = new Drake.Scene({
+      object: bg,
+      position: { x: 100, y: this.canvas.height / 2 + 50 },
+      repeat: true,
+      rotationLikeCameraSpeed: 3,
+    });
 
     mainScene.setMainCamera(camera, this.width, this.height);
 
@@ -100,7 +102,6 @@ class MyGame extends Drake.Engine {
 
     // this.currentScene.animatedObjectDestruction(this.physicalCube.id);
 
-    this.setResolution(640, 480);
     document.addEventListener("keydown", this.handleCameraMove.bind(this));
 
     // setTimeout(() => (this.plane.color = "#f00"), 200);

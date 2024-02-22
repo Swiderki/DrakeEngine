@@ -12,13 +12,15 @@ export default class Engine {
   private _currentScene: Scene | null = null;
   private _scenes: Map<number, Scene> = new Map();
 
-  private canvas: HTMLCanvasElement;
+  private _canvas: HTMLCanvasElement;
   private _ctx: CanvasRenderingContext2D;
-  private fpsDisplay: HTMLElement | null = null;
+  private _fpsDisplay: HTMLElement | null = null;
 
-  get width() { return this.canvas.width; } // prettier-ignore
-  get height() { return this.canvas.height; } // prettier-ignore
-  get getCanvas(): HTMLCanvasElement { return this.canvas; } // prettier-ignore
+  get width() { return this._canvas.width; } // prettier-ignore
+  get height() { return this._canvas.height; } // prettier-ignore
+  get canvas(): HTMLCanvasElement { return this._canvas; } // prettier-ignore
+  /** @deprecated(does not follow up convention) only for backward-compatibility */
+  get getCanvas(): HTMLCanvasElement { return this._canvas; } // prettier-ignore
   get scenes(): Map<number, Scene> { return this._scenes; } // prettier-ignore
   get currentScene() {
     if (this._currentScene == null) {
@@ -33,7 +35,7 @@ export default class Engine {
   get ctx() { return this._ctx; } // prettier-ignore
 
   constructor(canvas: HTMLCanvasElement) {
-    this.canvas = canvas;
+    this._canvas = canvas;
     const ctx = canvas.getContext("2d");
     if (!ctx) {
       throw new Error(
@@ -44,18 +46,18 @@ export default class Engine {
   }
 
   private async _BeforeStart(): Promise<void> {
-    this.fpsDisplay = document.getElementById("fps");
-    if (this.fpsDisplay) {
-      this.fpsDisplay.style.position = "fixed";
-      this.fpsDisplay.style.top = "0";
-      this.fpsDisplay.style.color = "white";
+    this._fpsDisplay = document.getElementById("fps");
+    if (this._fpsDisplay) {
+      this._fpsDisplay.style.position = "fixed";
+      this._fpsDisplay.style.top = "0";
+      this._fpsDisplay.style.color = "white";
     }
 
     // Click event
     document.addEventListener("click", (e) => {
-      if (!this._currentScene || !this._currentScene.currentGUI || !this.canvas) return;
+      if (!this._currentScene || !this._currentScene.currentGUI || !this._canvas) return;
 
-      const canvasRect = this.canvas.getBoundingClientRect();
+      const canvasRect = this._canvas.getBoundingClientRect();
 
       const clickX = e.clientX - canvasRect.left;
       const clickY = e.clientY - canvasRect.top;
@@ -73,9 +75,9 @@ export default class Engine {
 
     // Hover event
     document.addEventListener("mousemove", (e) => {
-      if (!this._currentScene || !this._currentScene.currentGUI || !this.canvas) return;
+      if (!this._currentScene || !this._currentScene.currentGUI || !this._canvas) return;
 
-      const canvasRect = this.canvas.getBoundingClientRect();
+      const canvasRect = this._canvas.getBoundingClientRect();
 
       const clickX = e.clientX - canvasRect.left;
       const clickY = e.clientY - canvasRect.top;
@@ -106,7 +108,7 @@ export default class Engine {
   private _BeforeUpdate(lastFrameEnd: number, frameNumber: number = 0): void {
     // generate last rendered frame
     this.clearScreen();
-    this.render(frameNumber);
+    this.render();
 
     // prepare for next frame render
     this._penultimateFrameEndTime = this._prevFrameEndTime;
@@ -131,13 +133,17 @@ export default class Engine {
     this.Update();
     this.currentScene.gameObjects.forEach((gameObject) => {
       if (gameObject.getMesh().length || gameObject.isHollow) {
-        gameObject.Update(this.deltaTime);
+        gameObject.Update(this.deltaTime, frameNumber);
+      }
+      if (this.currentScene.background) {
+        this.currentScene.background.object.Update(this.deltaTime, frameNumber);
+        // this.currentScene.background.repeatedObjects.forEach((obj) => obj.Update(this.deltaTime));
       }
     });
 
     requestAnimationFrame((renderTime) => {
-      if (this.fpsDisplay && frameNumber % 10 === 0)
-        this.fpsDisplay.textContent = Math.floor(1000 / (renderTime - lastFrameEnd)) + " FPS";
+      if (this._fpsDisplay && frameNumber % 10 === 0)
+        this._fpsDisplay.textContent = Math.floor(1000 / (renderTime - lastFrameEnd)) + " FPS";
       this._BeforeUpdate(renderTime, ++frameNumber);
     });
   }
@@ -157,16 +163,16 @@ export default class Engine {
   }
 
   setResolution(width: number, height: number): void {
-    this.canvas.width = width;
-    this.canvas.height = height;
+    this._canvas.width = width;
+    this._canvas.height = height;
 
     if (this._currentScene) this._currentScene.initProjection(this.width, this.height);
   }
 
   clearScreen(color: string = "#000"): void {
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
     this.ctx.fillStyle = color;
-    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    this.ctx.fillRect(0, 0, this._canvas.width, this._canvas.height);
   }
 
   addScene(scene: Scene): number {
@@ -211,69 +217,65 @@ export default class Engine {
     this.ctx.stroke();
   }
 
-  private drawSceneBackground(frameNumber: number) {
+  private drawSceneBackground() {
     if (!this._currentScene?.mainCamera || !this.mainCamera || !this.currentScene.background) return;
 
-    const frameWidth =
-      this.currentScene.background.config.type === "animated"
-        ? this.currentScene.background.config.frameWidth
-        : this.currentScene.background.image.width;
-    const imageHeight = this.currentScene.background.image.height;
-
-    const FRAME_FREQ_NORMALIZE = 0.1;
-    // sx represents X shift in source image, so here it's basically [current frame] * [single frame width]
-    const sx =
-      this.currentScene.background.config.type === "animated"
-        ? (Math.floor(frameNumber * this.currentScene.background.config.speed * FRAME_FREQ_NORMALIZE) *
-            frameWidth) %
-          this.currentScene.background.image.width
-        : 0;
-
     const BG_ROTATION_EFFECT_NORMALIZE = 100;
+
     const backgroundShiftAlongCamera =
       this.mainCamera.rotation.y *
-      this.currentScene.background.config.rotationLikeCameraSpeed *
+      this.currentScene.background.rotationLikeCameraSpeed *
       BG_ROTATION_EFFECT_NORMALIZE;
 
-    if (!this.currentScene.background.config.repeat) {
-      return this.ctx.drawImage(
-        this.currentScene.background.image,
-        sx,
-        0,
-        frameWidth,
-        imageHeight,
-        this.currentScene.background.config.position.x - backgroundShiftAlongCamera,
-        this.currentScene.background.config.position.y,
-        frameWidth,
-        imageHeight
+    if (!this.currentScene.background.repeat) {
+      this.currentScene.background.object.setPosition(
+        this.currentScene.background.position.x - backgroundShiftAlongCamera,
+        this.currentScene.background.position.y,
+        0
       );
+      for (const { line, color } of this.currentScene.background.object.getMesh()) {
+        this.drawLine(line, color);
+      }
+      return;
     }
+
+    this.currentScene.background.object.generateBoxCollider();
+    const bgWidth = Math.abs(
+      this.currentScene.background.object.boxCollider![0].x -
+        this.currentScene.background.object.boxCollider![1].x
+    );
+
+    const originalPosition = {
+      ...this.currentScene.background.object.position,
+    };
 
     for (
       let w =
-        Math.floor(backgroundShiftAlongCamera / frameWidth - this.currentScene.background.config.position.x) *
-        frameWidth;
-      w < this.canvas.width + backgroundShiftAlongCamera;
-      w += frameWidth
+        Math.floor(backgroundShiftAlongCamera / bgWidth - this.currentScene.background.position.x) * bgWidth;
+      w < this._canvas.width + backgroundShiftAlongCamera;
+      w += bgWidth
     ) {
-      this.ctx.drawImage(
-        this.currentScene.background.image,
-        sx,
-        0,
-        frameWidth,
-        imageHeight,
-        w + this.currentScene.background.config.position.x - backgroundShiftAlongCamera,
-        this.currentScene.background.config.position.y,
-        frameWidth,
-        imageHeight
+      this.currentScene.background.object.setPosition(
+        w + this.currentScene.background.position.x - backgroundShiftAlongCamera,
+        this.currentScene.background.position.y,
+        0
       );
+      for (const { line, color } of this.currentScene.background.object.getMesh()) {
+        this.drawLine(line, color);
+      }
     }
+
+    this.currentScene.background.object.setPosition(
+      originalPosition.x,
+      originalPosition.y,
+      originalPosition.z
+    );
   }
 
-  private render(frameNumber: number): void {
+  private render(): void {
     if (!this._currentScene?.mainCamera || !this.mainCamera) return;
 
-    this.drawSceneBackground(frameNumber);
+    this.drawSceneBackground();
 
     const matWorld = Matrix.makeTranslation(0, 0, 0);
 
@@ -341,8 +343,8 @@ export default class Engine {
         z: 0,
       });
 
-      vertexScaled.x *= 0.5 * this.canvas.width;
-      vertexScaled.y *= 0.5 * this.canvas.height;
+      vertexScaled.x *= 0.5 * this._canvas.width;
+      vertexScaled.y *= 0.5 * this._canvas.height;
 
       finalProjection[i] = vertexScaled;
     }

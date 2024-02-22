@@ -17,7 +17,7 @@ export type GameObjectInitialConfig = {
   rotation?: Rotation3DTuple;
   allowUsingCachedMesh?: boolean;
   color?: string;
-  isHollow?: boolean
+  isHollow?: boolean;
 };
 
 export default class GameObject {
@@ -72,13 +72,14 @@ export default class GameObject {
     if (initialConfig.color) {
       this.color = initialConfig.color;
     }
-    if(initialConfig.isHollow) {
+    if (initialConfig.isHollow) {
       this.isHollow = initialConfig.isHollow;
     }
   }
 
   Start(): void {}
 
+  Update(deltaTime: number, frameNumber: number): void;
   Update(deltaTime: number): void;
   Update(): void {}
 
