@@ -206,7 +206,7 @@ export default class Engine {
     this._currentScene = null;
   }
 
-  private drawLine(line: Line3D, color: string): void {
+  private drawLine(line: Line3D, color: string, isShining: boolean): void {
     this.ctx.beginPath();
     this.ctx.moveTo(line[0].x, line[0].y);
     this.ctx.lineTo(line[1].x, line[1].y);
@@ -214,7 +214,14 @@ export default class Engine {
 
     this.ctx.lineWidth = 2;
     this.ctx.strokeStyle = color;
+    if (isShining) {
+      this.ctx.shadowBlur = 10;
+      this.ctx.shadowColor = color;
+    }
     this.ctx.stroke();
+
+    // reset blur
+    this.ctx.shadowBlur = 0;
   }
 
   private drawSceneBackground() {
@@ -234,7 +241,7 @@ export default class Engine {
         0
       );
       for (const { line, color } of this.currentScene.background.object.getMesh()) {
-        this.drawLine(line, color);
+        this.drawLine(line, color, this.currentScene.background.object.isShining);
       }
       return;
     }
@@ -261,7 +268,7 @@ export default class Engine {
         0
       );
       for (const { line, color } of this.currentScene.background.object.getMesh()) {
-        this.drawLine(line, color);
+        this.drawLine(line, color, this.currentScene.background.object.isShining);
       }
     }
 
@@ -299,13 +306,13 @@ export default class Engine {
       if (obj.showBoxcollider) {
         for (const line of obj.getBoxColliderMesh()!) {
           // Project and render the line
-          this.renderLine(line, matWorld, matView, "green");
+          this.renderLine(line, matWorld, matView, "green", false);
         }
       }
 
       for (const { line, color } of obj.getMesh()) {
         // Project and render the line
-        this.renderLine(line, matWorld, matView, color);
+        this.renderLine(line, matWorld, matView, color, obj.isShining);
       }
     }
 
@@ -321,7 +328,13 @@ export default class Engine {
     return true;
   }
 
-  private renderLine(line: Line3D, matWorld: Mat4x4, matView: Mat4x4, color: string = "#fff"): void {
+  private renderLine(
+    line: Line3D,
+    matWorld: Mat4x4,
+    matView: Mat4x4,
+    color: string,
+    isShining: boolean
+  ): void {
     if (this._currentScene == null) return;
     const finalProjection: Line3D = Array(2) as Line3D;
     for (let i = 0; i < 3; i++) {
@@ -368,6 +381,6 @@ export default class Engine {
       normal: { x: -1, y: 0, z: 0 },
     })!;
     if (clippedProjection === null) return;
-    this.drawLine(finalProjection, color);
+    this.drawLine(finalProjection, color, isShining);
   }
 }

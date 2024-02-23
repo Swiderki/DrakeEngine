@@ -18,6 +18,7 @@ export type GameObjectInitialConfig = {
   allowUsingCachedMesh?: boolean;
   color?: string;
   isHollow?: boolean;
+  isShining?: boolean;
 };
 
 export default class GameObject {
@@ -29,6 +30,7 @@ export default class GameObject {
   private _rotation: Rotation3D = { xAxis: 0, yAxis: 0, zAxis: 0 };
   isHollow: boolean = false;
   color: string = "#fff";
+  isShining: boolean = false;
 
   /** Represents diagonal of the cube */
   boxCollider: Line3D | null = null;
@@ -74,6 +76,9 @@ export default class GameObject {
     }
     if (initialConfig.isHollow) {
       this.isHollow = initialConfig.isHollow;
+    }
+    if (initialConfig.isShining) {
+      this.isShining = initialConfig.isShining;
     }
   }
 

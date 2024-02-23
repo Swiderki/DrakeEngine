@@ -73,7 +73,7 @@ class MyGame extends Drake.Engine {
 
     const camera = new Drake.Camera(60, 0.1, 1000, [0, 3, -15], [0, 0, 1]);
 
-    const bg = new GameObject("objects/background.obj");
+    const bg = new GameObject("objects/background.obj", { isShining: true });
     bg.Update = () => {
       bg.rotate(this.deltaTime * 0.1, 0, 0);
     };
