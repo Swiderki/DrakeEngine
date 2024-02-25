@@ -303,6 +303,8 @@ export default class Engine {
     Matrix.makeProjection(projectionMatrix, 90, 720 / 1280, 0.1, 1000);
 
     for (const obj of this._currentScene.gameObjects.values()) {
+      if (!obj.isVisible) continue;
+
       if (obj.showBoxcollider) {
         for (const line of obj.getBoxColliderMesh()!) {
           // Project and render the line

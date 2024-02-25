@@ -19,6 +19,7 @@ export type GameObjectInitialConfig = {
   color?: string;
   isHollow?: boolean;
   isShining?: boolean;
+  isVisible?: boolean;
 };
 
 export default class GameObject {
@@ -28,9 +29,10 @@ export default class GameObject {
   private _position: Vec3D = { x: 0, y: 0, z: 0 };
   private _size: Vec3D = { x: 1, y: 1, z: 1 };
   private _rotation: Rotation3D = { xAxis: 0, yAxis: 0, zAxis: 0 };
-  isHollow: boolean = false;
   color: string = "#fff";
+  isHollow: boolean = false;
   isShining: boolean = false;
+  isVisible: boolean = true;
 
   /** Represents diagonal of the cube */
   boxCollider: Line3D | null = null;
@@ -51,34 +53,37 @@ export default class GameObject {
   constructor(meshPath: string, initialConfig: GameObjectInitialConfig = {}) {
     this.meshPath = meshPath;
 
-    if (initialConfig.allowUsingCachedMesh) {
+    if (initialConfig.allowUsingCachedMesh !== undefined) {
       this.allowUsingCachedMesh = initialConfig.allowUsingCachedMesh;
     }
-    if (initialConfig.position) {
+    if (initialConfig.position !== undefined) {
       this._position = {
         x: initialConfig.position[0],
         y: initialConfig.position[1],
         z: initialConfig.position[2],
       };
     }
-    if (initialConfig.size) {
+    if (initialConfig.size !== undefined) {
       this._size = { x: initialConfig.size[0], y: initialConfig.size[1], z: initialConfig.size[2] };
     }
-    if (initialConfig.rotation) {
+    if (initialConfig.rotation !== undefined) {
       this._rotation = {
         xAxis: initialConfig.rotation[0],
         yAxis: initialConfig.rotation[1],
         zAxis: initialConfig.rotation[2],
       };
     }
-    if (initialConfig.color) {
+    if (initialConfig.color !== undefined) {
       this.color = initialConfig.color;
     }
-    if (initialConfig.isHollow) {
+    if (initialConfig.isHollow !== undefined) {
       this.isHollow = initialConfig.isHollow;
     }
-    if (initialConfig.isShining) {
+    if (initialConfig.isShining !== undefined) {
       this.isShining = initialConfig.isShining;
+    }
+    if (initialConfig.isVisible !== undefined) {
+      this.isVisible = initialConfig.isVisible;
     }
   }
 

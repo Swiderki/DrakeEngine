@@ -50,10 +50,13 @@ class MyGame extends Drake.Engine {
 
     this.cubes.push(c1);
     this.cubes.push(c2);
-    // this.physicalCube = new PhysicalObject("objects/cube_wire.obj", {position: [0, 3, 0]});
-    this.physicalCube = PhysicalGameObject.createFromGameObject(new Cube([0, 3, 0]), {
-      // acceleration: { x: 0, y: 1, z: 0 },
+    this.physicalCube = new PhysicalGameObject("objects/cube_wire.obj", {
+      position: [0, 3, 0],
+      isVisible: false,
     });
+    // this.physicalCube = PhysicalGameObject.createFromGameObject(new Cube([0, 3, 0]), {
+    // acceleration: { x: 0, y: 1, z: 0 },
+    // });
   }
 
   handleCameraMove(e: KeyboardEvent) {
@@ -90,7 +93,7 @@ class MyGame extends Drake.Engine {
     this.setCurrentScene(mainSceneID);
 
     // this.cubes.forEach((cube) => mainScene.addGameObject(cube));
-    // mainScene.addGameObject(this.physicalCube);
+    mainScene.addGameObject(this.physicalCube);
     // mainScene.addGameObject(this.axis);
     mainScene.addGameObject(this.plane);
     this.plane.Start = () => this.plane.setLineColor(14, "#f00");
