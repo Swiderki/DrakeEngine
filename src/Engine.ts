@@ -19,7 +19,10 @@ export default class Engine {
   get width() { return this._canvas.width; } // prettier-ignore
   get height() { return this._canvas.height; } // prettier-ignore
   get canvas(): HTMLCanvasElement { return this._canvas; } // prettier-ignore
-  /** @deprecated(does not follow up convention) only for backward-compatibility */
+  /**
+   * @deprecated(does not follow up convention) only for backward-compatibility
+   * @alias `canvas`
+   */
   get getCanvas(): HTMLCanvasElement { return this._canvas; } // prettier-ignore
   get scenes(): Map<number, Scene> { return this._scenes; } // prettier-ignore
   get currentScene() {
