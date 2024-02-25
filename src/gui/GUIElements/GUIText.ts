@@ -11,12 +11,22 @@ export default class GUIText implements GUIElement {
   get width(): number { return this.getTextWidth(); } // prettier-ignore
   get height(): number { return this.getTextHeight(); } // prettier-ignore
 
-  constructor(text: string, fontSize: number, fontFamily: string, color: string, fontWeight: number) {
+  constructor(
+    text: string,
+    fontSize: number,
+    fontFamily: string,
+    color: string,
+    fontWeight: number,
+    position?: Vec2D
+  ) {
     this.text = text;
     this.fontSize = fontSize;
     this.fontFamily = fontFamily;
     this.fontWeight = fontWeight;
     this.color = color;
+    if (position) {
+      this.position = position;
+    }
   }
 
   protected getTextWidth(): number {
