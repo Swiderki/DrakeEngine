@@ -17,6 +17,7 @@ class MyGame extends Drake.Engine {
   axis;
   hue: number = 0;
   vec: number = 1;
+  plane;
   cubes: Cube[] = [];
   physicalCube: PhysicalGameObject;
   physicalCube2: PhysicalGameObject;
