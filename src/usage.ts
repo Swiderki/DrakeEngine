@@ -13,19 +13,17 @@ class MyOverlap extends Overlap {
 }
 
 class MyGame extends Drake.Engine {
-  cube: Cube;
   axis;
   hue: number = 0;
   vec: number = 1;
   cubes: Cube[] = [];
   physicalCube: PhysicalGameObject;
+  physicalCube2: PhysicalGameObject;
   rotationQuaternion = { x: 0, y: 0, z: 0, w: 1 };
-  plane;
 
   constructor(canvas: HTMLCanvasElement) {
     super(canvas);
 
-    this.cube = new Drake.Cube([10, 10, -14]);
     this.axis = new Drake.Piramide([0, 0, 60], [30, 30, 30]);
     this.axis.showBoxcollider = true;
     this.axis.autoupdateBoxCollider = true;
@@ -34,29 +32,31 @@ class MyGame extends Drake.Engine {
       this.axis.rotate(0, 0, this.deltaTime);
     };
 
-    const c1 = new Cube([0, 0, 0], [1, 1, 1]);
-    const c2 = new Cube([5, 0, 0], [1, 1, 1]);
-
-    c1.boxCollider = [
-      { x: 0, y: 0, z: 0 },
-      { x: 1, y: 1, z: 1 },
-    ];
-    c2.boxCollider = [
-      { x: 0, y: 0, z: 0 },
-      { x: 1, y: 1, z: 1 },
-    ];
-
-    this.plane = new Drake.Cube([0, 0, 0], [10, 0.1, 10], undefined, "#0f0");
-
-    this.cubes.push(c1);
-    this.cubes.push(c2);
     this.physicalCube = new PhysicalGameObject("objects/cube_wire.obj", {
       position: [0, 3, 0],
-      isVisible: false,
     });
-    // this.physicalCube = PhysicalGameObject.createFromGameObject(new Cube([0, 3, 0]), {
-    // acceleration: { x: 0, y: 1, z: 0 },
-    // });
+
+    this.physicalCube.showBoxcollider = true;
+    this.physicalCube.autoupdateBoxCollider = true;
+    this.physicalCube.velocity = {x: 5, y: 0, z: 0};
+    this.physicalCube.Update = () => {
+      if (this.physicalCube.position.x > 5 || this.physicalCube.position.x < -5) this.physicalCube.velocity.x *= -1; 
+    };
+
+    // ##################
+
+    this.physicalCube2 = new PhysicalGameObject("objects/cube_wire.obj", {
+      position: [0, 0, 0],
+    });
+
+    this.physicalCube2.showBoxcollider = true;
+    this.physicalCube2.autoupdateBoxCollider = true;
+    this.physicalCube2.velocity = {x: 5, y: 7, z: 0};
+    this.physicalCube2.Update = () => {
+      if (this.physicalCube2.position.x > 5 || this.physicalCube2.position.x < -5) this.physicalCube2.velocity.x *= -1; 
+      if (this.physicalCube2.position.y > 6 || this.physicalCube2.position.y < -3) this.physicalCube2.velocity.y *= -1; 
+    };
+
   }
 
   handleCameraMove(e: KeyboardEvent) {
@@ -94,25 +94,20 @@ class MyGame extends Drake.Engine {
 
     // this.cubes.forEach((cube) => mainScene.addGameObject(cube));
     mainScene.addGameObject(this.physicalCube);
+    mainScene.addGameObject(this.physicalCube2);
     // mainScene.addGameObject(this.axis);
-    mainScene.addGameObject(this.plane);
-    this.plane.Start = () => this.plane.setLineColor(14, "#f00");
-    // this.physicalCube.applyForce({x: 5, y: 0, z: 0});
-    // this.physicalCube.velocity = Vector.fromArray([8, 0, 0]);
 
-    const ov = new MyOverlap(this.cubes[0], this.cubes[1]);
-    mainScene.addOverlap(ov);
+    setTimeout(() => mainScene.addOverlap(new class extends Overlap{
+      override onOverlap(): void {
+        console.log("hehe")
+      }
+    }(this.physicalCube, this.physicalCube2)), 1000);
 
-    // this.currentScene.animatedObjectDestruction(this.physicalCube.id);
 
     document.addEventListener("keydown", this.handleCameraMove.bind(this));
 
-    // setTimeout(() => (this.plane.color = "#f00"), 200);
-    this.plane.setScale(1, 1, 1);
     setTimeout(() => {
       const g = PhysicalGameObject.createFromGameObject(new Sphere([0, 1, 0]));
-      g.Start = () => console.log("start");
-      g.Update = () => console.log("update");
       this.currentScene.addGameObject(g);
     }, 1000);
   }
