@@ -342,7 +342,6 @@ export default class Engine {
     });
 
     const near = -this._currentScene.mainCamera!.near;
-    console.log(near);
     if (transformedPoints[0].z < -near && transformedPoints[1].z < -near) {
       return;
     }

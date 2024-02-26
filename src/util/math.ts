@@ -281,7 +281,6 @@ export namespace FrustumUtil {
     if (d0 >= 0 && d1 >= 0) return line;
     //* otherwise line must be partially visible
     //* so we clip it against the plain
-    // console.log(123, line)
     //* if first point is outside we clip it
     if (d0 < 0) {
       return [clipPointAgainstPlain([line[1], line[0]], plain), line[1]];
