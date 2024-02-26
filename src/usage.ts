@@ -52,7 +52,7 @@ class MyGame extends Drake.Engine {
   override Start(): void {
     this.setResolution(640, 480);
 
-    const camera = new Drake.Camera(60, -0.1, 1000, [0, 0, -15], [0, 0, 1]);
+    const camera = new Drake.Camera(60, 0.1, 1000, [0, 0, -15], [0, 0, 1]);
 
     const bg = new GameObject("objects/background.obj", { isShining: true });
     bg.Update = () => {

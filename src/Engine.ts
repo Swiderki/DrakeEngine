@@ -344,39 +344,34 @@ export default class Engine {
 
     // Przekształć punkty linii do przestrzeni kamery, aby sprawdzić, czy są przed kamerą
     const transformedPoints = line.map(point => {
-      const worldPoint = { ...point, w: 1 }; // Dodaj wymiar 'w' do punktu
-      const viewPoint = Matrix.multiplyVector(matView, worldPoint); // Przekształć punkt do przestrzeni widoku
+      const worldPoint = { ...point, w: 1 }; 
+      const viewPoint = Matrix.multiplyVector(matView, worldPoint);
       return viewPoint;
     });
 
-    // Sprawdź, czy oba punkty są za płaszczyzną bliską (z < -near)
-    const near = this._currentScene.mainCamera!.near;
+    const near = -this._currentScene.mainCamera!.near;
     console.log(near)
     if (transformedPoints[0].z < -near && transformedPoints[1].z < -near) {
-      return; // Jeśli oba punkty są za kamerą, nie renderuj linii
+      return; 
     }
 
-    // Jeśli tylko jeden z punktów jest za kamerą, znajdź punkt przecięcia z płaszczyzną bliską i użyj go do renderowania
     const clippedPoints = transformedPoints.map(point => {
       if (point.z < -near) {
-        // Oblicz punkt przecięcia z płaszczyzną bliską
         const ratio = (-near - transformedPoints[0].z) / (transformedPoints[1].z - transformedPoints[0].z);
         return {
           x: transformedPoints[0].x + ratio * (transformedPoints[1].x - transformedPoints[0].x),
           y: transformedPoints[0].y + ratio * (transformedPoints[1].y - transformedPoints[0].y),
-          z: -near, // Zastąp 'z' wartością bliską, aby umieścić punkt na płaszczyźnie bliskiej
+          z: -near, 
           w: 1
         };
       }
       return point;
     });
 
-    // Przekształć punkty z powrotem do przestrzeni świata i wykonaj renderowanie linii
     const finalProjection: Line3D = clippedPoints.map(point => {
-      const projectedPoint = Matrix.multiplyVector(this._currentScene!.projMatrix, point); // Projekcja
-      const normalizedPoint = projectedPoint.w !== 0 ? Vector.divide(projectedPoint, projectedPoint.w) : projectedPoint; // Normalizacja
+      const projectedPoint = Matrix.multiplyVector(this._currentScene!.projMatrix, point); 
+      const normalizedPoint = projectedPoint.w !== 0 ? Vector.divide(projectedPoint, projectedPoint.w) : projectedPoint; 
 
-      // Skalowanie do przestrzeni ekranu
       return {
         x: (normalizedPoint.x + 1) * 0.5 * this._canvas.width,
         y: (normalizedPoint.y + 1) * 0.5 * this._canvas.height,
