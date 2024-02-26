@@ -96,7 +96,7 @@ export default class Engine {
   }
 
   /** Gets called once the program starts */
-  Start(): void { }
+  Start(): void {}
 
   private async _AfterStart(): Promise<void> {
     const objectsLoading = [...this.currentScene.gameObjects.values()].map((obj) => obj.loadMesh());
@@ -152,7 +152,7 @@ export default class Engine {
   }
 
   /** Gets called every frame */
-  Update(): void { }
+  Update(): void {}
 
   // Utility methods
 
@@ -252,7 +252,7 @@ export default class Engine {
     this.currentScene.background.object.generateBoxCollider();
     const bgWidth = Math.abs(
       this.currentScene.background.object.boxCollider![0].x -
-      this.currentScene.background.object.boxCollider![1].x
+        this.currentScene.background.object.boxCollider![1].x
     );
 
     const originalPosition = {
@@ -287,8 +287,6 @@ export default class Engine {
 
     this.drawSceneBackground();
 
-    const matWorld = Matrix.makeTranslation(0, 0, 0);
-
     const targetDir = Vector.add(
       this._currentScene.mainCamera.position,
       this._currentScene.mainCamera.lookDir
@@ -311,13 +309,13 @@ export default class Engine {
       if (obj.showBoxcollider) {
         for (const line of obj.getBoxColliderMesh()!) {
           // Project and render the line
-          this.renderLine(line, matWorld, matView, "green", false);
+          this.renderLine(line, matView, "green", false);
         }
       }
 
       for (const { line, color } of obj.getMesh()) {
         // Project and render the line
-        this.renderLine(line, matWorld, matView, color, obj.isShining);
+        this.renderLine(line, matView, color, obj.isShining);
       }
     }
 
@@ -333,54 +331,48 @@ export default class Engine {
     return true;
   }
 
-  private renderLine(
-    line: Line3D,
-    matWorld: Mat4x4,
-    matView: Mat4x4,
-    color: string,
-    isShining: boolean
-  ): void {
+  private renderLine(line: Line3D, matView: Mat4x4, color: string, isShining: boolean): void {
     if (this._currentScene == null) return;
 
     // Przekształć punkty linii do przestrzeni kamery, aby sprawdzić, czy są przed kamerą
-    const transformedPoints = line.map(point => {
-      const worldPoint = { ...point, w: 1 }; 
+    const transformedPoints = line.map((point) => {
+      const worldPoint = { ...point, w: 1 };
       const viewPoint = Matrix.multiplyVector(matView, worldPoint);
       return viewPoint;
     });
 
     const near = -this._currentScene.mainCamera!.near;
-    console.log(near)
+    console.log(near);
     if (transformedPoints[0].z < -near && transformedPoints[1].z < -near) {
-      return; 
+      return;
     }
 
-    const clippedPoints = transformedPoints.map(point => {
+    const clippedPoints = transformedPoints.map((point) => {
       if (point.z < -near) {
         const ratio = (-near - transformedPoints[0].z) / (transformedPoints[1].z - transformedPoints[0].z);
         return {
           x: transformedPoints[0].x + ratio * (transformedPoints[1].x - transformedPoints[0].x),
           y: transformedPoints[0].y + ratio * (transformedPoints[1].y - transformedPoints[0].y),
-          z: -near, 
-          w: 1
+          z: -near,
+          w: 1,
         };
       }
       return point;
     });
 
-    const finalProjection: Line3D = clippedPoints.map(point => {
-      const projectedPoint = Matrix.multiplyVector(this._currentScene!.projMatrix, point); 
-      const normalizedPoint = projectedPoint.w !== 0 ? Vector.divide(projectedPoint, projectedPoint.w) : projectedPoint; 
+    const finalProjection: Line3D = clippedPoints.map((point) => {
+      const projectedPoint = Matrix.multiplyVector(this._currentScene!.projMatrix, point);
+      const normalizedPoint =
+        projectedPoint.w !== 0 ? Vector.divide(projectedPoint, projectedPoint.w) : projectedPoint;
 
       return {
         x: (normalizedPoint.x + 1) * 0.5 * this._canvas.width,
         y: (normalizedPoint.y + 1) * 0.5 * this._canvas.height,
-        z: normalizedPoint.z
+        z: normalizedPoint.z,
       };
     }) as Line3D;
 
     // Renderuj linię z uwzględnieniem potencjalnego przycięcia
     this.drawLine(finalProjection, color, isShining);
   }
-
 }
