@@ -2,17 +2,18 @@ import Overlap from "./behavior/Overlap";
 import PhysicalGameObject from "./entities/game-objects/PhysicalGameObject";
 import Cube from "./entities/game-objects/built-in/Cube";
 import Drake, { GameObject, Sphere } from "./index";
-
+import Level from "./entities/game-objects/built-in/level";
 import { QuaternionUtils } from "@/src/util/quaternions";
 
 const canvas = document.getElementById("app") as HTMLCanvasElement | null;
 if (!canvas) throw new Error("unable to find canvas");
 
 class MyOverlap extends Overlap {
-  override onOverlap(): void {}
+  override onOverlap(): void { }
 }
 
 class MyGame extends Drake.Engine {
+  cube: Cube;
   axis;
   hue: number = 0;
   vec: number = 1;
@@ -23,6 +24,13 @@ class MyGame extends Drake.Engine {
 
   constructor(canvas: HTMLCanvasElement) {
     super(canvas);
+
+    this.cube = new Drake.Cube([10, 10, -14]);
+
+
+
+
+    this.plane = new Level([0, 0, 0], [10, 0.1, 10], undefined, "#0f0");
 
     this.axis = new Drake.Piramide([0, 0, 60], [30, 30, 30]);
     this.axis.showBoxcollider = true;
@@ -43,7 +51,6 @@ class MyGame extends Drake.Engine {
       if (this.physicalCube.position.x > 5 || this.physicalCube.position.x < -5) this.physicalCube.velocity.x *= -1; 
     };
 
-    // ##################
 
     this.physicalCube2 = new PhysicalGameObject("objects/cube_wire.obj", {
       position: [0, 0, 0],
@@ -74,7 +81,7 @@ class MyGame extends Drake.Engine {
   override Start(): void {
     this.setResolution(640, 480);
 
-    const camera = new Drake.Camera(60, 0.1, 1000, [0, 3, -15], [0, 0, 1]);
+    const camera = new Drake.Camera(60, 0.1, 1000, [0, 0, -15], [0, 0, 1]);
 
     const bg = new GameObject("objects/background.obj", { isShining: true });
     bg.Update = () => {
@@ -82,8 +89,8 @@ class MyGame extends Drake.Engine {
     };
     const mainScene = new Drake.Scene({
       object: bg,
-      position: { x: 100, y: this.canvas.height / 2 + 50 },
-      repeat: true,
+      position: { x: -100, y: this.canvas.height / 2 + 50 },
+      repeat: false,
       rotationLikeCameraSpeed: 3,
     });
 
@@ -93,9 +100,11 @@ class MyGame extends Drake.Engine {
     this.setCurrentScene(mainSceneID);
 
     // this.cubes.forEach((cube) => mainScene.addGameObject(cube));
+
     mainScene.addGameObject(this.physicalCube);
     mainScene.addGameObject(this.physicalCube2);
     // mainScene.addGameObject(this.axis);
+
 
     setTimeout(() => mainScene.addOverlap(new class extends Overlap{
       override onOverlap(): void {
@@ -105,6 +114,9 @@ class MyGame extends Drake.Engine {
 
 
     document.addEventListener("keydown", this.handleCameraMove.bind(this));
+
+    // setTimeout(() => (this.plane.color = "#f00"), 200);
+    this.plane.setScale(1, 1, 1);
 
     setTimeout(() => {
       const g = PhysicalGameObject.createFromGameObject(new Sphere([0, 1, 0]));

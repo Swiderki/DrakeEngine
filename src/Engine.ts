@@ -96,7 +96,7 @@ export default class Engine {
   }
 
   /** Gets called once the program starts */
-  Start(): void {}
+  Start(): void { }
 
   private async _AfterStart(): Promise<void> {
     const objectsLoading = [...this.currentScene.gameObjects.values()].map((obj) => obj.loadMesh());
@@ -152,7 +152,7 @@ export default class Engine {
   }
 
   /** Gets called every frame */
-  Update(): void {}
+  Update(): void { }
 
   // Utility methods
 
@@ -252,7 +252,7 @@ export default class Engine {
     this.currentScene.background.object.generateBoxCollider();
     const bgWidth = Math.abs(
       this.currentScene.background.object.boxCollider![0].x -
-        this.currentScene.background.object.boxCollider![1].x
+      this.currentScene.background.object.boxCollider![1].x
     );
 
     const originalPosition = {
@@ -341,51 +341,46 @@ export default class Engine {
     isShining: boolean
   ): void {
     if (this._currentScene == null) return;
-    const finalProjection: Line3D = Array(2) as Line3D;
-    for (let i = 0; i < 3; i++) {
-      const vertexTransformed = Matrix.multiplyVector(matWorld, {
-        ...line[i],
-        w: 1,
-      });
 
-      const vertexViewed = Matrix.multiplyVector(matView, vertexTransformed);
+    // Przekształć punkty linii do przestrzeni kamery, aby sprawdzić, czy są przed kamerą
+    const transformedPoints = line.map(point => {
+      const worldPoint = { ...point, w: 1 }; 
+      const viewPoint = Matrix.multiplyVector(matView, worldPoint);
+      return viewPoint;
+    });
 
-      const vertexProjected = Matrix.multiplyVector(this._currentScene.projMatrix, vertexViewed);
-
-      const vertexNormalized =
-        vertexProjected.w !== 0 ? Vector.divide(vertexProjected, vertexProjected.w) : vertexProjected;
-
-      const vertexScaled = Vector.add(vertexNormalized, {
-        x: 1,
-        y: 1,
-        z: 0,
-      });
-
-      vertexScaled.x *= 0.5 * this._canvas.width;
-      vertexScaled.y *= 0.5 * this._canvas.height;
-
-      finalProjection[i] = vertexScaled;
+    const near = -this._currentScene.mainCamera!.near;
+    console.log(near)
+    if (transformedPoints[0].z < -near && transformedPoints[1].z < -near) {
+      return; 
     }
-    // check line visibility
-    if (!Engine.isLineVisible(line, matView, this._currentScene.projMatrix)) return;
-    // clip line against the plain
-    let clippedProjection = FrustumUtil.clipLineAgainstPlain(finalProjection, {
-      point: { x: 0, y: 0, z: 0 },
-      normal: { x: 0, y: 1, z: 0 },
-    })!;
-    clippedProjection = FrustumUtil.clipLineAgainstPlain(clippedProjection, {
-      point: { x: 0, y: this.height - 1, z: 0 },
-      normal: { x: 0, y: -1, z: 0 },
-    })!;
-    clippedProjection = FrustumUtil.clipLineAgainstPlain(clippedProjection, {
-      point: { x: 0, y: 0, z: 0 },
-      normal: { x: 1, y: 0, z: 0 },
-    })!;
-    clippedProjection = FrustumUtil.clipLineAgainstPlain(clippedProjection, {
-      point: { x: this.height - 1, y: 0, z: 0 },
-      normal: { x: -1, y: 0, z: 0 },
-    })!;
-    if (clippedProjection === null) return;
+
+    const clippedPoints = transformedPoints.map(point => {
+      if (point.z < -near) {
+        const ratio = (-near - transformedPoints[0].z) / (transformedPoints[1].z - transformedPoints[0].z);
+        return {
+          x: transformedPoints[0].x + ratio * (transformedPoints[1].x - transformedPoints[0].x),
+          y: transformedPoints[0].y + ratio * (transformedPoints[1].y - transformedPoints[0].y),
+          z: -near, 
+          w: 1
+        };
+      }
+      return point;
+    });
+
+    const finalProjection: Line3D = clippedPoints.map(point => {
+      const projectedPoint = Matrix.multiplyVector(this._currentScene!.projMatrix, point); 
+      const normalizedPoint = projectedPoint.w !== 0 ? Vector.divide(projectedPoint, projectedPoint.w) : projectedPoint; 
+
+      return {
+        x: (normalizedPoint.x + 1) * 0.5 * this._canvas.width,
+        y: (normalizedPoint.y + 1) * 0.5 * this._canvas.height,
+        z: normalizedPoint.z
+      };
+    }) as Line3D;
+
+    // Renderuj linię z uwzględnieniem potencjalnego przycięcia
     this.drawLine(finalProjection, color, isShining);
   }
+
 }
