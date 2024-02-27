@@ -28,7 +28,7 @@ import Engine from "./Engine";
 import Scene from "./Scene";
 
 // types/
-import type { Clickable, GUIDirectionalProperty, GUIElement } from "@/types/gui";
+import type { Clickable, GUIComponent, GUIDirectionalProperty, GUIElement } from "@/types/gui";
 import type {
   Line3D,
   Line4D,
@@ -99,6 +99,7 @@ export type {
   Clickable,
   GUIDirectionalProperty,
   GUIElement,
+  GUIComponent,
   Line3D,
   Line4D,
   LineVerteciesIndexes,
