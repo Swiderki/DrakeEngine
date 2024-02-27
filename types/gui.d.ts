@@ -1,9 +1,11 @@
-export type GUIElement = {
+export type GUIComponent = {
+  render(ctx: CanvasRenderingContext2D): void;
+}
+
+export type GUIElement = GUIComponent & {
   height: number;
   width: number;
   position: { x: number; y: number };
-
-  render(ctx: CanvasRenderingContext2D): void;
 };
 
 export type Clickable = {

@@ -1,8 +1,8 @@
-import { GUIElement } from "@/types/gui";
+import { GUIComponent } from "@/types/gui";
 import IDGenerator from "../util/idGenerator";
 
 export default class GUI {
-  private _elements: Map<number, GUIElement> = new Map();
+  private _elements: Map<number, GUIComponent> = new Map();
   private _isCursorHidden: boolean = false;
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
@@ -21,10 +21,10 @@ export default class GUI {
   }
 
   // Main methods
-  addElement(element: GUIElement): number {
-    const guiElementID = IDGenerator.new();
-    this._elements.set(guiElementID, element);
-    return guiElementID;
+  addElement(element: GUIComponent): number {
+    const GUIComponentID = IDGenerator.new();
+    this._elements.set(GUIComponentID, element);
+    return GUIComponentID;
   }
 
   removeElement(elementID: number) {
