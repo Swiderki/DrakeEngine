@@ -9,12 +9,17 @@ export default class Engine {
   private _prevFrameEndTime: number = 0;
   private _deltaTime: number = 0;
   private _frameNumber: number = 0;
+  private _lastFrameEnd: number = 0;
   private _currentScene: Scene | null = null;
   private _scenes: Map<number, Scene> = new Map();
 
   private _canvas: HTMLCanvasElement;
   private _ctx: CanvasRenderingContext2D;
   private _fpsDisplay: HTMLElement | null = null;
+  private _pauseDetails = {
+    isWindowActive: null as boolean | null,
+    documentTimeline: new DocumentTimeline(),
+  };
 
   get width() { return this._canvas.width; } // prettier-ignore
   get height() { return this._canvas.height; } // prettier-ignore
@@ -35,6 +40,9 @@ export default class Engine {
   /** The interval from the last frame to the current one. Measured in seconds. */
   get deltaTime() { return this._deltaTime; } // prettier-ignore
   get frameNumber() { return this._frameNumber; } // prettier-ignore
+  get lastFrameEnd() {
+    return this._lastFrameEnd;
+  }
   get ctx() { return this._ctx; } // prettier-ignore
 
   constructor(canvas: HTMLCanvasElement) {
@@ -42,7 +50,7 @@ export default class Engine {
     const ctx = canvas.getContext("2d");
     if (!ctx) {
       throw new Error(
-        "ctx identifier is not supported, or the canvas has already been set to a different ctx mode"
+        "ctx identifier is not supported or the canvas has already been set to a different ctx mode"
       );
     }
     this._ctx = ctx;
@@ -93,6 +101,25 @@ export default class Engine {
         }
       });
     });
+
+    window.addEventListener("focus", () => {
+      // if windows state is unknown then it means that is has not been focused but BeforeUpdate shouldn't be called
+      if (this._pauseDetails.isWindowActive === null) return;
+      this._pauseDetails = {
+        ...this._pauseDetails,
+        isWindowActive: true,
+      };
+      this._lastFrameEnd = this._pauseDetails.documentTimeline.currentTime as number;
+      this._prevFrameEndTime = this._pauseDetails.documentTimeline.currentTime as number;
+      this._BeforeUpdate();
+      console.log("focus");
+    });
+
+    window.addEventListener("blur", () => {
+      this._pauseDetails.isWindowActive = false;
+
+      console.log("blur");
+    });
   }
 
   /** Gets called once the program starts */
@@ -108,18 +135,20 @@ export default class Engine {
     this.currentScene._started = true;
   }
 
-  private _BeforeUpdate(lastFrameEnd: number, frameNumber: number = 0): void {
+  private _BeforeUpdate(): void {
+    // pause render if window isn't active
+    if (this._pauseDetails.isWindowActive === false) return;
+
     // generate last rendered frame
     this.clearScreen();
     this.render();
 
     // prepare for next frame render
     this._penultimateFrameEndTime = this._prevFrameEndTime;
-    this._prevFrameEndTime = lastFrameEnd;
+    this._prevFrameEndTime = this.lastFrameEnd;
     // divide difference by 1000 to express delta in seconds not miliseconds
     this._deltaTime = (this._prevFrameEndTime - this._penultimateFrameEndTime) / 1000;
 
-    this._frameNumber = frameNumber;
     if (this._currentScene != null) {
       this.currentScene.gameObjects.forEach((object) => {
         if (object instanceof PhysicalGameObject && object.getMesh().length) {
@@ -136,18 +165,20 @@ export default class Engine {
     this.Update();
     this.currentScene.gameObjects.forEach((gameObject) => {
       if (gameObject.getMesh().length || gameObject.isHollow) {
-        gameObject.Update(this.deltaTime, frameNumber);
+        gameObject.Update(this.deltaTime, this.frameNumber);
       }
       if (this.currentScene.background) {
-        this.currentScene.background.object.Update(this.deltaTime, frameNumber);
+        this.currentScene.background.object.Update(this.deltaTime, this.frameNumber);
         // this.currentScene.background.repeatedObjects.forEach((obj) => obj.Update(this.deltaTime));
       }
     });
 
     requestAnimationFrame((renderTime) => {
-      if (this._fpsDisplay && frameNumber % 10 === 0)
-        this._fpsDisplay.textContent = Math.floor(1000 / (renderTime - lastFrameEnd)) + " FPS";
-      this._BeforeUpdate(renderTime, ++frameNumber);
+      if (this._fpsDisplay && this.frameNumber % 10 === 0)
+        this._fpsDisplay.textContent = Math.floor(1000 / (renderTime - this.lastFrameEnd)) + " FPS";
+      this._lastFrameEnd = renderTime;
+      this._frameNumber++;
+      this._BeforeUpdate();
     });
   }
 
@@ -162,7 +193,7 @@ export default class Engine {
 
     await this._AfterStart();
 
-    this._BeforeUpdate(0);
+    this._BeforeUpdate();
   }
 
   setResolution(width: number, height: number): void {
