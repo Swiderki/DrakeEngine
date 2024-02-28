@@ -129,7 +129,10 @@ export default class Engine {
   Start(): void {}
 
   private async _AfterStart(): Promise<void> {
-    const objectsLoading = [...this.currentScene.gameObjects.values()].map((obj) => obj.loadMesh());
+    const objectsLoading = [
+      ...this.currentScene.gameObjects.values(),
+      this.currentScene.background?.object,
+    ].map((obj) => obj?.loadMesh());
 
     // wait until all objects' meshes are loaded
     await Promise.all(objectsLoading);
