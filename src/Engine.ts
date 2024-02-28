@@ -357,7 +357,6 @@ export default class Engine {
       this.currentScene.currentGUI.elements.forEach((el) => {
         if (isClickable(el) && el._isHoverActive) {
           el._hoverLeaveCallback = el.onHover() ?? undefined;
-          console.log("hover");
         }
       });
     }
