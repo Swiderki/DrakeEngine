@@ -173,7 +173,7 @@ export default class Engine {
       if (gameObject.getMesh().length || gameObject.isHollow) {
         gameObject.Update(this.deltaTime, this.frameNumber);
       }
-      if (this.currentScene.background) {
+      if (this.currentScene.background && this.currentScene.background.object.getMesh().length) {
         this.currentScene.background.object.Update(this.deltaTime, this.frameNumber);
       }
     });
@@ -264,7 +264,13 @@ export default class Engine {
   }
 
   private drawSceneBackground() {
-    if (!this._currentScene?.mainCamera || !this.mainCamera || !this.currentScene.background) return;
+    if (
+      !this._currentScene?.mainCamera ||
+      !this.mainCamera ||
+      !this.currentScene.background ||
+      !this.currentScene.background.object.getMesh().length
+    )
+      return;
 
     const BG_ROTATION_EFFECT_NORMALIZE = 100;
 
