@@ -15,8 +15,7 @@ export default class Scene {
   private _GUIs: Map<number, GUI> = new Map();
   private _currentGUI: GUI | null = null;
   private _overlaps: Map<number, Overlap> = new Map();
-
-  _started: boolean = false;
+  private _isEngineStarted = false;
 
   readonly id: number = IDGenerator.new();
   readonly background?: BackgroundObjectConfig;
@@ -28,8 +27,16 @@ export default class Scene {
   get gameObjects() { return this._gameObjects; } // prettier-ignore
   get projMatrix() { return this._projMatrix; } // prettier-ignore
 
-  constructor(background?: BackgroundObjectConfig) {
+  constructor(background?: BackgroundObjectConfig, _isEngineStarted?: boolean) {
     if (!background) return;
+
+    if (_isEngineStarted !== undefined) {
+      this._isEngineStarted = _isEngineStarted;
+    }
+
+    if (this._isEngineStarted) {
+      background.object.loadMesh().then(() => background.object.Start());
+    }
 
     this.background = background;
   }
@@ -111,7 +118,7 @@ export default class Scene {
 
   addGameObject(gameObject: GameObject): number {
     this.gameObjects.set(gameObject.id, gameObject);
-    if (this._started) {
+    if (this._isEngineStarted) {
       gameObject.loadMesh().then(() => {
         gameObject.Start();
       });

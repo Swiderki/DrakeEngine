@@ -22,6 +22,8 @@ export default class Engine {
     documentTimeline: new DocumentTimeline(),
   };
 
+  _isStarted: boolean = false;
+
   get width() { return this._canvas.width; } // prettier-ignore
   get height() { return this._canvas.height; } // prettier-ignore
   get canvas(): HTMLCanvasElement { return this._canvas; } // prettier-ignore
@@ -139,7 +141,7 @@ export default class Engine {
 
     this.currentScene.gameObjects.forEach((gameObject) => gameObject.Start());
     this.currentScene.background?.object.Start();
-    this.currentScene._started = true;
+    this._isStarted = true;
   }
 
   private _BeforeUpdate(): void {
@@ -346,7 +348,7 @@ export default class Engine {
     Matrix.makeProjection(projectionMatrix, 90, 720 / 1280, 0.1, 1000);
 
     for (const obj of this._currentScene.gameObjects.values()) {
-      if (!obj.isVisible) continue;
+      if (!obj.isVisible || !obj.getMesh().length) continue;
 
       if (obj.showBoxcollider) {
         for (const line of obj.getBoxColliderMesh()!) {
