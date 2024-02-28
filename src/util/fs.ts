@@ -12,7 +12,7 @@ export interface parsedObj {
  * future a duplication avoider should be
  * implmented
  */
-export function parseObj(text: string): parsedObj {
+export function parseObj(text: string): parsedObj | -1 {
   const vertexPositions: Vec3D[] = [];
   const lineVerteciesIndexes: LineVerteciesIndexes[] = [];
 
@@ -43,8 +43,7 @@ export function parseObj(text: string): parsedObj {
   }
 
   if (vertexPositions.length === 0) {
-    console.error("Server responded with text:", text)
-    throw new TypeError("This file has no vertecies in it!")
+    return -1;
   }
 
   return { vertexPositions, lineVerteciesIndexes };
@@ -60,7 +59,19 @@ export async function readObjFile(path: string, allowUsingCachedMesh: boolean): 
     (async () => {
       const res = await fetch(location.pathname + path);
       const text = await res.text();
-      return parseObj(text);
+      const parseResult = parseObj(text);
+
+      if (parseResult === -1) {
+        console.error("Server responded with text:")
+        console.log(text)
+        console.error("Requested path:")
+        console.log(path)
+        console.error("Server response:")
+        console.log(res)
+        throw new TypeError("This file has no vertecies in it!")
+      }
+
+      return parseResult;
     })()
   );
 
