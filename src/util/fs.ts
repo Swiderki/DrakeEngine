@@ -42,6 +42,11 @@ export function parseObj(text: string): parsedObj {
     }
   }
 
+  if (vertexPositions.length === 0) {
+    console.error("Server responded with text:", text)
+    throw new TypeError("This file has no vertecies in it!")
+  }
+
   return { vertexPositions, lineVerteciesIndexes };
 }
 
