@@ -10,6 +10,7 @@ import {
   Vec3D,
   Vec3DTuple,
 } from "@/types/math";
+import { Vector } from "@/src/util/math";
 
 export type GameObjectInitialConfig = {
   position?: Vec3DTuple;
@@ -39,6 +40,8 @@ export default class GameObject {
   showBoxcollider: boolean = false;
   /** If true, box collider will be updated every time this object rotates, moves etc. */
   autoupdateBoxCollider: boolean = false;
+  /** Can be set to a half or sth if normal-sized boxCollider makes some issues */
+  boxColliderScale: number = 1;
 
   readonly id: number = IDGenerator.new();
 
@@ -198,7 +201,11 @@ export default class GameObject {
       sizes.max.z = Math.max(sizes.max.z, vert.z);
     }
 
-    this.boxCollider = [sizes.min, sizes.max];
+    // some stuff to scale boxCollider, just trust me it works
+    const diff = Vector.multiply(Vector.subtract(sizes.max, sizes.min), (-this.boxColliderScale + 1)  * 0.5);
+    const scaledBoxCollider: [Vec3D, Vec3D] = [Vector.add(sizes.min, diff), Vector.subtract(sizes.max, diff)];
+
+    this.boxCollider = scaledBoxCollider;
   }
 
   /** Moves the GameObject relatively, if you need to move it absolutely use the `setPosition` method instead */
