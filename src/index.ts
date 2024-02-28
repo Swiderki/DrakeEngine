@@ -44,6 +44,7 @@ import type {
 import { GameObjectInitialConfig } from "./entities/game-objects/GameObject";
 import { PhysicalObjectInitialConfig } from "./entities/game-objects/PhysicalGameObject";
 import { parsedObj } from "./util/fs";
+import { BackgroundObjectConfig } from "@/types/scene";
 
 export default {
   Engine,
@@ -113,4 +114,5 @@ export type {
   GameObjectInitialConfig,
   PhysicalObjectInitialConfig,
   parsedObj,
+  BackgroundObjectConfig
 };
