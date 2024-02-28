@@ -3,6 +3,7 @@ import { Matrix, Vector, FrustumUtil } from "./util/math";
 import isClickable from "./util/isClickable";
 import PhysicalGameObject from "./entities/game-objects/PhysicalGameObject";
 import { Line3D, Mat4x4 } from "@/types/math";
+import { html_generatePauseOverlay, html_getFPSDisplay } from "./util/html-utils";
 
 export default class Engine {
   private _penultimateFrameEndTime: number = 0;
@@ -57,12 +58,7 @@ export default class Engine {
   }
 
   private async _BeforeStart(): Promise<void> {
-    this._fpsDisplay = document.getElementById("fps");
-    if (this._fpsDisplay) {
-      this._fpsDisplay.style.position = "fixed";
-      this._fpsDisplay.style.top = "0";
-      this._fpsDisplay.style.color = "white";
-    }
+    this._fpsDisplay = html_getFPSDisplay()
 
     // Click event
     document.addEventListener("click", (e) => {
@@ -102,6 +98,8 @@ export default class Engine {
       });
     });
 
+    const html_pauseOverlay = html_generatePauseOverlay()
+
     window.addEventListener("focus", () => {
       // if windows state is unknown then it means that is has not been focused but BeforeUpdate shouldn't be called
       if (this._pauseDetails.isWindowActive === null) return;
@@ -112,13 +110,15 @@ export default class Engine {
       this._lastFrameEnd = this._pauseDetails.documentTimeline.currentTime as number;
       this._prevFrameEndTime = this._pauseDetails.documentTimeline.currentTime as number;
       this._BeforeUpdate();
-      console.log("focus");
+
+      document.body.removeChild(html_pauseOverlay)
     });
+
 
     window.addEventListener("blur", () => {
       this._pauseDetails.isWindowActive = false;
 
-      console.log("blur");
+      document.body.appendChild(html_pauseOverlay);
     });
   }
 
