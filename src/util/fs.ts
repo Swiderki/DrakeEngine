@@ -62,13 +62,13 @@ export async function readObjFile(path: string, allowUsingCachedMesh: boolean): 
       const parseResult = parseObj(text);
 
       if (parseResult === -1) {
-        console.error("Server responded with text:")
-        console.log(text)
-        console.error("Requested path:")
-        console.log(path)
-        console.error("Server response:")
-        console.log(res)
-        throw new TypeError("This file has no vertecies in it!")
+        console.error("Server responded with text:");
+        console.log(text);
+        console.error("Requested path:");
+        console.log(path);
+        console.error("Server response:");
+        console.log(res);
+        throw new TypeError("This file has no vertecies in it!");
       }
 
       return parseResult;

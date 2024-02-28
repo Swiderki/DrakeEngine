@@ -140,10 +140,10 @@ export namespace QuaternionUtils {
     // if theta = 180 degrees then result is not fully defined
     // we could rotate around any axis normal to qa or qb
     if (Math.abs(sinHalfTheta) < 0.001) {
-      result.x = (qa.x * 0.5 + qb.x * 0.5);
-      result.y = (qa.y * 0.5 + qb.y * 0.5);
-      result.z = (qa.z * 0.5 + qb.z * 0.5);
-      result.w = (qa.w * 0.5 + qb.w * 0.5);
+      result.x = qa.x * 0.5 + qb.x * 0.5;
+      result.y = qa.y * 0.5 + qb.y * 0.5;
+      result.z = qa.z * 0.5 + qb.z * 0.5;
+      result.w = qa.w * 0.5 + qb.w * 0.5;
       return;
     }
 
@@ -151,9 +151,9 @@ export namespace QuaternionUtils {
     let ratioB = Math.sin(t * halfTheta) / sinHalfTheta;
 
     // Calculate Quaternion.
-    result.x = (qa.x * ratioA + qb.x * ratioB);
-    result.y = (qa.y * ratioA + qb.y * ratioB);
-    result.z = (qa.z * ratioA + qb.z * ratioB);
-    result.w = (qa.w * ratioA + qb.w * ratioB);
+    result.x = qa.x * ratioA + qb.x * ratioB;
+    result.y = qa.y * ratioA + qb.y * ratioB;
+    result.z = qa.z * ratioA + qb.z * ratioB;
+    result.w = qa.w * ratioA + qb.w * ratioB;
   }
 }

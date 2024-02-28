@@ -9,7 +9,7 @@ const canvas = document.getElementById("app") as HTMLCanvasElement | null;
 if (!canvas) throw new Error("unable to find canvas");
 
 class MyOverlap extends Overlap {
-  override onOverlap(): void { }
+  override onOverlap(): void {}
 }
 
 class MyGame extends Drake.Engine {
@@ -28,9 +28,6 @@ class MyGame extends Drake.Engine {
 
     this.cube = new Drake.Cube([10, 10, -14]);
 
-
-
-
     this.plane = new Level([0, 0, 0], [10, 0.1, 10], undefined, "#0f0");
 
     this.axis = new Drake.Piramide([0, 0, 60], [30, 30, 30]);
@@ -47,11 +44,11 @@ class MyGame extends Drake.Engine {
 
     this.physicalCube.showBoxcollider = true;
     this.physicalCube.autoupdateBoxCollider = true;
-    this.physicalCube.velocity = {x: 5, y: 0, z: 0};
+    this.physicalCube.velocity = { x: 5, y: 0, z: 0 };
     this.physicalCube.Update = () => {
-      if (this.physicalCube.position.x > 5 || this.physicalCube.position.x < -5) this.physicalCube.velocity.x *= -1; 
+      if (this.physicalCube.position.x > 5 || this.physicalCube.position.x < -5)
+        this.physicalCube.velocity.x *= -1;
     };
-
 
     this.physicalCube2 = new PhysicalGameObject("objects/cube_wire.obj", {
       position: [0, 0, 0],
@@ -59,12 +56,13 @@ class MyGame extends Drake.Engine {
 
     this.physicalCube2.showBoxcollider = true;
     this.physicalCube2.autoupdateBoxCollider = true;
-    this.physicalCube2.velocity = {x: 5, y: 7, z: 0};
+    this.physicalCube2.velocity = { x: 5, y: 7, z: 0 };
     this.physicalCube2.Update = () => {
-      if (this.physicalCube2.position.x > 5 || this.physicalCube2.position.x < -5) this.physicalCube2.velocity.x *= -1; 
-      if (this.physicalCube2.position.y > 6 || this.physicalCube2.position.y < -3) this.physicalCube2.velocity.y *= -1; 
+      if (this.physicalCube2.position.x > 5 || this.physicalCube2.position.x < -5)
+        this.physicalCube2.velocity.x *= -1;
+      if (this.physicalCube2.position.y > 6 || this.physicalCube2.position.y < -3)
+        this.physicalCube2.velocity.y *= -1;
     };
-
   }
 
   handleCameraMove(e: KeyboardEvent) {
@@ -106,13 +104,17 @@ class MyGame extends Drake.Engine {
     mainScene.addGameObject(this.physicalCube2);
     // mainScene.addGameObject(this.axis);
 
-
-    setTimeout(() => mainScene.addOverlap(new class extends Overlap{
-      override onOverlap(): void {
-        console.log("hehe")
-      }
-    }(this.physicalCube, this.physicalCube2)), 1000);
-
+    setTimeout(
+      () =>
+        mainScene.addOverlap(
+          new (class extends Overlap {
+            override onOverlap(): void {
+              console.log("hehe");
+            }
+          })(this.physicalCube, this.physicalCube2)
+        ),
+      1000
+    );
 
     document.addEventListener("keydown", this.handleCameraMove.bind(this));
 

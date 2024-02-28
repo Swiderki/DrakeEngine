@@ -1,6 +1,6 @@
 export type GUIComponent = {
   render(ctx: CanvasRenderingContext2D): void;
-}
+};
 
 export type GUIElement = GUIComponent & {
   height: number;

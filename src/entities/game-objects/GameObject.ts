@@ -202,7 +202,7 @@ export default class GameObject {
     }
 
     // some stuff to scale boxCollider, just trust me it works
-    const diff = Vector.multiply(Vector.subtract(sizes.max, sizes.min), (-this.boxColliderScale + 1)  * 0.5);
+    const diff = Vector.multiply(Vector.subtract(sizes.max, sizes.min), (-this.boxColliderScale + 1) * 0.5);
     const scaledBoxCollider: [Vec3D, Vec3D] = [Vector.add(sizes.min, diff), Vector.subtract(sizes.max, diff)];
 
     this.boxCollider = scaledBoxCollider;

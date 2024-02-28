@@ -19,7 +19,7 @@ export default class Overlap {
     if (!this.enabled) return false;
     const box1 = this.obj1.boxCollider!;
     const box2 = this.obj2.boxCollider!;
-  
+
     const obj1AABB = [
       {
         x: Math.min(box1[0].x, box1[1].x),
@@ -32,7 +32,7 @@ export default class Overlap {
         z: Math.max(box1[0].z, box1[1].z),
       },
     ];
-  
+
     const obj2AABB = [
       {
         x: Math.min(box2[0].x, box2[1].x),
@@ -45,12 +45,11 @@ export default class Overlap {
         z: Math.max(box2[0].z, box2[1].z),
       },
     ];
-  
+
     const overlapX = obj1AABB[0].x < obj2AABB[1].x && obj1AABB[1].x > obj2AABB[0].x;
     const overlapY = obj1AABB[0].y < obj2AABB[1].y && obj1AABB[1].y > obj2AABB[0].y;
     const overlapZ = obj1AABB[0].z < obj2AABB[1].z && obj1AABB[1].z > obj2AABB[0].z;
-  
+
     return overlapX && overlapY && overlapZ;
   }
-  
 }

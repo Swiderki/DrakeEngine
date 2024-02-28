@@ -114,5 +114,5 @@ export type {
   GameObjectInitialConfig,
   PhysicalObjectInitialConfig,
   parsedObj,
-  BackgroundObjectConfig
+  BackgroundObjectConfig,
 };

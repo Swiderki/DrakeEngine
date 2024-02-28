@@ -1,9 +1,11 @@
 // parseObj.test.ts
-import { parsedObj, parseObj, readObjFile } from './fs'
+import { parsedObj, parseObj, readObjFile } from "./fs";
 
-global.fetch = jest.fn(() =>
-  Promise.resolve({
-    text: () => Promise.resolve(`
+global.fetch = jest.fn(
+  () =>
+    Promise.resolve({
+      text: () =>
+        Promise.resolve(`
     # Blender 4.0.2
     # www.blender.org
     mtllib untitled.mtl 
@@ -26,25 +28,25 @@ global.fetch = jest.fn(() =>
     l 7 8
     l 8 1
     `),
-    headers: new Headers(),
-    ok: true,
-    redirected: false,
-    status: 200,
-    statusText: 'OK',
-    url: '',
-    clone: jest.fn(),
-    blob: jest.fn(),
-    json: jest.fn(),
-    arrayBuffer: jest.fn(),
-    formData: jest.fn(),
-    bodyUsed: false,
-    body: null as any,
-    type : 'basic',
-  }) as Promise<Response>
+      headers: new Headers(),
+      ok: true,
+      redirected: false,
+      status: 200,
+      statusText: "OK",
+      url: "",
+      clone: jest.fn(),
+      blob: jest.fn(),
+      json: jest.fn(),
+      arrayBuffer: jest.fn(),
+      formData: jest.fn(),
+      bodyUsed: false,
+      body: null as any,
+      type: "basic",
+    }) as Promise<Response>
 );
 
-describe.skip('parseObj function', () => {
-  test('parses  simple obj text correctly', () => {
+describe.skip("parseObj function", () => {
+  test("parses  simple obj text correctly", () => {
     const objText = `
       v 1.0 2.0 3.0
       v 4.0 5.0 6.0
@@ -59,19 +61,23 @@ describe.skip('parseObj function', () => {
         { x: 4.0, y: 4.0, z: 6.0 },
         { x: 4.0, y: 3.0, z: 6.0 },
       ],
-      lineVerteciesIndexes: [[0, 1], [1, 2], [2, 3], [3, 0]],
+      lineVerteciesIndexes: [
+        [0, 1],
+        [1, 2],
+        [2, 3],
+        [3, 0],
+      ],
     };
-    console.time('parseObj');
+    console.time("parseObj");
     const result = parseObj(objText);
-    console.timeEnd('parseObj');
+    console.timeEnd("parseObj");
     // console.log(result);
     expect(result).toEqual(expectedParsedObj);
   });
-
 });
 
-describe.skip('parseObj function', () => {
-  test('parses complex object text more ', () => {
+describe.skip("parseObj function", () => {
+  test("parses complex object text more ", () => {
     const objText = `
     # Blender 4.0.2
     # www.blender.org
@@ -107,22 +113,27 @@ describe.skip('parseObj function', () => {
         { x: 155.5634918610404, y: 155.5634918610405, z: 0 },
       ],
       lineVerteciesIndexes: [
-        [0, 1], [1, 2], [2, 3], [3, 4], 
-        [4, 5], [5, 6], [6, 7], [7, 0]
+        [0, 1],
+        [1, 2],
+        [2, 3],
+        [3, 4],
+        [4, 5],
+        [5, 6],
+        [6, 7],
+        [7, 0],
       ],
-    };    
-    console.time('parseObj');
+    };
+    console.time("parseObj");
     const result = parseObj(objText);
-    console.timeEnd('parseObj');
+    console.timeEnd("parseObj");
     // console.log(result);
     expect(result).toEqual(expectedParsedObj);
   });
-
 });
 
-describe.skip('parseObj function', () => {
-  test('load obj from file', async () => {
-    const parsedObj = await readObjFile('../asteroids/objects/obj/asteroid-l-1.obj', false)
+describe.skip("parseObj function", () => {
+  test("load obj from file", async () => {
+    const parsedObj = await readObjFile("../asteroids/objects/obj/asteroid-l-1.obj", false);
 
     const expectedParsedObj: parsedObj = {
       vertexPositions: [
@@ -136,14 +147,19 @@ describe.skip('parseObj function', () => {
         { x: 155.5634918610404, y: 155.5634918610405, z: 0 },
       ],
       lineVerteciesIndexes: [
-        [0, 1], [1, 2], [2, 3], [3, 4], 
-        [4, 5], [5, 6], [6, 7], [7, 0]
+        [0, 1],
+        [1, 2],
+        [2, 3],
+        [3, 4],
+        [4, 5],
+        [5, 6],
+        [6, 7],
+        [7, 0],
       ],
-    };  
-    console.time('parseObj');
-    console.timeEnd('parseObj');
+    };
+    console.time("parseObj");
+    console.timeEnd("parseObj");
     // console.log(result);
     expect(parsedObj).toEqual(expectedParsedObj);
   });
-
 });

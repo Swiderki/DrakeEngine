@@ -1,5 +1,5 @@
 // testSetup.js
-const { JSDOM } = require('jsdom');
+const { JSDOM } = require("jsdom");
 
 const dom = new JSDOM();
 global.document = dom.window.document;

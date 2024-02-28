@@ -12,7 +12,7 @@ export function html_generatePauseOverlay(): HTMLDivElement {
   pauseOverlay.style.color = "#fff";
 
   return pauseOverlay;
-}   
+}
 
 export function html_getFPSDisplay(): HTMLElement | null {
   const fpsDisplay = document.getElementById("fps");
@@ -21,5 +21,5 @@ export function html_getFPSDisplay(): HTMLElement | null {
   fpsDisplay.style.position = "fixed";
   fpsDisplay.style.top = "0";
   fpsDisplay.style.color = "white";
-  return fpsDisplay
+  return fpsDisplay;
 }

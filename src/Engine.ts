@@ -58,7 +58,7 @@ export default class Engine {
   }
 
   private async _BeforeStart(): Promise<void> {
-    this._fpsDisplay = html_getFPSDisplay()
+    this._fpsDisplay = html_getFPSDisplay();
 
     // Click event
     document.addEventListener("click", (e) => {
@@ -98,7 +98,7 @@ export default class Engine {
       });
     });
 
-    const html_pauseOverlay = html_generatePauseOverlay()
+    const html_pauseOverlay = html_generatePauseOverlay();
 
     window.addEventListener("focus", () => {
       // if windows state is unknown then it means that is has not been focused but BeforeUpdate shouldn't be called
@@ -111,9 +111,8 @@ export default class Engine {
       this._prevFrameEndTime = this._pauseDetails.documentTimeline.currentTime as number;
       this._BeforeUpdate();
 
-      document.body.removeChild(html_pauseOverlay)
+      document.body.removeChild(html_pauseOverlay);
     });
-
 
     window.addEventListener("blur", () => {
       this._pauseDetails.isWindowActive = false;
