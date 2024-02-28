@@ -223,7 +223,7 @@ export default class Engine {
     if (!this._scenes.has(sceneID)) {
       throw new Error("A scene with the given id was not found.");
     }
-    if (!this._currentScene != null) {
+    if (this._currentScene?.id === sceneID) {
       throw new Error(
         "The scene you want to remove is now set as a current scene. Remove current scene first."
       );
