@@ -138,6 +138,7 @@ export default class Engine {
     await Promise.all(objectsLoading);
 
     this.currentScene.gameObjects.forEach((gameObject) => gameObject.Start());
+    this.currentScene.background?.object.Start();
     this.currentScene._started = true;
   }
 

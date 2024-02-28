@@ -1,3 +1,4 @@
+import { GameObject } from "@/src";
 import { Vec2D } from "./math";
 
 export type BackgroundObjectConfig = {

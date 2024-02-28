@@ -31,8 +31,6 @@ export default class Scene {
   constructor(background?: BackgroundObjectConfig) {
     if (!background) return;
 
-    background.object.loadMesh().then(() => background.object.Start());
-
     this.background = background;
   }
 
