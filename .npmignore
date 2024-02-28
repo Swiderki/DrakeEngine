@@ -4,6 +4,7 @@ test
 types
 
 .gitignore
+.prettierrc
 jest.config.js
 tsconfig.json
 tsconfig.node.json
