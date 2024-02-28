@@ -1,7 +1,10 @@
-import { Clickable, GUIDirectionalProperty, GUIElement } from "@/types/gui";
+import { Clickable, GUIDirectionalProperty, GUIElement, HoverLeaveCallback } from "@/types/gui";
 import GUIText from "./GUIText";
 
 export default class Button extends GUIText implements GUIElement, Clickable {
+  _isHoverActive: boolean = false;
+  _hoverLeaveCallback?: HoverLeaveCallback;
+
   border: GUIDirectionalProperty<{ color: string; width: number }> = {
     top: { color: "#ffffff", width: 1 },
     bottom: { color: "#ffffff", width: 1 },
@@ -142,5 +145,5 @@ export default class Button extends GUIText implements GUIElement, Clickable {
 
   onClick(): void {}
   onClickOutside(): void {}
-  onHover(): void {}
+  onHover(): void | HoverLeaveCallback {}
 }

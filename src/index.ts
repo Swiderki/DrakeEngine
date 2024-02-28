@@ -28,7 +28,13 @@ import Engine from "./Engine";
 import Scene from "./Scene";
 
 // types/
-import type { Clickable, GUIComponent, GUIDirectionalProperty, GUIElement } from "@/types/gui";
+import type {
+  Clickable,
+  GUIComponent,
+  GUIDirectionalProperty,
+  GUIElement,
+  HoverLeaveCallback,
+} from "@/types/gui";
 import type {
   Line3D,
   Line4D,
@@ -115,4 +121,5 @@ export type {
   PhysicalObjectInitialConfig,
   parsedObj,
   BackgroundObjectConfig,
+  HoverLeaveCallback,
 };

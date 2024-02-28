@@ -93,7 +93,11 @@ export default class Engine {
         if (!isClickable(el)) return;
 
         if (el.isCoordInElement(clickX, clickY)) {
-          el.onHover();
+          el._isHoverActive = true;
+        } else if (el._isHoverActive) {
+          el._isHoverActive = false;
+          el._hoverLeaveCallback?.();
+          el._hoverLeaveCallback = undefined;
         }
       });
     });
@@ -148,27 +152,25 @@ export default class Engine {
     // divide difference by 1000 to express delta in seconds not miliseconds
     this._deltaTime = (this._prevFrameEndTime - this._penultimateFrameEndTime) / 1000;
 
-    if (this._currentScene != null) {
-      this.currentScene.gameObjects.forEach((object) => {
-        if (object instanceof PhysicalGameObject && object.getMesh().length) {
-          object.updatePhysics(this._deltaTime);
-        }
-      });
-      this.currentScene.overlaps.forEach((overlap) => {
-        if (!overlap.enabled) return;
-        if (!overlap.isHappening()) return;
-        overlap.onOverlap();
-      });
-    }
+    // check overlaps
+    this.currentScene.overlaps.forEach((overlap) => {
+      if (!overlap.enabled) return;
+      if (!overlap.isHappening()) return;
+      overlap.onOverlap();
+    });
 
     this.Update();
+
+    // call Update in gameObjects and UpdatePhysics in physical
     this.currentScene.gameObjects.forEach((gameObject) => {
+      if (gameObject instanceof PhysicalGameObject && gameObject.getMesh().length) {
+        gameObject.updatePhysics(this._deltaTime);
+      }
       if (gameObject.getMesh().length || gameObject.isHollow) {
         gameObject.Update(this.deltaTime, this.frameNumber);
       }
       if (this.currentScene.background) {
         this.currentScene.background.object.Update(this.deltaTime, this.frameNumber);
-        // this.currentScene.background.repeatedObjects.forEach((obj) => obj.Update(this.deltaTime));
       }
     });
 
@@ -349,7 +351,16 @@ export default class Engine {
       }
     }
 
-    if (this.currentScene.currentGUI) this.currentScene.currentGUI.render();
+    // update GUI elements
+    if (this.currentScene.currentGUI) {
+      this.currentScene.currentGUI.render();
+      this.currentScene.currentGUI.elements.forEach((el) => {
+        if (isClickable(el) && el._isHoverActive) {
+          el._hoverLeaveCallback = el.onHover() ?? undefined;
+          console.log("hover");
+        }
+      });
+    }
   }
 
   static isLineVisible(line: Line3D, matView: Mat4x4, projectionMatrix: Mat4x4): boolean {

@@ -1,7 +1,10 @@
-import { GUIElement, Clickable, GUIDirectionalProperty } from "@/types/gui";
+import { GUIElement, Clickable, GUIDirectionalProperty, HoverLeaveCallback } from "@/types/gui";
 import GUIText from "./GUIText";
 
 export default class Input extends GUIText implements GUIElement, Clickable {
+  _isHoverActive: boolean = false;
+  _hoverLeaveCallback?: HoverLeaveCallback;
+
   isFocused: boolean = false;
   private predefinedWidth: number;
   private predefinedHeight: number;
@@ -148,5 +151,5 @@ export default class Input extends GUIText implements GUIElement, Clickable {
     this.isFocused = false;
   }
 
-  onHover(): void {}
+  onHover(): void | HoverLeaveCallback {}
 }

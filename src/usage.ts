@@ -1,7 +1,7 @@
 import Overlap from "./behavior/Overlap";
 import PhysicalGameObject from "./entities/game-objects/PhysicalGameObject";
 import Cube from "./entities/game-objects/built-in/Cube";
-import Drake, { GameObject, Sphere } from "./index";
+import Drake, { Button, GUI, GameObject, Sphere } from "./index";
 import Level from "./entities/game-objects/built-in/level";
 import { QuaternionUtils } from "@/src/util/quaternions";
 
@@ -95,6 +95,18 @@ class MyGame extends Drake.Engine {
 
     mainScene.setMainCamera(camera, this.width, this.height);
 
+    const gui = new GUI(this.canvas, this.ctx);
+    const id = mainScene.addGUI(gui);
+    mainScene.setCurrentGUI(id);
+
+    const button = new Button("adw", 20, "monospace", "#fff");
+    button.onHover = () => {
+      button.color = "#f0f";
+
+      return () => (button.color = "#fff");
+    };
+    gui.addElement(button);
+
     const mainSceneID = this.addScene(mainScene);
     this.setCurrentScene(mainSceneID);
 
@@ -108,9 +120,7 @@ class MyGame extends Drake.Engine {
       () =>
         mainScene.addOverlap(
           new (class extends Overlap {
-            override onOverlap(): void {
-              console.log("hehe");
-            }
+            override onOverlap(): void {}
           })(this.physicalCube, this.physicalCube2)
         ),
       1000

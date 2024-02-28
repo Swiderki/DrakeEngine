@@ -8,10 +8,14 @@ export type GUIElement = GUIComponent & {
   position: { x: number; y: number };
 };
 
+export type HoverLeaveCallback = () => unknown;
+
 export type Clickable = {
   onClick(): void;
   onClickOutside(): void;
-  onHover(): void;
+  _isHoverActive: boolean;
+  _hoverLeaveCallback?: HoverLeaveCallback;
+  onHover(): void | HoverLeaveCallback;
   isCoordInElement(x: number, y: number): boolean;
   width: number;
   height: number;
