@@ -145,9 +145,6 @@ export default class Engine {
   }
 
   private _BeforeUpdate(): void {
-    // pause render if window isn't active
-    if (this._pauseDetails.isPaused === true) return;
-
     // generate last rendered frame
     this.clearScreen();
     this.render();
@@ -179,6 +176,10 @@ export default class Engine {
         this.currentScene.background.object.Update(this.deltaTime, this.frameNumber);
       }
     });
+
+    // pause render if window isn't active
+    // returns here to allow last render before pause
+    if (this._pauseDetails.isPaused === true) return;
 
     requestAnimationFrame((renderTime) => {
       if (this._fpsDisplay && this.frameNumber % 10 === 0)
