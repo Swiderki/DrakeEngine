@@ -133,6 +133,7 @@ class MyGame extends Drake.Engine {
 
     setTimeout(() => {
       const g = PhysicalGameObject.createFromGameObject(new Sphere([0, 1, 0]));
+      console.log(g, this.currentScene);
       this.currentScene.addGameObject(g);
     }, 1000);
   }

@@ -18,6 +18,7 @@ export default class Engine {
   private _ctx: CanvasRenderingContext2D;
   private _fpsDisplay: HTMLElement | null = null;
   private _pauseDetails = {
+    isPaused: false,
     isWindowActive: null as boolean | null,
     documentTimeline: new DocumentTimeline(),
   };
@@ -109,19 +110,17 @@ export default class Engine {
     window.addEventListener("focus", () => {
       // if windows state is unknown then it means that is has not been focused but BeforeUpdate shouldn't be called
       if (this._pauseDetails.isWindowActive === null) return;
-      this._pauseDetails = {
-        ...this._pauseDetails,
-        isWindowActive: true,
-      };
-      this._lastFrameEnd = this._pauseDetails.documentTimeline.currentTime as number;
-      this._prevFrameEndTime = this._pauseDetails.documentTimeline.currentTime as number;
-      this._BeforeUpdate();
+
+      this._pauseDetails.isWindowActive = true;
+      this.resumeGame();
 
       document.body.removeChild(html_pauseOverlay);
     });
 
     window.addEventListener("blur", () => {
       this._pauseDetails.isWindowActive = false;
+
+      this.pauseGame();
 
       document.body.appendChild(html_pauseOverlay);
     });
@@ -142,11 +141,12 @@ export default class Engine {
     this.currentScene.gameObjects.forEach((gameObject) => gameObject.Start());
     this.currentScene.background?.object.Start();
     this._isStarted = true;
+    this.scenes.forEach((scene) => (scene._isEngineStarted = true));
   }
 
   private _BeforeUpdate(): void {
     // pause render if window isn't active
-    if (this._pauseDetails.isWindowActive === false) return;
+    if (this._pauseDetails.isPaused === true) return;
 
     // generate last rendered frame
     this.clearScreen();
@@ -200,6 +200,17 @@ export default class Engine {
 
     await this._AfterStart();
 
+    this._BeforeUpdate();
+  }
+
+  pauseGame(): void {
+    this._pauseDetails.isPaused = true;
+  }
+
+  resumeGame(): void {
+    this._pauseDetails.isPaused = false;
+    this._lastFrameEnd = this._pauseDetails.documentTimeline.currentTime as number;
+    this._prevFrameEndTime = this._pauseDetails.documentTimeline.currentTime as number;
     this._BeforeUpdate();
   }
 

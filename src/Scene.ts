@@ -15,7 +15,7 @@ export default class Scene {
   private _GUIs: Map<number, GUI> = new Map();
   private _currentGUI: GUI | null = null;
   private _overlaps: Map<number, Overlap> = new Map();
-  private _isEngineStarted = false;
+  _isEngineStarted = false;
 
   readonly id: number = IDGenerator.new();
   readonly background?: BackgroundObjectConfig;
